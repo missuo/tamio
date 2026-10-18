@@ -164,7 +164,7 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
         case .success:
             break
         case .connectFailed:
-            putInformation(shell.hostKeyRefusal ?? "Unable to connect for \(machine.remoteAddress):\(machine.remotePort)")
+            putInformation(shell.hostKeyRefusal ?? shell.getLastError() ?? "Unable to connect for \(machine.remoteAddress):\(machine.remotePort)")
             onMainThread { self.processShutdown() }
             return
         case .authenticateFailed:

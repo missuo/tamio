@@ -27,6 +27,7 @@
 @property (nonatomic, readwrite, nonnull, strong) NSString *remoteHost;
 @property (nonatomic, readwrite, nonnull, strong) NSNumber *remotePort;
 @property (nonatomic, readwrite, nonnull, strong) NSNumber *operationTimeout;
+@property (nonatomic, readwrite, nullable, copy) NSString *proxyCommand;
 
 @property (nonatomic, readwrite, nullable, strong) NSString *resolvedRemoteIpAddress;
 @property (nonatomic, readwrite, nullable, strong) NSString *remoteBanner;
@@ -92,6 +93,7 @@ static NSString *NSRemoteShellHostKeyTypeName(int type) {
         _remoteHost = @"";
         _remotePort = @(22);
         _operationTimeout = @(8);
+        _proxyCommand = NULL;
         _connected = NO;
         _authenticated = NO;
         _resolvedRemoteIpAddress = NULL;
@@ -156,6 +158,14 @@ static NSString *NSRemoteShellHostKeyTypeName(int type) {
 - (instancetype)setupConnectionPort:(NSNumber*)targetPort {
     @synchronized(self) {
         [self setRemotePort:targetPort];
+    }
+    return self;
+}
+
+- (instancetype)setupProxyCommand:(NSString*)command {
+    NSString *trimmed = [command stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    @synchronized(self) {
+        self.proxyCommand = trimmed.length > 0 ? trimmed : NULL;
     }
     return self;
 }
@@ -592,28 +602,47 @@ continue; \
 
 - (void)unsafeConnect {
     [self unsafeDisconnect];
-    
-    int sock = [GenericNetworking createSocketWithTargetHost:self.remoteHost
-                                              withTargetPort:self.remotePort
-                                        requireNonblockingIO:NO
-                                          withConnectTimeout:self.operationTimeout];
-    if (!sock) {
-        NSRLog(@"failed to create socket to host");
-        return;
+    @synchronized (self) {
+        self.lastError = NULL;
+    }
+
+    int sock = 0;
+    if (self.proxyCommand.length > 0) {
+        NSString *failure = nil;
+        sock = [GenericNetworking createSocketWithProxyCommand:self.proxyCommand
+                                                     targetHost:self.remoteHost
+                                                     targetPort:self.remotePort
+                                                        failure:&failure];
+        if (!sock) {
+            NSRLog(@"proxy command failed for %@: %@", self.remoteHost, failure);
+            @synchronized (self) {
+                self.lastError = failure ?: @"The proxy command did not start.";
+            }
+            return;
+        }
+    } else {
+        sock = [GenericNetworking createSocketWithTargetHost:self.remoteHost
+                                               withTargetPort:self.remotePort
+                                         requireNonblockingIO:NO
+                                           withConnectTimeout:self.operationTimeout];
+        if (!sock) {
+            NSRLog(@"failed to create socket to host");
+            return;
+        }
     }
     self.associatedSocket = sock;
-    
+
     self.resolvedRemoteIpAddress = [GenericNetworking getResolvedIpAddressWith:sock];
-    
+
     LIBSSH2_SESSION *constructorSession = libssh2_session_init_ex(0, 0, 0, (__bridge void*)(self));
     if (!constructorSession) {
         [self unsafeDisconnect];
         return;
     }
     self.associatedSession = constructorSession;
-    
+
     libssh2_session_set_timeout(constructorSession, [self.operationTimeout doubleValue] * 1000);
-    
+
     libssh2_session_set_blocking(constructorSession, 0);
     BOOL sessionHandshakeComplete = NO;
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceNow:[self.operationTimeout intValue]];
@@ -631,7 +660,15 @@ continue; \
         break;
     }
     if (!sessionHandshakeComplete) {
+        NSString *proxyFailure = self.proxyCommand.length > 0
+            ? [GenericNetworking proxyFailureForSocket:sock]
+            : nil;
         [self unsafeDisconnect];
+        if (proxyFailure.length > 0) {
+            @synchronized (self) {
+                self.lastError = proxyFailure;
+            }
+        }
         return;
     }
     

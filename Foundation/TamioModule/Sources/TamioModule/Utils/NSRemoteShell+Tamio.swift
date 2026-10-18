@@ -15,6 +15,7 @@ public extension NSRemoteShell {
     @discardableResult
     static func configured(for machine: RDMachine, timeout: NSNumber) -> NSRemoteShell {
         configured(host: machine.remoteAddress, port: machine.remotePort, timeout: timeout)
+            .setupProxyCommand(machine.proxyCommand)
     }
 
     /// Returns a shell preconfigured with the given address and port string.
@@ -36,6 +37,7 @@ public extension NSRemoteShell {
     @discardableResult
     func applyConnection(for machine: RDMachine, timeout: NSNumber) -> NSRemoteShell {
         applyConnection(host: machine.remoteAddress, port: machine.remotePort, timeout: timeout)
+            .setupProxyCommand(machine.proxyCommand)
     }
 
     /// Tries each identity in order as the server's user, reconnecting when

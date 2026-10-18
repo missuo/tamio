@@ -6,8 +6,9 @@ description: Work on the user's SSH servers through Tamio's MCP server — list 
 # Tamio
 
 Tamio is the user's SSH client for macOS. Its MCP server (`tamio`) knows every
-server the user saved: address, port, user, group, tags, how it signs in, and
-its live CPU, memory, disk, load and traffic.
+server the user saved: address, port, user, group, tags, how it signs in, any
+proxy command it connects through, and its live CPU, memory, disk, load and
+traffic.
 
 ## Set up (once)
 
@@ -62,7 +63,7 @@ Tamio must be running with **Settings › MCP › MCP server** on (it is by defa
 | `get_metrics` | Live CPU, memory, disk, load, network, traffic, OS |
 | `export_ssh_config` | `Host` blocks, no keys |
 | `run_command` / `run_snippet` | Run on servers; exit code and output per server |
-| `add_host` / `update_host` / `remove_host` | Manage servers (`password` is write-only) |
+| `add_host` / `update_host` / `remove_host` | Manage servers (`password` is write-only; `proxy_command` sets an `ssh_config` `ProxyCommand`) |
 | `list_identities` / `add_identity` / `remove_identity` | SSH keys; public keys only |
 | `list_snippets` / `add_snippet` / `update_snippet` / `remove_snippet` | Saved commands |
 | `list_port_forwards` / `add_port_forward` / `start_port_forward` / `stop_port_forward` / `remove_port_forward` | Tunnels through a server |
@@ -76,3 +77,13 @@ Tamio must be running with **Settings › MCP › MCP server** on (it is by defa
 3. For servers where `/var/run/reboot-required` exists:
    `run_command {"targets": {"hosts": [...]}, "command": "test -f /var/run/reboot-required && echo REBOOT", "task": "Upgrade packages"}`,
    then ask the user before rebooting.
+
+## Example: add a server behind Cloudflare Access or another ProxyCommand
+
+Give `add_host` or `update_host` a `proxy_command` with `%h` for the server's
+`address` and `%p` for its `port`, the same as `ProxyCommand` in `~/.ssh/config`:
+
+- Cloudflare Access tunnel:
+  `add_host {"name": "edge-01", "address": "ssh.example.com", "username": "root", "group": "Cloudflare", "identity": "<key id or name>", "proxy_command": "cloudflared access ssh --hostname %h"}`
+- Connect directly again:
+  `update_host {"host": "edge-01", "proxy_command": ""}`

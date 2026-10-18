@@ -239,6 +239,8 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
         case .connectFailed:
             if let refusal = shell.hostKeyRefusal {
                 putInformation(refusal.replacingOccurrences(of: "\n", with: "\r\n"))
+            } else if let proxyFailure = shell.getLastError() {
+                putInformation(proxyFailure.replacingOccurrences(of: "\n", with: "\r\n"))
             } else {
                 putInformation("Unable to connect for \(machine.remoteAddress):\(machine.remotePort)")
             }

@@ -68,6 +68,7 @@ final class GroupPersistenceTests: XCTestCase {
         XCTAssertEqual(machine.comment, "web")
         XCTAssertEqual(machine.associatedIdentity, "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")
         XCTAssertEqual(machine.attachment, ["k": "v"])
+        XCTAssertEqual(machine.proxyCommand, "", "a server saved before proxy commands connects directly")
         XCTAssertNil(group.machines[1].associatedIdentity)
 
         let reencoded = try PropertyListEncoder().encode(group)

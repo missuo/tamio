@@ -106,6 +106,18 @@ public struct RDMachine: Codable, Identifiable, Equatable, Sendable {
         set { attachment["startup.snippet"] = newValue?.uuidString }
     }
 
+    /// A command whose stdin and stdout carry the connection, instead of a
+    /// direct TCP connection: `cloudflared access ssh --hostname %h`. `%h` is
+    /// the address and `%p` the port, as OpenSSH writes them. Empty connects
+    /// directly.
+    public var proxyCommand: String {
+        get { attachment["proxy.command"] ?? "" }
+        set {
+            let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            attachment["proxy.command"] = trimmed.isEmpty ? nil : trimmed
+        }
+    }
+
     // convince
 
     public func isQualifiedForSearch(text: String) -> Bool {
@@ -117,6 +129,7 @@ public struct RDMachine: Codable, Identifiable, Equatable, Sendable {
         if lastBanner.description.lowercased().contains(searchText) { return true }
         if comment.description.lowercased().contains(searchText) { return true }
         if tags.contains(where: { $0.lowercased().contains(searchText) }) { return true }
+        if proxyCommand.lowercased().contains(searchText) { return true }
         return false
     }
 
@@ -154,6 +167,9 @@ public struct RDMachine: Codable, Identifiable, Equatable, Sendable {
         }
         if remotePort != "22" {
             build += " -p " + remotePort
+        }
+        if !proxyCommand.isEmpty {
+            build += " -o ProxyCommand=\"" + proxyCommand.replacingOccurrences(of: "\"", with: "\\\"") + "\""
         }
         return build
     }

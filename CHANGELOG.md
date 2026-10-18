@@ -11,6 +11,18 @@ the user. To release, rename that heading to the version and date
 (`## [0.2.0] - 2026-11-02`), set `MARKETING_VERSION` to match, and tag
 `v0.2.0`.
 
+## [Unreleased]
+
+### Added
+- **A proxy command for a server.** In Edit Server › Advanced, a Proxy command
+  field carries the connection through a command instead of directly to the
+  address, the way ssh_config's ProxyCommand does: a Cloudflare Access tunnel
+  is `cloudflared access ssh --hostname %h`, where `%h` is the address and
+  `%p` the port. Terminals, SFTP, live status, port forwards, snippets and
+  agent commands all go through it, and a command that fails to start says
+  why. It is kept with the server and synced. Left empty, the server connects
+  directly, as before.
+
 ## [0.2.3] - 2026-10-18
 
 ### Added

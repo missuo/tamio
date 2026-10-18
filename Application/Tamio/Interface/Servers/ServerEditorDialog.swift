@@ -35,6 +35,8 @@ struct ServerDraft: Equatable {
     var startFolder = ""
     var startupSnippet: RDSnippet.ID?
     var comment = ""
+    /// A command the connection goes through, as in ssh_config's ProxyCommand.
+    var proxyCommand = ""
 }
 
 struct ServerEditorDialog: View {
@@ -291,6 +293,12 @@ struct ServerEditorDialog: View {
                         TextField("Optional", text: $draft.comment)
                             .textFieldStyle(.rx)
                     }
+                    row("Proxy command") {
+                        TextField("cloudflared access ssh --hostname %h", text: $draft.proxyCommand)
+                            .textFieldStyle(.rxMono)
+                            .disableAutocorrection(true)
+                    }
+                    HelpText("The connection goes through this command instead of directly to the address. %h is the address and %p the port. Leave empty to connect directly.")
                     if !isNew {
                         row("Last banner") {
                             RXValueField(banner, placeholder: "None", monospaced: true)
@@ -389,8 +397,9 @@ struct ServerEditorDialog: View {
         draft.comment = read.comment
         draft.startFolder = read.startsInHomeFolder ? "" : read.fileTransferLoginPath
         draft.startupSnippet = read.startupSnippet
+        draft.proxyCommand = read.proxyCommand
         banner = read.lastBanner
-        showsAdvanced = read.startupSnippet != nil || !read.comment.isEmpty || !read.startsInHomeFolder
+        showsAdvanced = read.startupSnippet != nil || !read.comment.isEmpty || !read.startsInHomeFolder || !read.proxyCommand.isEmpty
         let identity = read.associatedIdentity.flatMap(UUID.init(uuidString:)).map { store.identityGroup[$0] }
         let user = read.loginUsername(with: identity)
         draft.username = user == RDMachine.defaultUsername && read.username.isEmpty ? "" : user
@@ -460,6 +469,7 @@ struct ServerEditorDialog: View {
         target.comment = draft.comment
         target.fileTransferLoginPath = draft.startFolder.trimmingCharacters(in: .whitespaces)
         target.startupSnippet = draft.startupSnippet
+        target.proxyCommand = draft.proxyCommand
 
         let previousPrivate = existingPrivateIdentity
         let identity = credentialsToUse()
@@ -514,16 +524,19 @@ struct ServerEditorDialog: View {
         let host = trimmedAddress
         let port = draft.port
         let username = trimmedUsername
+        let proxyCommand = draft.proxyCommand
         guard let chosen = credentialsToUse() else { return }
         let timeout = store.timeoutNumber
         DispatchQueue.global().async {
             let shell = NSRemoteShell.configured(host: host, port: port, timeout: timeout)
+                .setupProxyCommand(proxyCommand)
             shell.requestConnectAndWait()
             guard shell.isConnected else {
                 let refusal = shell.hostKeyRefusal
+                let proxyFailure = shell.getLastError()
                 onMainThread {
                     connecting = false
-                    addressError = refusal ?? "Could not reach \(host) on port \(port)."
+                    addressError = refusal ?? proxyFailure ?? "Could not reach \(host) on port \(port)."
                 }
                 return
             }

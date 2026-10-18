@@ -85,7 +85,7 @@ enum AgentRunner {
                 }
                 shell.requestConnectAndWait()
                 guard shell.isConnected else {
-                    result.error = shell.hostKeyRefusal ?? "Could not reach \(machine.remoteAddress):\(machine.remotePort)."
+                    result.error = shell.hostKeyRefusal ?? shell.getLastError() ?? "Could not reach \(machine.remoteAddress):\(machine.remotePort)."
                     return continuation.resume(returning: result)
                 }
                 identity.callAuthenticationWith(remote: shell, username: machine.loginUsername(with: identity))

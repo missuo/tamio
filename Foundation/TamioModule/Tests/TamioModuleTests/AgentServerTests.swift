@@ -7,6 +7,7 @@
 //  and resource, and look for the secrets in what comes back.
 //
 
+import NSRemoteShell
 @testable import TamioModule
 import XCTest
 
@@ -41,6 +42,7 @@ final class AgentServerTests: XCTestCase {
         var keyed = RDMachine(remoteAddress: "10.9.8.7", remotePort: "2222", name: "agent-test-key")
         keyed.username = "deploy"
         keyed.associatedIdentity = keyIdentity.id.uuidString
+        keyed.proxyCommand = "cloudflared access ssh --hostname %h"
         var passworded = RDMachine(remoteAddress: "10.9.8.6", remotePort: "22", name: "agent-test-password", group: "Agent Tests")
         passworded.associatedIdentity = ownPassword.id.uuidString
         store.machineGroup.insert(keyed)
@@ -93,6 +95,54 @@ final class AgentServerTests: XCTestCase {
         XCTAssertTrue(reply.contains("ed25519"))
         let config = await call("tools/call", ["name": "export_ssh_config", "arguments": ["hosts": ["agent-test-password"]]])
         XCTAssertTrue(config.contains("User root"), "a server without a user signs in as root")
+        XCTAssertTrue(reply.contains("cloudflared access ssh --hostname %h"), "the proxy command is part of the server")
+        let proxied = await call("tools/call", ["name": "export_ssh_config", "arguments": ["hosts": ["agent-test-key"]]])
+        XCTAssertTrue(proxied.contains("ProxyCommand cloudflared access ssh --hostname %h"))
+        XCTAssertFalse(config.contains("ProxyCommand"), "a server without one connects directly")
+    }
+
+    func testProxyCommandSurvivesSavingAndSearching() {
+        var machine = RDMachine(remoteAddress: "bastion.example.test", remotePort: "22", name: "bastion")
+        XCTAssertEqual(machine.proxyCommand, "")
+        machine.proxyCommand = "  cloudflared access ssh --hostname %h  "
+        XCTAssertEqual(machine.proxyCommand, "cloudflared access ssh --hostname %h")
+        XCTAssertEqual(machine.attachment["proxy.command"], machine.proxyCommand)
+        machine.proxyCommand = "   "
+        XCTAssertEqual(machine.proxyCommand, "")
+        XCTAssertNil(machine.attachment["proxy.command"], "an empty command is not saved")
+
+        machine.proxyCommand = "cloudflared access ssh --hostname %h"
+        XCTAssertTrue(machine.isQualifiedForSearch(text: "cloudflared"))
+        XCTAssertFalse(RDMachine().isQualifiedForSearch(text: "cloudflared"))
+
+        let command = machine.getCommand()
+        XCTAssertTrue(command.contains("-o ProxyCommand=\"cloudflared access ssh --hostname %h\""))
+        XCTAssertFalse(RDMachine(remoteAddress: "192.0.2.1", remotePort: "22").getCommand().contains("ProxyCommand"))
+
+        machine.proxyCommand = "nc -X connect -x \"proxy:1080\" %h %p"
+        XCTAssertTrue(machine.getCommand().contains("-o ProxyCommand=\"nc -X connect -x \\\"proxy:1080\\\" %h %p\""))
+
+        let config = AgentHost(machine).sshConfigBlock
+        XCTAssertTrue(config.contains("ProxyCommand nc -X connect -x \"proxy:1080\" %h %p"))
+        XCTAssertFalse(AgentHost(RDMachine()).sshConfigBlock.contains("ProxyCommand"))
+    }
+
+    func testProxyCommandExpandsPlaceholdersAndReportsFailure() {
+        var machine = RDMachine(remoteAddress: "bastion.example.test", remotePort: "2222", name: "bastion")
+        machine.proxyCommand = "echo 'tunnel refused for %h:%p (100%%)' >&2; exit 1"
+        let shell = NSRemoteShell.configured(for: machine, timeout: 2)
+        shell.requestConnectAndWait()
+        XCTAssertFalse(shell.isConnected)
+        XCTAssertEqual(shell.getLastError(), "tunnel refused for bastion.example.test:2222 (100%)")
+        shell.destroyPermanently()
+
+        var unsafeHost = RDMachine(remoteAddress: "bastion.example.test; touch /tmp/bad", remotePort: "22", name: "unsafe")
+        unsafeHost.proxyCommand = "cloudflared access ssh --hostname %h"
+        let rejected = NSRemoteShell.configured(for: unsafeHost, timeout: 2)
+        rejected.requestConnectAndWait()
+        XCTAssertFalse(rejected.isConnected)
+        XCTAssertEqual(rejected.getLastError(), "The server address is not a valid hostname.")
+        rejected.destroyPermanently()
     }
 
     func testThePublicKeyIsGivenButNotThePrivateOne() async {

@@ -298,7 +298,7 @@ public final class RemoteBrowser: FileBrowser {
                     let outcome = shell.connectAndAuthenticate(identity: identity, autoIdentities: TamioStore.shared.workerIdentitiesForAutoAuth, for: machine)
                     guard outcome == .success else {
                         let message = shell.hostKeyRefusal ?? (outcome == .connectFailed
-                            ? "Could not reach \(machine.remoteAddress):\(machine.remotePort)."
+                            ? shell.getLastError() ?? "Could not reach \(machine.remoteAddress):\(machine.remotePort)."
                             : "Could not sign in as \(machine.loginUsername(with: identity)).")
                         return continuation.resume(returning: .failure(FileBrowserError(message)))
                     }

@@ -49,6 +49,112 @@ static BOOL NSRWaitForSocketWritable(int sock, double timeoutSeconds) {
     return socketError == 0;
 }
 
+/// The running subprocess and stderr reader for one proxy-command socket.
+/// The child's stdin and stdout are the other end of libssh2's AF_UNIX
+/// socketpair, so bytes flow between libssh2 and the child in the kernel with
+/// no userspace relay threads.
+@interface NSRProxyTask : NSObject
+@property (nonatomic, strong) NSTask *task;
+@property (nonatomic, assign) int errorFd;
+@property (nonatomic, strong, nullable) dispatch_source_t errorSource;
+@property (nonatomic, strong) NSMutableData *errorOutput;
+- (instancetype)initWithTask:(NSTask *)task errorFd:(int)errorFd;
+- (void)drainErrors;
+- (nullable NSString *)failureReason;
+- (void)stop;
+@end
+
+@implementation NSRProxyTask
+
+- (instancetype)initWithTask:(NSTask *)task errorFd:(int)errorFd {
+    if (self = [super init]) {
+        _task = task;
+        _errorFd = errorFd;
+        _errorOutput = [NSMutableData data];
+        dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ,
+                                                          (uintptr_t)errorFd,
+                                                          0,
+                                                          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
+        if (source) {
+            __weak typeof(self) weakSelf = self;
+            dispatch_source_set_event_handler(source, ^{
+                [weakSelf drainErrors];
+            });
+            dispatch_resume(source);
+            _errorSource = source;
+        }
+    }
+    return self;
+}
+
+- (void)drainErrors {
+    BOOL reachedEnd = NO;
+    @synchronized (self) {
+        if (self.errorFd < 0) { return; }
+        char scratch[1024];
+        while (true) {
+            ssize_t count = read(self.errorFd, scratch, sizeof(scratch));
+            if (count > 0) {
+                if (self.errorOutput.length < 8192) {
+                    NSUInteger room = 8192 - self.errorOutput.length;
+                    NSUInteger kept = (NSUInteger)count < room ? (NSUInteger)count : room;
+                    [self.errorOutput appendBytes:scratch length:kept];
+                }
+            } else {
+                if (count == 0) { reachedEnd = YES; }
+                break;
+            }
+        }
+    }
+    if (reachedEnd && self.errorSource) {
+        dispatch_source_cancel(self.errorSource);
+    }
+}
+
+- (nullable NSString *)failureReason {
+    // When the child closes stdout as it exits, libssh2 sees EOF a moment
+    // before waitpid marks the task finished; wait briefly so its stderr and
+    // exit status are in place.
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:0.1];
+    while ([deadline timeIntervalSinceNow] > 0 && self.task.isRunning) {
+        [self drainErrors];
+        usleep(5000);
+    }
+    if (!self.task.isRunning) {
+        [self.task waitUntilExit];
+    }
+    [self drainErrors];
+    NSData *captured = nil;
+    @synchronized (self) {
+        captured = [self.errorOutput copy];
+    }
+    NSString *reason = [[NSString alloc] initWithData:captured encoding:NSUTF8StringEncoding];
+    reason = [reason stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (reason.length > 0) { return reason; }
+    if (!self.task.isRunning) {
+        return [NSString stringWithFormat:@"The proxy command stopped (exit %d) before connecting.", self.task.terminationStatus];
+    }
+    return nil;
+}
+
+- (void)stop {
+    if (self.errorSource) {
+        dispatch_source_cancel(self.errorSource);
+        self.errorSource = nil;
+    }
+    @synchronized (self) {
+        if (self.errorFd >= 0) {
+            close(self.errorFd);
+            self.errorFd = -1;
+        }
+    }
+    if (self.task.isRunning) {
+        [self.task terminate];
+    }
+}
+
+@end
+
 @implementation GenericNetworking
 
 + (NSArray *)resolveIpAddressesFor:(NSString*)candidateHost
@@ -236,18 +342,176 @@ static BOOL NSRWaitForSocketWritable(int sock, double timeoutSeconds) {
     return 0;
 }
 
+// Only characters that can appear in a DNS name or an IPv4/IPv6 literal may be
+// substituted into a shell command unquoted.
+static BOOL NSRProxyHostIsSafe(NSString *host) {
+    if (host.length == 0) { return NO; }
+    static NSCharacterSet *disallowed = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSCharacterSet *allowed = [NSCharacterSet characterSetWithCharactersInString:
+            @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_:[]"];
+        disallowed = [allowed invertedSet];
+    });
+    return [host rangeOfCharacterFromSet:disallowed].location == NSNotFound;
+}
+
+// %h, %p and %%, expanded in one pass as OpenSSH's percent_expand does, so %%h
+// becomes %h rather than %<host>.
+static NSString *NSRProxyCommandExpanded(NSString *command, NSString *host, NSNumber *port) {
+    NSString *portString = [port stringValue] ?: @"22";
+    NSMutableString *expanded = [NSMutableString stringWithCapacity:command.length + host.length];
+    NSUInteger length = command.length;
+    for (NSUInteger index = 0; index < length; index++) {
+        unichar character = [command characterAtIndex:index];
+        if (character == '%' && index + 1 < length) {
+            unichar next = [command characterAtIndex:index + 1];
+            if (next == 'h') {
+                [expanded appendString:host];
+                index++;
+                continue;
+            }
+            if (next == 'p') {
+                [expanded appendString:portString];
+                index++;
+                continue;
+            }
+            if (next == '%') {
+                [expanded appendString:@"%"];
+                index++;
+                continue;
+            }
+        }
+        [expanded appendFormat:@"%C", character];
+    }
+    return expanded;
+}
+
+// Where a GUI app, whose PATH has none of these, keeps a command installed
+// with Homebrew or pip.
+static NSString *NSRProxyCommandPath(void) {
+    NSString *home = NSHomeDirectory();
+    NSArray<NSString *> *extra = @[
+        @"/opt/homebrew/bin",
+        @"/usr/local/bin",
+        [home stringByAppendingPathComponent:@".local/bin"],
+    ];
+    NSString *base = NSProcessInfo.processInfo.environment[@"PATH"] ?: @"/usr/bin:/bin";
+    NSMutableArray<NSString *> *parts = [NSMutableArray arrayWithObject:base];
+    for (NSString *directory in extra) {
+        if (![base containsString:directory]) { [parts addObject:directory]; }
+    }
+    return [parts componentsJoinedByString:@":"];
+}
+
+static NSMutableDictionary<NSNumber *, NSRProxyTask *> *NSRProxyTasks(void) {
+    static NSMutableDictionary<NSNumber *, NSRProxyTask *> *tasks = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        tasks = [NSMutableDictionary dictionary];
+    });
+    return tasks;
+}
+
++ (int)createSocketWithProxyCommand:(NSString *)command
+                         targetHost:(NSString *)targetHost
+                         targetPort:(NSNumber *)targetPort
+                            failure:(NSString **)failure
+{
+    if (![self isValidateWithPort:targetPort]) {
+        if (failure) { *failure = @"The server port is not valid."; }
+        return 0;
+    }
+    if (!NSRProxyHostIsSafe(targetHost)) {
+        if (failure) { *failure = @"The server address is not a valid hostname."; }
+        return 0;
+    }
+    NSString *expanded = NSRProxyCommandExpanded(command, targetHost, targetPort);
+
+    // One full-duplex socketpair: end 0 is libssh2's socket, end 1 becomes the
+    // command's stdin and stdout. FD_CLOEXEC keeps the parent's descriptors out
+    // of the child process; dup2 onto 0, 1 and 2 clears FD_CLOEXEC on those.
+    int pair[2] = {0, 0};
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, pair) != 0) {
+        if (failure) { *failure = @"Could not open a channel for the proxy command."; }
+        return 0;
+    }
+    int errorPipe[2] = {0, 0};
+    if (pipe(errorPipe) != 0) {
+        close(pair[0]);
+        close(pair[1]);
+        if (failure) { *failure = @"Could not open a channel for the proxy command."; }
+        return 0;
+    }
+    fcntl(pair[0], F_SETFD, FD_CLOEXEC);
+    fcntl(pair[1], F_SETFD, FD_CLOEXEC);
+    fcntl(errorPipe[0], F_SETFD, FD_CLOEXEC);
+    fcntl(errorPipe[1], F_SETFD, FD_CLOEXEC);
+    fcntl(errorPipe[0], F_SETFL, fcntl(errorPipe[0], F_GETFL, 0) | O_NONBLOCK);
+    setsockopt(pair[0], SOL_SOCKET, SO_NOSIGPIPE, &(int){1}, sizeof(int));
+    setsockopt(pair[1], SOL_SOCKET, SO_NOSIGPIPE, &(int){1}, sizeof(int));
+
+    NSTask *task = [[NSTask alloc] init];
+    task.executableURL = [NSURL fileURLWithPath:@"/bin/sh"];
+    task.arguments = @[@"-c", expanded];
+    NSMutableDictionary *environment = [NSProcessInfo.processInfo.environment mutableCopy] ?: [NSMutableDictionary dictionary];
+    environment[@"PATH"] = NSRProxyCommandPath();
+    task.environment = environment;
+    NSFileHandle *childStream = [[NSFileHandle alloc] initWithFileDescriptor:pair[1] closeOnDealloc:NO];
+    NSFileHandle *childError = [[NSFileHandle alloc] initWithFileDescriptor:errorPipe[1] closeOnDealloc:NO];
+    task.standardInput = childStream;
+    task.standardOutput = childStream;
+    task.standardError = childError;
+
+    NSError *launchError = nil;
+    if (![task launchAndReturnError:&launchError]) {
+        if (failure) { *failure = launchError.localizedDescription ?: @"The proxy command did not start."; }
+        close(pair[0]);
+        close(pair[1]);
+        close(errorPipe[0]);
+        close(errorPipe[1]);
+        return 0;
+    }
+    close(pair[1]);
+    close(errorPipe[1]);
+
+    NSRProxyTask *proxy = [[NSRProxyTask alloc] initWithTask:task errorFd:errorPipe[0]];
+    NSMutableDictionary<NSNumber *, NSRProxyTask *> *tasks = NSRProxyTasks();
+    @synchronized (tasks) {
+        tasks[@(pair[0])] = proxy;
+    }
+    return pair[0];
+}
+
++ (nullable NSString *)proxyFailureForSocket:(int)socketDescriptor {
+    if (socketDescriptor <= 0) { return nil; }
+    NSMutableDictionary<NSNumber *, NSRProxyTask *> *tasks = NSRProxyTasks();
+    NSRProxyTask *proxy = nil;
+    @synchronized (tasks) {
+        proxy = tasks[@(socketDescriptor)];
+    }
+    return [proxy failureReason];
+}
+
 + (void)destroyNativeSocket:(int)socketDescriptor {
     if (socketDescriptor > 0) {
         NSRLog(@"closing socket fd %d", socketDescriptor);
+        NSMutableDictionary<NSNumber *, NSRProxyTask *> *tasks = NSRProxyTasks();
+        NSRProxyTask *proxy = nil;
+        @synchronized (tasks) {
+            proxy = tasks[@(socketDescriptor)];
+            [tasks removeObjectForKey:@(socketDescriptor)];
+        }
         close(socketDescriptor);
+        [proxy stop];
     }
 }
 
 + (NSString*)getResolvedIpAddressWith:(int)socket {
     if (!socket) { return @""; }
-    struct sockaddr_storage sin;
+    struct sockaddr_storage sin = {0};
     socklen_t len = sizeof(sin);
-    getpeername(socket, (struct sockaddr*)&sin, &len);
+    if (getpeername(socket, (struct sockaddr*)&sin, &len) != 0) { return @""; }
     char buf[255];
     memset(buf, 0, sizeof(buf));
     switch(sin.ss_family) {

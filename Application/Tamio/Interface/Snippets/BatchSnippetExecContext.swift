@@ -225,8 +225,9 @@ final class BatchSnippetExecContext: ObservableObject, @unchecked Sendable {
             }
         case .connectFailed:
             debugPrint("failed to connect to remote machine: \(machine)")
+            let reason = shell.getLastError()
             safeAccess {
-                self.lockedAppendToBuffer("\r\n[E] Could not connect to the server\r\n", for: machine)
+                self.lockedAppendToBuffer("\r\n[E] \(reason ?? "Could not connect to the server")\r\n", for: machine)
                 self.failedMachines.insert(machine)
             }
         case .authenticateFailed:

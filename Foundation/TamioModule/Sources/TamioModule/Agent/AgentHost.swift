@@ -26,6 +26,8 @@ public struct AgentHost: Codable, Equatable, Sendable {
     /// "ed25519", "rsa", "ecdsa" for keys.
     public var keyType: String?
     public var lastConnected: String?
+    /// The command the connection goes through, empty when it connects directly.
+    public var proxyCommand: String
 
     /// Built on the main thread, from the store.
     @MainActor
@@ -51,6 +53,7 @@ public struct AgentHost: Codable, Equatable, Sendable {
         lastConnected = machine.lastConnection.timeIntervalSince1970 > 0
             ? ISO8601DateFormatter().string(from: machine.lastConnection)
             : nil
+        proxyCommand = machine.proxyCommand
     }
 
     /// One `Host` block of an ssh_config, with no key or password in it.
@@ -62,6 +65,7 @@ public struct AgentHost: Codable, Equatable, Sendable {
         var lines = ["Host \(alias.isEmpty ? address : alias)", "    HostName \(address)"]
         if port != 22 { lines.append("    Port \(port)") }
         lines.append("    User \(username)")
+        if !proxyCommand.isEmpty { lines.append("    ProxyCommand \(proxyCommand)") }
         return lines.joined(separator: "\n")
     }
 }

@@ -184,7 +184,8 @@ public final class TransferJob: ObservableObject, Identifiable {
                     let shell = NSRemoteShell.configured(for: machine, timeout: timeout)
                     let outcome = shell.connectAndAuthenticate(identity: identity, autoIdentities: TamioStore.shared.workerIdentitiesForAutoAuth, for: machine)
                     guard outcome == .success else {
-                        return (nil, shell.hostKeyRefusal ?? "Could not connect to \(machine.name).")
+                        let reason = outcome == .connectFailed ? shell.getLastError() : nil
+                        return (nil, shell.hostKeyRefusal ?? reason ?? "Could not connect to \(machine.name).")
                     }
                     shell.requestConnectFileTransferAndWait()
                     guard shell.isConnectedFileTransfer else {

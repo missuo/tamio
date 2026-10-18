@@ -107,6 +107,7 @@ enum AgentTools {
         "comment": string,
         "identity": describe(string, "Id or name of an SSH key identity to sign in with"),
         "password": describe(string, "Password to sign in with, kept with this server. Write-only: never returned"),
+        "proxy_command": describe(string, "A command the connection goes through instead of a direct TCP connection, as in ssh_config ProxyCommand. %h is the address and %p the port, e.g. \"cloudflared access ssh --hostname %h\". Empty connects directly"),
     ]
 
     /// The goal a call serves: every step with the same task is one entry
@@ -131,7 +132,7 @@ enum AgentTools {
              schema(["query": string, "group": string, "tag": string]), readOnly: true),
         tool("get_host", "One server, with its live status when Tamio has it.", schema(["host": describe(string, "Id, name or address")], required: ["host"]), readOnly: true),
         tool("get_metrics", "Live CPU, memory, disk, load, network, traffic and OS of servers.", schema(["hosts": strings]), readOnly: true),
-        tool("export_ssh_config", "ssh_config Host blocks for servers (HostName, Port, User; no keys).", schema(["hosts": strings]), readOnly: true),
+        tool("export_ssh_config", "ssh_config Host blocks for servers (HostName, Port, User, ProxyCommand; no keys).", schema(["hosts": strings]), readOnly: true),
         tool("run_command", "Run a shell command on servers, signed in with Tamio's saved credentials. The user approves first. Returns each server's exit code and output.",
              schema(["targets": targets, "command": string, "sudo": describe(boolean, "Run with sudo -n"), "timeout": describe(integer, "Seconds per server, 300 by default"), "concurrency": describe(integer, "Servers at once, 8 by default")], required: ["targets", "command"]), readOnly: false),
         tool("run_snippet", "Run a saved snippet on servers, like run_command.", schema(["targets": targets, "snippet": describe(string, "Snippet id or name"), "sudo": boolean, "timeout": integer], required: ["targets", "snippet"]), readOnly: false),
@@ -223,6 +224,7 @@ enum AgentTools {
             if let value = a["group"]?.string { machine.group = value }
             if a["tags"] != nil { machine.tags = a["tags"]?.strings ?? [] }
             if let value = a["comment"]?.string { machine.comment = value }
+            if let value = a["proxy_command"]?.string { machine.proxyCommand = value }
             var identity: RDIdentity?
             if let reference = a["identity"]?.string, !reference.isEmpty {
                 identity = try self.identity(named: reference)
@@ -242,6 +244,7 @@ enum AgentTools {
                 machine.tags.isEmpty ? nil : "tags \(machine.tags.joined(separator: ", "))",
                 a["identity"]?.string.map { "key \($0)" },
                 a["password"] != nil ? "a password (hidden)" : nil,
+                machine.proxyCommand.isEmpty ? nil : "proxy command \(machine.proxyCommand)",
             ].compactMap { $0 }.joined(separator: "\n")
             try await server.requireApproval(AgentRequest(
                 client: client, tool: name,

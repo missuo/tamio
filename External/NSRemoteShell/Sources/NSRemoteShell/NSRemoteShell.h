@@ -43,6 +43,12 @@ typedef BOOL (^NSRemoteShellHostKeyVerifier)(NSString *host, NSNumber *port, NSS
 - (instancetype)setupConnectionPort:(NSNumber *)targetPort;
 - (instancetype)setupConnectionTimeout:(NSNumber *)timeout;
 
+/// Connects through a command instead of a TCP socket: the command is run with
+/// the host and port, and its stdin and stdout carry the SSH stream. An empty
+/// command connects directly, as before. %h and %p in the command are the host
+/// and the port.
+- (instancetype)setupProxyCommand:(nullable NSString *)command;
+
 #pragma mark event loop
 
 - (void)handleRequestsIfNeeded;
