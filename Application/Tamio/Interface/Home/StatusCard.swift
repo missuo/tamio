@@ -45,6 +45,8 @@ struct StatusCard: View {
         .overlay(
             RoundedRectangle(cornerRadius: RX.Radius.card, style: .continuous)
                 .strokeBorder(Color.rxAccent.opacity(selected ? 0.7 : hovered ? 0.3 : 0), lineWidth: selected ? 1.5 : 1)
+                .animation(.easeOut(duration: 0.15), value: hovered)
+                .animation(.easeOut(duration: 0.15), value: selected)
         )
         .contentShape(RoundedRectangle(cornerRadius: RX.Radius.card, style: .continuous))
         .onHover { hovered = $0 }
@@ -53,8 +55,6 @@ struct StatusCard: View {
         // back until the double-click time has passed.)
         .onTapGesture(perform: select)
         .simultaneousGesture(TapGesture(count: 2).onEnded { ServerTool.terminal.show(machine) })
-        .animation(.easeOut(duration: 0.15), value: hovered)
-        .animation(.easeOut(duration: 0.15), value: selected)
         .contextMenu { ServerContextMenu(machine: machine) }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(read.name)
