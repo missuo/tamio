@@ -45,37 +45,50 @@ enum HomeGroupFilter: Hashable, RawRepresentable {
         case let .group(name): return machine.group == name
         }
     }
-}
-
-struct HomeView: View {
-    @EnvironmentObject var store: TamioStore
-    @State private var search = ""
-    @AppStorage("sb.moe.tamio.home.group") private var storedFilter: HomeGroupFilter = .all
-
-    /// Every group a server is in, by name.
-    var groups: [String] {
-        Set(store.machineGroup.machines.map(\.group)).filter { !$0.isEmpty }
-            .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
-    }
-
-    var hasUngrouped: Bool {
-        store.machineGroup.machines.contains { $0.group.isEmpty }
-    }
 
     /// The chosen filter, or All once no server is left in what it named.
-    var filter: HomeGroupFilter {
-        switch storedFilter {
-        case let .group(name) where !groups.contains(name): return .all
-        case .ungrouped where !hasUngrouped: return .all
-        default: return storedFilter
+    func resolved(in machines: [RDMachine]) -> HomeGroupFilter {
+        switch self {
+        case .all:
+            return .all
+        case .ungrouped:
+            return machines.contains { $0.group.isEmpty } ? .ungrouped : .all
+        case let .group(name):
+            return machines.contains { $0.group == name } ? self : .all
+        }
+    }
+}
+
+/// Kept in memory and written through to UserDefaults so the segmented
+/// control's binding updates synchronously during AppKit's click handler
+/// (a computed Binding over @AppStorage reads the previous snapshot until the
+/// next render pass, which makes NSSegmentedControl snap back for one frame).
+@MainActor
+private final class HomeGroupFilterStore: ObservableObject {
+    static let shared = HomeGroupFilterStore()
+    private static let key = "sb.moe.tamio.home.group"
+
+    @Published var selection: HomeGroupFilter {
+        didSet {
+            guard selection != oldValue else { return }
+            UserDefaults.standard.set(selection.rawValue, forKey: Self.key)
         }
     }
 
+    private init() {
+        let raw = UserDefaults.standard.string(forKey: Self.key) ?? ""
+        selection = HomeGroupFilter(rawValue: raw) ?? .all
+    }
+}
+
+struct HomeView: View {
+    @State private var search = ""
+
     var body: some View {
         // The toolbar is set here, on a view that redraws only when the
-        // search or the servers change: rebuilding toolbar items on every
-        // resize makes AppKit lay the title bar out as two rows.
-        HomeContent(search: search, filter: filter)
+        // search changes: rebuilding toolbar items on every resize or group
+        // switch makes AppKit re-layout the toolbar item mid-click.
+        HomeContent(search: search)
             .pageChrome()
             .pageToolbar(
                 primary: ToolbarAction("New Server", systemImage: "plus", primary: true) {
@@ -84,16 +97,7 @@ struct HomeView: View {
                 trailingMetrics: .group,
                 search: ($search, "Search servers")
             ) {
-                // Only once a server has a group: with none, there is nothing
-                // to choose between.
-                if !groups.isEmpty {
-                    HomeGroupSwitcher(
-                        filter: Binding(get: { filter }, set: { storedFilter = $0 }),
-                        groups: groups,
-                        hasUngrouped: hasUngrouped,
-                        count: { value in store.machineGroup.machines.filter { value.includes($0) }.count }
-                    )
-                }
+                HomeGroupSwitcher()
             } trailing: {}
     }
 }
@@ -102,44 +106,102 @@ struct HomeView: View {
 /// like the Terminal · Files · Monitor switcher of a session page: one click
 /// shows only that group's cards.
 private struct HomeGroupSwitcher: View {
-    @Binding var filter: HomeGroupFilter
-    let groups: [String]
-    let hasUngrouped: Bool
-    let count: (HomeGroupFilter) -> Int
+    @EnvironmentObject var store: TamioStore
+    @ObservedObject private var filterStore = HomeGroupFilterStore.shared
 
-    var body: some View {
-        Picker("Group", selection: $filter) {
-            segment(.all, "All")
-            ForEach(groups, id: \.self) { name in
-                segment(.group(name), name)
-            }
-            if hasUngrouped {
-                segment(.ungrouped, "No Group")
-            }
-        }
-        .pickerStyle(.segmented)
-        .labelsHidden()
-        .fixedSize()
-        .help("Show every server, or one group's")
+    struct Segment: Hashable {
+        let filter: HomeGroupFilter
+        let title: String
+        let count: Int
     }
 
-    private func segment(_ value: HomeGroupFilter, _ title: String) -> some View {
-        let servers = count(value)
-        return Text(title)
-            .help(servers == 1 ? "1 server" : "\(servers) servers")
-            .accessibilityLabel("\(title), \(servers)")
-            .tag(value)
+    var segments: [Segment] {
+        let machines = store.machineGroup.machines
+        let groups = Set(machines.map(\.group)).filter { !$0.isEmpty }
+            .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+        // Only once a server has a group: with none, there is nothing to
+        // choose between.
+        guard !groups.isEmpty else { return [] }
+        var items = [Segment(filter: .all, title: "All", count: machines.count)]
+        for name in groups {
+            items.append(Segment(
+                filter: .group(name),
+                title: name,
+                count: machines.filter { $0.group == name }.count
+            ))
+        }
+        let ungrouped = machines.filter { $0.group.isEmpty }.count
+        if ungrouped > 0 {
+            items.append(Segment(filter: .ungrouped, title: "No Group", count: ungrouped))
+        }
+        return items
+    }
+
+    @Namespace private var pill
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let segments = segments
+        let active = filterStore.selection.resolved(in: store.machineGroup.machines)
+        if !segments.isEmpty {
+            HStack(spacing: 0) {
+                ForEach(segments, id: \.filter) { segment in
+                    let isSelected = segment.filter == active
+                    Button {
+                        guard filterStore.selection != segment.filter else { return }
+                        filterStore.selection = segment.filter
+                    } label: {
+                        Text(segment.title)
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color.primary.opacity(isSelected ? 0.96 : 0.78))
+                            .lineLimit(1)
+                            .padding(.horizontal, 14)
+                            .frame(minWidth: 56, minHeight: 28, maxHeight: 28)
+                            .background {
+                                if isSelected {
+                                    Capsule()
+                                        .fill(Color.primary.opacity(0.14))
+                                        .matchedGeometryEffect(id: "selection", in: pill)
+                                }
+                            }
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .help(segment.count == 1 ? "1 server" : "\(segment.count) servers")
+                    .accessibilityLabel("\(segment.title), \(segment.count)")
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+            }
+            .padding(.horizontal, 4)
+            .fixedSize()
+            .animation(reduceMotion ? nil : .rxMove, value: active)
+            .help("Show every server, or one group's")
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Group")
+            .onAppear { reconcile(segments) }
+            .onChange(of: segments) { reconcile($0) }
+        }
+    }
+
+    private func reconcile(_ segments: [Segment]) {
+        if !segments.isEmpty, !segments.contains(where: { $0.filter == filterStore.selection }) {
+            filterStore.selection = .all
+        }
     }
 }
 
 private struct HomeContent: View {
     let search: String
-    let filter: HomeGroupFilter
 
     @EnvironmentObject var store: TamioStore
+    @ObservedObject private var filterStore = HomeGroupFilterStore.shared
     @State private var selection: RDMachine.ID?
     /// The page's width, to share it between the cards and the inspector.
     @State private var pageWidth: CGFloat = 900
+
+    var filter: HomeGroupFilter {
+        filterStore.selection.resolved(in: store.machineGroup.machines)
+    }
 
     /// The inspector gives up width before the cards go too narrow.
     var inspectorWidth: CGFloat {
@@ -147,7 +209,8 @@ private struct HomeContent: View {
     }
 
     var machines: [RDMachine] {
-        let shown = store.machineGroup.machines.filter { filter.includes($0) }
+        let current = filter
+        let shown = store.machineGroup.machines.filter { current.includes($0) }
         let needle = search.trimmingCharacters(in: .whitespaces)
         return needle.isEmpty ? shown : shown.filter { $0.isQualifiedForSearch(text: needle) }
     }
@@ -163,7 +226,6 @@ private struct HomeContent: View {
                     .padding(.top, RX.Space.s1)
                     .padding(.bottom, RX.Space.s6)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .animation(.easeInOut(duration: 0.25), value: machines.map(\.id))
             }
             .frame(minWidth: StatusCard.minimumWidth + RX.Space.s4 * 2, maxWidth: .infinity)
             if let selection, store.machineGroup.machines.contains(where: { $0.id == selection }) {
@@ -208,14 +270,12 @@ private struct HomeContent: View {
                 alignment: .leading,
                 spacing: RX.Space.s3
             ) {
-                ForEach(Array(machines.enumerated()), id: \.element.id) { index, machine in
+                ForEach(machines) { machine in
                     // A click shows the card's server in the panel; the panel's
                     // close button and Esc put it away.
                     StatusCard(machine: machine.id, selected: selection == machine.id) {
                         if selection != machine.id { selection = machine.id }
                     }
-                    .rxRise(index)
-                    .transition(.scale(scale: 0.97).combined(with: .opacity))
                 }
             }
         }
