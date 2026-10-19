@@ -218,9 +218,9 @@ public final class AgentServer {
         pendingActivity = request
         if alwaysAllowed.contains(request.client) { return }
         if let until = allowedUntil[request.client], until > Date() { return }
-        guard let environment else { throw AgentToolError("Tamio is not ready to ask the user.") }
+        guard let environment else { throw AgentToolError(String(localized: "Tamio is not ready to ask the user.")) }
         guard await environment.approve(request) else {
-            throw AgentToolError("declined by the user: \(request.title)")
+            throw AgentToolError(String(localized: "declined by the user: \(request.title)"))
         }
     }
 
@@ -249,8 +249,8 @@ public final class AgentServer {
             $0.name.caseInsensitiveCompare(reference) == .orderedSame || $0.remoteAddress == reference
         }
         if matches.count == 1 { return matches[0] }
-        if matches.count > 1 { throw AgentToolError("\(matches.count) servers match \(reference); use its id.") }
-        throw AgentToolError("No server named \(reference). list_hosts shows them.")
+        if matches.count > 1 { throw AgentToolError(String(localized: "\(matches.count) servers match \(reference); use its id.")) }
+        throw AgentToolError(String(localized: "No server named \(reference). list_hosts shows them."))
     }
 
     /// The servers a run targets: hosts (ids or names), a group, a tag, or all.
@@ -271,7 +271,7 @@ public final class AgentServer {
         }
         var seen = Set<RDMachine.ID>()
         result = result.filter { seen.insert($0.id).inserted }
-        guard !result.isEmpty else { throw AgentToolError("Name the servers: targets {hosts: [...]} or {group}, {tag} or {all: true}.") }
+        guard !result.isEmpty else { throw AgentToolError(String(localized: "Name the servers: targets {hosts: [...]} or {group}, {tag} or {all: true}.")) }
         return result
     }
 }
@@ -283,6 +283,6 @@ public struct AgentToolError: Error {
 
 /// One client connection: what it said it is.
 public final class AgentSession: @unchecked Sendable {
-    public var clientName = "Agent"
+    public var clientName = String(localized: "Agent")
     public init() {}
 }

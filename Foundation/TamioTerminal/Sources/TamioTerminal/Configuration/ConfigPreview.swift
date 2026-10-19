@@ -12,8 +12,11 @@ struct ConfigPreview: View {
     private var family: String { document.values("font-family").first ?? "Menlo" }
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            CardHead("Preview") {
-                RXSegmented(selection: $dark, options: [.init(false, "Light"), .init(true, "Dark")], caps: false)
+            CardHead(ConfigLayout.tr("preview.title", default: "Preview")) {
+                RXSegmented(selection: $dark, options: [
+                    .init(false, ConfigLayout.tr("preview.mode.light", default: "Light")),
+                    .init(true, ConfigLayout.tr("preview.mode.dark", default: "Dark"))
+                ], caps: false)
             }
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
@@ -25,7 +28,7 @@ struct ConfigPreview: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.rxTerminalMuted)
-                    .accessibilityLabel(minimized ? "Expand" : "Collapse")
+                    .accessibilityLabel(minimized ? ConfigLayout.tr("accessibility.expand", default: "Expand") : ConfigLayout.tr("accessibility.collapse", default: "Collapse"))
                 }.padding(10).background(Color.rxTerminalBackground)
                 if !minimized {
                     ScrollViewReader { proxy in
@@ -38,7 +41,7 @@ struct ConfigPreview: View {
                                 HStack(spacing: 2) {
                                     Text(shell.prompt).foregroundStyle(Color(configHex: document.effectivePalette(2, dark: dark)))
                                     ConfigCommandInput(shell: shell, color: foreground, fontName: family, size: size).frame(minWidth: 70)
-                                }.id("input")
+                                    }.id("input")
                             }.font(.custom(family, size: size)).padding(12).frame(maxWidth: .infinity, alignment: .leading)
                         }.frame(minHeight: 200, idealHeight: 280, maxHeight: 420)
                             .background(Color(configHex: document.effectiveColor("background", dark: dark)))
@@ -47,12 +50,17 @@ struct ConfigPreview: View {
                 }
             }.clipShape(RoundedRectangle(cornerRadius: RX.Radius.md, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: RX.Radius.md, style: .continuous).strokeBorder(Color.rxHairline))
-            HStack(spacing: 2) { ForEach(0..<16, id: \.self) { i in Rectangle().fill(Color(configHex: document.effectivePalette(i, dark: dark))).frame(height: 14).help("Palette \(i)") } }.clipShape(RoundedRectangle(cornerRadius: 3))
+            HStack(spacing: 2) {
+                ForEach(0..<16, id: \.self) { i in
+                    Rectangle().fill(Color(configHex: document.effectivePalette(i, dark: dark))).frame(height: 14)
+                        .help(String(format: ConfigLayout.tr("preview.palette.format", default: "Palette %d"), i))
+                }
+            }.clipShape(RoundedRectangle(cornerRadius: 3))
             HStack {
-                Text("Selected text").padding(5).foregroundStyle(Color(configHex: document.effectiveColor("selection-foreground", dark: dark)))
+                Text(ConfigLayout.tr("preview.selected_text", default: "Selected text")).padding(5).foregroundStyle(Color(configHex: document.effectiveColor("selection-foreground", dark: dark)))
                     .background(Color(configHex: document.effectiveColor("selection-background", dark: dark)))
                 Spacer()
-                Text("Cursor")
+                Text(ConfigLayout.tr("preview.cursor", default: "Cursor"))
                 ConfigCursorPreview(document: document, dark: dark)
             }.font(.system(.caption, design: .monospaced))
             Spacer(minLength: 0)

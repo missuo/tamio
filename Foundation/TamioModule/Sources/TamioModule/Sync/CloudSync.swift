@@ -75,7 +75,7 @@ public final class CloudSync: ObservableObject {
 
     /// Why sync cannot be turned on here, if it cannot.
     public var problem: String? {
-        if !TamioStore.savesChanges { return "Tamio could not read its key from the keychain, so nothing is saved or synced." }
+        if !TamioStore.savesChanges { return String(localized: "Tamio could not read its key from the keychain, so nothing is saved or synced.") }
         return transport.problem
     }
 
@@ -341,7 +341,7 @@ public final class CloudSync: ObservableObject {
             debugPrint("CloudSync: failed to delete stored data: \(error.localizedDescription)")
             // Staying on, with the failure showing: turning off would say
             // the data is gone when it is not.
-            status = .failed("The data in iCloud could not be removed: \(error.localizedDescription)")
+            status = .failed(String(localized: "The data in iCloud could not be removed: \(error.localizedDescription)"))
             return
         }
         SyncKeychain.delete()
@@ -438,7 +438,7 @@ public final class CloudSync: ObservableObject {
         case .unreadable:
             status = .unreadable
         case .newer:
-            status = .failed("What is in iCloud was written by a newer version of Tamio. Update Tamio on this device.")
+            status = .failed(String(localized: "What is in iCloud was written by a newer version of Tamio. Update Tamio on this device."))
         case let .done(done):
             key = done.key
             if !done.machines.isEmpty {

@@ -18,12 +18,12 @@ public enum RemoteTextFileError: LocalizedError, Equatable {
     public var errorDescription: String? {
         switch self {
         case .notConnected:
-            return "Not connected to the server."
+            return String(localized: "Not connected to the server.")
         case let .tooLarge(bytes, limit):
             let formatter = ByteCountFormatter()
-            return "This file is \(formatter.string(fromByteCount: bytes)); files up to \(formatter.string(fromByteCount: limit)) open in the editor. Download it instead."
+            return String(localized: "This file is \(formatter.string(fromByteCount: bytes)); files up to \(formatter.string(fromByteCount: limit)) open in the editor. Download it instead.")
         case .notText:
-            return "This file isn't UTF-8 text, so it can't be edited here. Download it instead."
+            return String(localized: "This file isn't UTF-8 text, so it can't be edited here. Download it instead.")
         case let .transfer(message):
             return message
         }
@@ -60,7 +60,7 @@ public extension FileTransferContext {
             }
         }
         guard succeeded else {
-            throw RemoteTextFileError.transfer(shell.getLastFileTransferError() ?? "Couldn't read \(remotePath).")
+            throw RemoteTextFileError.transfer(shell.getLastFileTransferError() ?? String(localized: "Couldn't read \(remotePath)."))
         }
         let data = try Data(contentsOf: local)
         guard Int64(data.count) <= Self.editableSizeLimit else {
@@ -93,7 +93,7 @@ public extension FileTransferContext {
             }
         }
         guard succeeded else {
-            throw RemoteTextFileError.transfer(shell.getLastFileTransferError() ?? "Couldn't save \(remotePath).")
+            throw RemoteTextFileError.transfer(shell.getLastFileTransferError() ?? String(localized: "Couldn't save \(remotePath)."))
         }
     }
 

@@ -26,8 +26,8 @@ class TerminalManager: ObservableObject {
         let index = sessionContexts.firstIndex { $0.machine.id == machine.id }
         if index != nil, !force {
             Dialogs.requiresConfirmation(
-                message: "\(machine.name) already has a terminal open",
-                confirmTitle: "Open Another"
+                message: String(localized: "\(machine.name) already has a terminal open"),
+                confirmTitle: String(localized: "Open Another")
             ) { confirmed in
                 if confirmed {
                     self.createSession(withMachineObject: machine, force: true, completion: completion)
@@ -43,7 +43,7 @@ class TerminalManager: ObservableObject {
     func createSession(withMachineID machineId: RDMachine.ID, completion: @escaping (Context) -> Void = { _ in }) {
         let machine = TamioStore.shared.machineGroup[machineId]
         guard machine.isNotPlaceholder() else {
-            Dialogs.presentError(with: "This server's details could not be read.")
+            Dialogs.presentError(with: String(localized: "This server's details could not be read."))
             return
         }
         createSession(withMachineObject: machine, completion: completion)

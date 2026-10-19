@@ -92,7 +92,7 @@ struct IdentitiesView: View {
                 EmptyStateView("No matches", systemImage: "magnifyingglass")
             }
             ForEach(groups, id: \.name) { group in
-                TableGroupRow(group.name.isEmpty ? "Default" : group.name)
+                TableGroupRow(group.name.isEmpty ? String(localized: "Default") : group.name)
                     .transition(.opacity)
                 ForEach(Array(group.identities.enumerated()), id: \.element.id) { index, identity in
                     IdentityRow(identity: identity, selected: selection == identity.id)
@@ -129,7 +129,7 @@ private struct IdentityRow: View {
                     .foregroundStyle(.rxInkSecondary)
             }
             Spacer()
-            Text("\(usage) server\(usage == 1 ? "" : "s")")
+            Text(usage == 1 ? String(localized: "1 server") : String(localized: "\(usage) servers"))
                 .font(.system(size: 12).monospacedDigit())
                 .foregroundStyle(.rxInkSecondary)
         }
@@ -162,11 +162,11 @@ enum IdentityActions {
         let identity = store.identityGroup[id]
         let users = store.machineGroup.machines.filter { $0.associatedIdentity == id.uuidString }.count
         Dialogs.requiresConfirmation(
-            message: "Delete identity \(identity.displayName)?",
+            message: String(localized: "Delete identity \(identity.displayName)?"),
             informative: users > 0
-                ? "\(users) server\(users == 1 ? "" : "s") use it and will try automatic identities instead."
-                : "Its password and keys are removed from Tamio.",
-            confirmTitle: "Delete",
+                ? (users == 1 ? String(localized: "1 server uses it and will try automatic identities instead.") : String(localized: "\(users) servers use it and will try automatic identities instead."))
+                : String(localized: "Its password and keys are removed from Tamio."),
+            confirmTitle: String(localized: "Delete"),
             destructive: true
         ) { confirmed in
             guard confirmed else { return }
@@ -195,7 +195,7 @@ private struct IdentityDetail: View {
             HStack(alignment: .top) {
                 // The name is the first field below; the header says where
                 // the identity is used.
-                HelpText(usageLine.isEmpty ? "Not used by any server" : usageLine)
+                HelpText(usageLine.isEmpty ? String(localized: "Not used by any server") : usageLine)
                 Spacer()
                 Menu {
                     Button("Duplicate") { IdentityActions.duplicate(identity) }
@@ -243,8 +243,8 @@ private struct IdentityDetail: View {
         let names = usedBy
         guard !names.isEmpty else { return "" }
         let shown = names.prefix(4).joined(separator: ", ")
-        let more = names.count > 4 ? " and \(names.count - 4) more" : ""
-        return "Used by \(shown)\(more)"
+        let more = names.count > 4 ? " " + String(localized: "and \(names.count - 4) more") : ""
+        return String(localized: "Used by \(shown)\(more)")
     }
 }
 
@@ -283,13 +283,13 @@ struct IdentityDraft: Equatable {
     var problem: String? {
         switch method {
         case .password:
-            return password.isEmpty ? "Type the password." : nil
+            return password.isEmpty ? String(localized: "Type the password.") : nil
         case .key:
-            if trimmedPrivateKey.isEmpty { return "Paste or load the private key." }
+            if trimmedPrivateKey.isEmpty { return String(localized: "Paste or load the private key.") }
             if !trimmedPrivateKey.contains("PRIVATE KEY") {
                 return trimmedPrivateKey.hasPrefix("ssh-") || trimmedPrivateKey.hasPrefix("ecdsa-")
-                    ? "That is a public key. The private key starts with -----BEGIN … PRIVATE KEY-----."
-                    : "This does not look like a private key: it starts with -----BEGIN … PRIVATE KEY-----."
+                    ? String(localized: "That is a public key. The private key starts with -----BEGIN … PRIVATE KEY-----.")
+                    : String(localized: "This does not look like a private key: it starts with -----BEGIN … PRIVATE KEY-----.")
             }
             return nil
         }
@@ -381,7 +381,7 @@ struct IdentityForm: View {
                         ) {
                             Button("Generate Ed25519 Key") { generate() }
                                 .buttonStyle(.rx(size: .small))
-                                .help("Make a new key pair; add its public key to the server's ~/.ssh/authorized_keys")
+                                .help(String(localized: "Make a new key pair; add its public key to the server's ~/.ssh/authorized_keys"))
                         }
                     } else {
                         // Once in, a private key is never shown again: not here,
@@ -436,9 +436,9 @@ struct IdentityForm: View {
         }
         guard savedPrivateKey else { return clear() }
         Dialogs.requiresConfirmation(
-            message: "Replace this private key?",
-            informative: "The saved key is discarded when you save. Servers that trust it will not accept a new key until its public key is added.",
-            confirmTitle: "Replace",
+            message: String(localized: "Replace this private key?"),
+            informative: String(localized: "The saved key is discarded when you save. Servers that trust it will not accept a new key until its public key is added."),
+            confirmTitle: String(localized: "Replace"),
             destructive: true
         ) { confirmed in
             if confirmed { clear() }
@@ -462,7 +462,7 @@ struct IdentityForm: View {
         replace()
     }
 
-    func secretField(_ placeholder: String, text: Binding<String>) -> some View {
+    func secretField(_ placeholder: LocalizedStringKey, text: Binding<String>) -> some View {
         HStack(spacing: RX.Space.s1) {
             Group {
                 if showsSecret {
@@ -478,6 +478,7 @@ struct IdentityForm: View {
                 Label(showsSecret ? "Hide" : "Show", systemImage: showsSecret ? "eye.slash" : "eye")
             }
             .buttonStyle(.rx(.plain, iconOnly: true))
+            .help(showsSecret ? String(localized: "Hide") : String(localized: "Show"))
         }
     }
 }
@@ -496,7 +497,7 @@ private struct SealedKeyRow: View {
                 .font(.rxCode)
                 .foregroundStyle(.rxInkSecondary)
                 .fixedSize()
-            Text(algorithm.map(Self.title) ?? "Private key")
+            Text(algorithm.map(Self.title) ?? String(localized: "Private key"))
                 .font(.rxBody)
                 .foregroundStyle(.rxInk)
                 .lineLimit(1)
@@ -504,13 +505,13 @@ private struct SealedKeyRow: View {
             Spacer(minLength: 0)
             Button("Replace…", action: replace)
                 .buttonStyle(.rx(size: .small))
-                .help("Paste, load or generate another key")
+                .help(String(localized: "Paste, load or generate another key"))
         }
         .padding(.horizontal, RX.Space.s3)
         .frame(height: 40)
         .rxFieldBackground()
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(algorithm.map { "\($0) private key, hidden" } ?? "Private key, hidden")
+        .accessibilityLabel(algorithm.map { String(localized: "\($0) private key, hidden") } ?? String(localized: "Private key, hidden"))
     }
 
     /// "Ed25519", "RSA", "ECDSA".
@@ -523,8 +524,8 @@ private struct SealedKeyRow: View {
 /// extra buttons.
 struct KeyEditor<Extra: View>: View {
     @Binding var text: String
-    let placeholder: String
-    let loadTitle: String
+    let placeholder: LocalizedStringKey
+    let loadTitle: LocalizedStringKey
     let height: CGFloat
     @ViewBuilder var extra: () -> Extra
 
@@ -573,7 +574,7 @@ struct KeyEditor<Extra: View>: View {
         ) { urls in
             guard let url = urls.first else { return }
             guard let data = try? Data(contentsOf: url), let string = String(data: data, encoding: .utf8) else {
-                Dialogs.presentError(with: "The file could not be read as text.")
+                Dialogs.presentError(with: String(localized: "The file could not be read as text."))
                 return
             }
             text = string.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -582,7 +583,7 @@ struct KeyEditor<Extra: View>: View {
 }
 
 extension KeyEditor where Extra == EmptyView {
-    init(text: Binding<String>, placeholder: String, loadTitle: String, height: CGFloat) {
+    init(text: Binding<String>, placeholder: LocalizedStringKey, loadTitle: LocalizedStringKey, height: CGFloat) {
         self.init(text: text, placeholder: placeholder, loadTitle: loadTitle, height: height) { EmptyView() }
     }
 }

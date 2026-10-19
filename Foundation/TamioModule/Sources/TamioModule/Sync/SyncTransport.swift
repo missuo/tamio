@@ -15,7 +15,7 @@ enum SyncTransportError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .tooLarge: return "There is more to sync than iCloud keeps for an app (1 MB)."
+        case .tooLarge: return String(localized: "There is more to sync than iCloud keeps for an app (1 MB).")
         }
     }
 }
@@ -51,7 +51,7 @@ final class CloudKeyValueTransport: SyncTransport {
     }()
 
     var problem: String? {
-        Self.isEntitled ? nil : "This copy of Tamio is not signed for iCloud, so it cannot sync."
+        Self.isEntitled ? nil : String(localized: "This copy of Tamio is not signed for iCloud, so it cannot sync.")
     }
 
     func read() -> Data? {

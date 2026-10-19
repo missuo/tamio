@@ -80,17 +80,17 @@ enum AgentRunner {
                     shell.destroyPermanently()
                 }
                 guard let identity else {
-                    result.error = "This server has no password or key in Tamio."
+                    result.error = String(localized: "This server has no password or key in Tamio.")
                     return continuation.resume(returning: result)
                 }
                 shell.requestConnectAndWait()
                 guard shell.isConnected else {
-                    result.error = shell.hostKeyRefusal ?? shell.getLastError() ?? "Could not reach \(machine.remoteAddress):\(machine.remotePort)."
+                    result.error = shell.hostKeyRefusal ?? shell.getLastError() ?? String(localized: "Could not reach \(machine.remoteAddress):\(machine.remotePort).")
                     return continuation.resume(returning: result)
                 }
                 identity.callAuthenticationWith(remote: shell, username: machine.loginUsername(with: identity))
                 guard shell.isAuthenticated else {
-                    result.error = "Could not sign in as \(machine.loginUsername(with: identity))."
+                    result.error = String(localized: "Could not sign in as \(machine.loginUsername(with: identity)).")
                     return continuation.resume(returning: result)
                 }
                 let lock = NSLock()
@@ -120,7 +120,7 @@ enum AgentRunner {
                 result.truncated = truncated || parsed.output.utf8.count > outputCap
                 result.output = parsed.output.utf8.count > outputCap ? String(parsed.output.suffix(outputCap)) : parsed.output
                 if parsed.exitCode == nil {
-                    result.error = Date() >= deadline ? "Timed out after \(Int(timeout)) s." : "The command ended without an exit code."
+                    result.error = Date() >= deadline ? String(localized: "Timed out after \(Int(timeout)) s.") : String(localized: "The command ended without an exit code.")
                 }
                 result.seconds = Date().timeIntervalSince(started)
                 continuation.resume(returning: result)

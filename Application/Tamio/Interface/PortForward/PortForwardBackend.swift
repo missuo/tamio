@@ -30,12 +30,12 @@ class PortForwardBackend: ObservableObject {
         guard portFwd.isValid(),
               let mid = portFwd.usingMachine
         else {
-            Dialogs.presentError(with: "Invalid Info")
+            Dialogs.presentError(with: String(localized: "Invalid Info"))
             return
         }
         let machine = TamioStore.shared.machineGroup[mid]
         guard machine.isNotPlaceholder() else {
-            Dialogs.presentError(with: "Invalid Info")
+            Dialogs.presentError(with: String(localized: "Invalid Info"))
             return
         }
         let context = PortForwardContext(

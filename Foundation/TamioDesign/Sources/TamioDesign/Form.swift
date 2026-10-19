@@ -44,13 +44,41 @@ public struct RXDividedStack<Content: View>: View {
 
 /// A settings row: title and one-sentence description, control right-aligned.
 public struct RXFormRow<Control: View>: View {
-    let title: String
-    let description: String?
+    let title: Text
+    let description: HelpText?
     let alignTop: Bool
     let control: Control
 
-    public init(_ title: String, description: String? = nil, alignTop: Bool = false, @ViewBuilder control: () -> Control) {
-        self.title = title
+    public init(_ title: LocalizedStringKey, description: LocalizedStringKey? = nil, alignTop: Bool = false, @ViewBuilder control: () -> Control) {
+        self.title = Text(title)
+        self.description = description.map { HelpText($0) }
+        self.alignTop = alignTop
+        self.control = control()
+    }
+
+    public init<D: StringProtocol>(_ title: LocalizedStringKey, description: D?, alignTop: Bool = false, @ViewBuilder control: () -> Control) {
+        self.title = Text(title)
+        self.description = description.flatMap { $0.isEmpty ? nil : HelpText($0) }
+        self.alignTop = alignTop
+        self.control = control()
+    }
+
+    public init<S: StringProtocol>(_ title: S, description: LocalizedStringKey? = nil, alignTop: Bool = false, @ViewBuilder control: () -> Control) {
+        self.title = Text(verbatim: String(title))
+        self.description = description.map { HelpText($0) }
+        self.alignTop = alignTop
+        self.control = control()
+    }
+
+    public init<S: StringProtocol, D: StringProtocol>(_ title: S, description: D?, alignTop: Bool = false, @ViewBuilder control: () -> Control) {
+        self.title = Text(verbatim: String(title))
+        self.description = description.flatMap { $0.isEmpty ? nil : HelpText($0) }
+        self.alignTop = alignTop
+        self.control = control()
+    }
+
+    init(titleText: Text, description: HelpText?, alignTop: Bool = false, @ViewBuilder control: () -> Control) {
+        self.title = titleText
         self.description = description
         self.alignTop = alignTop
         self.control = control()
@@ -59,11 +87,11 @@ public struct RXFormRow<Control: View>: View {
     public var body: some View {
         RXRowLayout(alignTop: alignTop) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                title
                     .font(.rxBody)
                     .foregroundStyle(.rxInk)
-                if let description, !description.isEmpty {
-                    HelpText(description)
+                if let description {
+                    description
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -159,19 +187,31 @@ public struct RXRowLayout: Layout {
 
 /// A boolean preference: title, description and a switch on the right.
 public struct SwitchRow: View {
-    let title: String
-    let description: String?
+    let title: Text
+    let description: HelpText?
     @Binding var isOn: Bool
 
-    public init(_ title: String, description: String? = nil, isOn: Binding<Bool>) {
-        self.title = title
-        self.description = description
+    public init(_ title: LocalizedStringKey, description: LocalizedStringKey? = nil, isOn: Binding<Bool>) {
+        self.title = Text(title)
+        self.description = description.map { HelpText($0) }
+        _isOn = isOn
+    }
+
+    public init<D: StringProtocol>(_ title: LocalizedStringKey, description: D?, isOn: Binding<Bool>) {
+        self.title = Text(title)
+        self.description = description.flatMap { $0.isEmpty ? nil : HelpText($0) }
+        _isOn = isOn
+    }
+
+    public init<S: StringProtocol>(_ title: S, description: String? = nil, isOn: Binding<Bool>) {
+        self.title = Text(verbatim: String(title))
+        self.description = description.flatMap { $0.isEmpty ? nil : HelpText($0) }
         _isOn = isOn
     }
 
     public var body: some View {
-        RXFormRow(title, description: description) {
-            Toggle(title, isOn: $isOn)
+        RXFormRow(titleText: title, description: description) {
+            Toggle(isOn: $isOn) { title }
                 .labelsHidden()
                 .rxSwitchToggle()
                 .tint(.rxAccent)
@@ -271,7 +311,7 @@ public struct RXSlider: View {
                     if !focused { commitText() }
                 }
             if let unit {
-                Text(unit)
+                Text(LocalizedStringKey(unit))
                     .font(.rxBody)
                     .foregroundStyle(.rxInkSecondary)
             }
@@ -287,20 +327,28 @@ public struct RXSlider: View {
 /// while typing; the value is written (clamped to the range) on Return or
 /// when the field loses focus, so "25" can be typed inside 10...60.
 public struct NumberFieldRow: View {
-    let title: String
-    let description: String?
+    let title: Text
+    let description: HelpText?
     @Binding var value: Int
     let range: ClosedRange<Int>
-    let unit: String?
+    let unit: Text?
     @State private var text = ""
     @FocusState private var fieldFocused: Bool
 
-    public init(_ title: String, description: String? = nil, value: Binding<Int>, in range: ClosedRange<Int>, unit: String? = nil) {
-        self.title = title
-        self.description = description
+    public init(_ title: LocalizedStringKey, description: LocalizedStringKey? = nil, value: Binding<Int>, in range: ClosedRange<Int>, unit: LocalizedStringKey? = nil) {
+        self.title = Text(title)
+        self.description = description.map { HelpText($0) }
         _value = value
         self.range = range
-        self.unit = unit
+        self.unit = unit.map { Text($0) }
+    }
+
+    public init<S: StringProtocol>(_ title: S, description: String? = nil, value: Binding<Int>, in range: ClosedRange<Int>, unit: String? = nil) {
+        self.title = Text(verbatim: String(title))
+        self.description = description.flatMap { $0.isEmpty ? nil : HelpText($0) }
+        _value = value
+        self.range = range
+        self.unit = unit.map { Text(verbatim: $0) }
     }
 
     private func commitText() {
@@ -315,9 +363,9 @@ public struct NumberFieldRow: View {
     }
 
     public var body: some View {
-        RXFormRow(title, description: description) {
+        RXFormRow(titleText: title, description: description) {
             HStack(spacing: RX.Space.s2) {
-                TextField(title, text: $text)
+                TextField(text: $text) { title }
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.rx)
                     .frame(width: 72)
@@ -326,10 +374,10 @@ public struct NumberFieldRow: View {
                     .onChange(of: fieldFocused) { focused in
                         if !focused { commitText() }
                     }
-                Stepper(title, value: $value, in: range)
+                Stepper(value: $value, in: range) { title }
                     .labelsHidden()
                 if let unit {
-                    Text(unit)
+                    unit
                         .font(.rxBody)
                         .foregroundStyle(.rxInkSecondary)
                 }
@@ -344,23 +392,29 @@ public struct NumberFieldRow: View {
 
 /// Page-level section title with optional count and trailing controls.
 public struct SectionTitle<Trailing: View>: View {
-    let title: String
+    let title: Text
     let count: Int?
     let trailing: Trailing
 
-    public init(_ title: String, count: Int? = nil, @ViewBuilder trailing: () -> Trailing) {
-        self.title = title
+    public init(_ title: LocalizedStringKey, count: Int? = nil, @ViewBuilder trailing: () -> Trailing) {
+        self.title = Text(title)
+        self.count = count
+        self.trailing = trailing()
+    }
+
+    public init<S: StringProtocol>(_ title: S, count: Int? = nil, @ViewBuilder trailing: () -> Trailing) {
+        self.title = Text(verbatim: String(title))
         self.count = count
         self.trailing = trailing()
     }
 
     public var body: some View {
         HStack(spacing: RX.Space.s2) {
-            Text(title)
+            title
                 .font(.rxSectionTitle)
                 .foregroundStyle(.rxInk)
             if let count {
-                CapsLabel("\(count)")
+                CapsLabel(String(count))
             }
             Spacer(minLength: 0)
             trailing
@@ -370,7 +424,11 @@ public struct SectionTitle<Trailing: View>: View {
 }
 
 public extension SectionTitle where Trailing == EmptyView {
-    init(_ title: String, count: Int? = nil) {
+    init(_ title: LocalizedStringKey, count: Int? = nil) {
+        self.init(title, count: count) { EmptyView() }
+    }
+
+    init<S: StringProtocol>(_ title: S, count: Int? = nil) {
         self.init(title, count: count) { EmptyView() }
     }
 }

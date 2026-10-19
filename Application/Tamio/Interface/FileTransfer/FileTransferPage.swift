@@ -122,7 +122,7 @@ private struct FilePane: View {
                 BrowserPane(model: model, peer: peer, browser: browser, context: context)
                     .id(browser.id)
             } else {
-                header(title: "No server", systemImage: "server.rack")
+                header(title: String(localized: "No server"), systemImage: "server.rack")
                 Hairline()
                 EmptyStateView(
                     "Connect to host",
@@ -192,7 +192,7 @@ private struct SourceMenu: View {
                     .foregroundStyle(.rxOnAccent)
                     .frame(width: 26, height: 26)
                     .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.rxAccent))
-                Text(title)
+                Text(verbatim: title)
                     .font(.rxBodyStrong)
                     .lineLimit(1)
                 Image(systemName: "chevron.down")
@@ -253,13 +253,13 @@ private struct BrowserPane: View {
         .alert(item: $prompt) { prompt in
             // Text input goes through the bridge's alert below; this only
             // keeps SwiftUI's alert machinery out of the way.
-            Alert(title: Text(prompt.id))
+            Alert(title: Text(verbatim: prompt.id))
         }
         .overlay(alignment: .bottom) {
             if let problem {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.rxWarning)
-                    Text(problem).font(.rxBody).fixedSize(horizontal: false, vertical: true)
+                    Text(verbatim: problem).font(.rxBody).fixedSize(horizontal: false, vertical: true)
                     Spacer()
                     Button("OK") { self.problem = nil }.buttonStyle(.rx(size: .small))
                 }
@@ -288,7 +288,7 @@ private struct BrowserPane: View {
 
     var actions: some View {
         Menu {
-            Button("New Folder…") { ask("New folder", value: "untitled folder") { name in Task { report(await browser.makeFolder(named: name)) } } }
+            Button("New Folder…") { ask(String(localized: "New folder"), value: String(localized: "untitled folder")) { name in Task { report(await browser.makeFolder(named: name)) } } }
             if !isLocal {
                 Button("Upload Files…") { uploadFromPanel() }
             }
@@ -296,7 +296,7 @@ private struct BrowserPane: View {
                 Button("Copy \(model.selection.count) to \(target.title)") { copy(selected, to: peer, folder: target.path) }
             }
             Divider()
-            Button("Go to Folder…") { ask("Go to folder", value: browser.path) { browser.open($0) } }
+            Button("Go to Folder…") { ask(String(localized: "Go to folder"), value: browser.path) { browser.open($0) } }
             Button("Refresh") { browser.reload() }
             Toggle("Show Hidden Files", isOn: $showsHidden)
             Button("Copy Path") { Dialogs.sendPasteboard(str: browser.path) }
@@ -342,7 +342,7 @@ private struct BrowserPane: View {
                                 Image(systemName: "folder.fill")
                                     .font(.system(size: 12))
                                     .foregroundStyle(Color(red: 0.42, green: 0.71, blue: 0.96))
-                                Text(crumb.name)
+                                Text(verbatim: crumb.name)
                                     .font(.rxBody)
                                     .foregroundStyle(.rxInk)
                                     .fixedSize()
@@ -376,7 +376,7 @@ private struct BrowserPane: View {
         return result
     }
 
-    func navButton(_ title: String, _ systemImage: String, disabled: Bool, action: @escaping () -> Void) -> some View {
+    func navButton(_ title: LocalizedStringKey, _ systemImage: String, disabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) { Label(title, systemImage: systemImage) }
             .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
             .disabled(disabled)
@@ -401,7 +401,7 @@ private struct BrowserPane: View {
         .background(Color.rxSurfaceSunken.opacity(0.6))
     }
 
-    func column(_ title: String, _ key: PaneModel.SortColumn) -> some View {
+    func column(_ title: LocalizedStringKey, _ key: PaneModel.SortColumn) -> some View {
         Button {
             if model.sort == key { model.ascending.toggle() } else { model.sort = key; model.ascending = true }
         } label: {
@@ -434,7 +434,7 @@ private struct BrowserPane: View {
                 }
                 if let error = browser.error {
                     VStack(spacing: RX.Space.s2) {
-                        Text(error).font(.rxBody).foregroundStyle(.rxInkSecondary).multilineTextAlignment(.center)
+                        Text(verbatim: error).font(.rxBody).foregroundStyle(.rxInkSecondary).multilineTextAlignment(.center)
                         Button("Try Again") { browser.reload() }.buttonStyle(.rx(size: .small))
                     }
                     .padding(RX.Space.s6)
@@ -449,7 +449,7 @@ private struct BrowserPane: View {
             receive(providers, into: browser.path)
         }
         .contextMenu {
-            Button("New Folder…") { ask("New folder", value: "untitled folder") { name in Task { report(await browser.makeFolder(named: name)) } } }
+            Button("New Folder…") { ask(String(localized: "New folder"), value: String(localized: "untitled folder")) { name in Task { report(await browser.makeFolder(named: name)) } } }
             Button("Refresh") { browser.reload() }
         }
     }
@@ -467,29 +467,29 @@ private struct BrowserPane: View {
                     .frame(width: 22)
                 VStack(alignment: .leading, spacing: 0) {
                     // Whole, on more lines when it is long, never cut short.
-                    Text(parent ? ".." : entry!.name)
+                    Text(verbatim: parent ? ".." : entry!.name)
                         .font(.rxBody)
                         .foregroundStyle(.rxInk)
                         .fixedSize(horizontal: false, vertical: true)
                     if let entry, !entry.permissions.isEmpty {
-                        Text(entry.permissions)
+                        Text(verbatim: entry.permissions)
                             .font(.system(size: 10, design: .monospaced))
                             .foregroundStyle(.rxInkSecondary)
                     }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            Text(entry?.modified.map(Self.date) ?? "")
+            Text(verbatim: entry?.modified.map(Self.date) ?? "")
                 .font(.system(size: 12))
                 .foregroundStyle(.rxInkSecondary)
                 .lineLimit(1)
                 .frame(width: Self.dateWidth, alignment: .leading)
-            Text(entry.map { $0.isDirectory ? "- -" : RXFormat.bytesString(Double($0.size ?? 0)) } ?? "")
+            Text(verbatim: entry.map { $0.isDirectory ? "- -" : RXFormat.bytesString(Double($0.size ?? 0)) } ?? "")
                 .font(.system(size: 12).monospacedDigit())
                 .foregroundStyle(.rxInkSecondary)
                 .lineLimit(1)
                 .frame(width: Self.sizeWidth, alignment: .leading)
-            Text(entry?.kind ?? "")
+            Text(LocalizedStringKey(entry?.kind ?? ""))
                 .font(.system(size: 12))
                 .foregroundStyle(.rxInkSecondary)
                 .lineLimit(1)
@@ -529,15 +529,15 @@ private struct BrowserPane: View {
         }
         Divider()
         Button("Rename…") {
-            ask("Rename", value: entry.name) { name in Task { report(await browser.rename(entry, to: name)) } }
+            ask(String(localized: "Rename"), value: entry.name) { name in Task { report(await browser.rename(entry, to: name)) } }
         }
         Button("Copy Path") { Dialogs.sendPasteboard(str: entry.path) }
         Divider()
         Button("Delete…", role: .destructive) {
             Dialogs.requiresConfirmation(
-                message: targets.count == 1 ? "Delete \(entry.name)?" : "Delete \(targets.count) items?",
-                informative: isLocal ? "They go to the Trash." : "Deleting on \(browser.title) cannot be undone.",
-                confirmTitle: "Delete",
+                message: targets.count == 1 ? String(localized: "Delete \(entry.name)?") : String(localized: "Delete \(targets.count) items?"),
+                informative: isLocal ? String(localized: "They go to the Trash.") : String(localized: "Deleting on \(browser.title) cannot be undone."),
+                confirmTitle: String(localized: "Delete"),
                 destructive: true
             ) { confirmed in
                 guard confirmed else { return }
@@ -584,7 +584,7 @@ private struct BrowserPane: View {
     }
 
     func ask(_ title: String, value: String, completion: @escaping (String) -> Void) {
-        Mac.alert(message: title, informative: nil, buttons: ["OK", "Cancel"], destructiveFirstButton: false, textField: value) { index, text in
+        Mac.alert(message: title, informative: nil, buttons: [String(localized: "OK"), String(localized: "Cancel")], destructiveFirstButton: false, textField: value) { index, text in
             guard index == 0, let text = text?.trimmingCharacters(in: .whitespaces), !text.isEmpty else { return }
             completion(text)
         }
@@ -592,8 +592,8 @@ private struct BrowserPane: View {
 
     func uploadFromPanel() {
         Mac.openPanel(
-            message: "Choose files or folders to upload to \(browser.path)",
-            prompt: "Upload",
+            message: String(localized: "Choose files or folders to upload to \(browser.path)"),
+            prompt: String(localized: "Upload"),
             directory: nil,
             canChooseFiles: true,
             canChooseDirectories: true,
@@ -857,7 +857,7 @@ private struct TransferProgressLine: View {
                 .foregroundStyle(.rxAccent)
             // The file's whole name, or none when there is no room for it.
             ViewThatFits(in: .horizontal) {
-                Text(job.currentFile.isEmpty ? job.title : job.currentFile)
+                Text(verbatim: job.currentFile.isEmpty ? job.title : job.currentFile)
                     .font(.rxBody)
                     .fixedSize()
                 Color.clear.frame(width: 0, height: 0)
@@ -865,10 +865,10 @@ private struct TransferProgressLine: View {
             .frame(maxWidth: 260, alignment: .leading)
             RXProgressBar(job.fraction)
                 .frame(minWidth: 80)
-            Text("\(Int(job.fraction * 100))%")
+            Text(verbatim: "\(Int(job.fraction * 100))%")
                 .font(.system(size: 12, weight: .semibold).monospacedDigit())
                 .frame(width: 38, alignment: .trailing)
-            Text(RXFormat.rateString(Double(job.bytesPerSecond)))
+            Text(verbatim: RXFormat.rateString(Double(job.bytesPerSecond)))
                 .font(.system(size: 12).monospacedDigit())
                 .foregroundStyle(.rxInkSecondary)
                 .frame(width: 84, alignment: .trailing)
@@ -898,8 +898,8 @@ private struct TransferRow: View {
                 .foregroundStyle(color)
                 .frame(width: 18)
             VStack(alignment: .leading, spacing: 2) {
-                Text(job.title).font(.rxBody).fixedSize(horizontal: false, vertical: true)
-                Text(job.error ?? subtitle)
+                Text(verbatim: job.title).font(.rxBody).fixedSize(horizontal: false, vertical: true)
+                Text(verbatim: job.error ?? subtitle)
                     .font(.rxHelp)
                     .foregroundStyle(job.error == nil ? Color.rxInkSecondary : Color.rxDanger)
                     .fixedSize(horizontal: false, vertical: true)
@@ -918,11 +918,11 @@ private struct TransferRow: View {
 
     var subtitle: String {
         switch job.state {
-        case .queued: return "Waiting"
-        case .running: return "\(RXFormat.bytesString(Double(job.doneBytes))) of \(RXFormat.bytesString(Double(job.totalBytes))) · \(RXFormat.rateString(Double(job.bytesPerSecond)))"
-        case .done: return "Done · \(RXFormat.bytesString(Double(job.totalBytes))) into \(job.destination)"
-        case .failed: return "Failed"
-        case .cancelled: return "Cancelled"
+        case .queued: return String(localized: "Waiting")
+        case .running: return String(localized: "\(RXFormat.bytesString(Double(job.doneBytes))) of \(RXFormat.bytesString(Double(job.totalBytes))) · \(RXFormat.rateString(Double(job.bytesPerSecond)))")
+        case .done: return String(localized: "Done · \(RXFormat.bytesString(Double(job.totalBytes))) into \(job.destination)")
+        case .failed: return String(localized: "Failed")
+        case .cancelled: return String(localized: "Cancelled")
         }
     }
 
@@ -950,9 +950,9 @@ enum FileTransferSessionActions {
     static func close(_ context: FileTransferContext) {
         if context.isProgressRunning || !TransferQueue.shared.active.isEmpty {
             Dialogs.requiresConfirmation(
-                message: "Close the file transfer on \(context.machine.name)?",
-                informative: "A transfer is still running and will be interrupted.",
-                confirmTitle: "Close",
+                message: String(localized: "Close the file transfer on \(context.machine.name)?"),
+                informative: String(localized: "A transfer is still running and will be interrupted."),
+                confirmTitle: String(localized: "Close"),
                 destructive: true
             ) { confirmed in
                 if confirmed { FileTransferManager.shared.end(for: context.id) }
@@ -976,10 +976,10 @@ enum TransferNotifier {
         let content = UNMutableNotificationContent()
         switch job.state {
         case .done:
-            content.title = job.direction == .download ? "Download finished" : "Upload finished"
+            content.title = job.direction == .download ? String(localized: "Download finished") : String(localized: "Upload finished")
             content.body = job.title
         default:
-            content.title = "Transfer failed"
+            content.title = String(localized: "Transfer failed")
             content.body = [job.title, job.error].compactMap { $0 }.joined(separator: "\n")
         }
         content.sound = .default

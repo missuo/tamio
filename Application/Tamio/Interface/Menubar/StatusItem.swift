@@ -135,7 +135,7 @@ struct MenubarPopoverView: View {
         let system = session.status.system
         // The hostname only when it says something the name doesn't.
         let hostname = system.hostname == session.machine.name ? "" : system.hostname
-        let facts = [hostname, system.releaseName, system.uptimeSec > 0 ? "up \(RXFormat.duration(system.uptimeSec))" : ""]
+        let facts = [hostname, system.releaseName, system.uptimeSec > 0 ? String(localized: "up \(RXFormat.duration(system.uptimeSec))") : ""]
             .filter { !$0.isEmpty }
         return HStack(alignment: .center, spacing: RX.Space.s2) {
             VStack(alignment: .leading, spacing: 2) {

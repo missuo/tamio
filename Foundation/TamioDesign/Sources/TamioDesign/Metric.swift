@@ -24,13 +24,13 @@ public struct MetricView: View {
 
     public var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: RX.Space.s1) {
-            Text(value)
+            Text(verbatim: value)
                 .font(size == .xl ? .rxMetricXL : .rxMetricMD)
                 .foregroundStyle(.rxInk)
                 .contentTransition(.numericText())
                 .animation(.easeOut(duration: 0.3), value: value)
             if !unit.isEmpty {
-                Text(unit)
+                Text(LocalizedStringKey(unit))
                     .font(size == .xl ? .rxUnit : .system(size: 12, weight: .medium))
                     .foregroundStyle(.rxInk)
             }
@@ -42,13 +42,20 @@ public struct MetricView: View {
 
 /// Caption above a medium metric, used in a card's sub-metric row and page headers.
 public struct LabeledMetric: View {
-    let label: String
+    let label: CapsLabel
     let value: String
     let unit: String
     let swatch: Color?
 
-    public init(_ label: String, value: String, unit: String = "", swatch: Color? = nil) {
-        self.label = label
+    public init(_ label: LocalizedStringKey, value: String, unit: String = "", swatch: Color? = nil) {
+        self.label = CapsLabel(label)
+        self.value = value
+        self.unit = unit
+        self.swatch = swatch
+    }
+
+    public init<S: StringProtocol>(_ label: S, value: String, unit: String = "", swatch: Color? = nil) {
+        self.label = CapsLabel(label)
         self.value = value
         self.unit = unit
         self.swatch = swatch
@@ -62,7 +69,7 @@ public struct LabeledMetric: View {
                         .fill(swatch)
                         .frame(width: 8, height: 8)
                 }
-                CapsLabel(label)
+                label
             }
             MetricView(value, unit: unit, size: .md)
         }
@@ -101,7 +108,7 @@ public struct SubMetricRow: View {
                     Hairline(vertical: true)
                         .padding(.horizontal, RX.Space.s3)
                 }
-                LabeledMetric(item.label, value: item.value, unit: item.unit, swatch: item.swatch)
+                LabeledMetric(LocalizedStringKey(item.label), value: item.value, unit: item.unit, swatch: item.swatch)
             }
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -135,7 +142,7 @@ public struct FactsRow: View {
         HStack(alignment: .top, spacing: RX.Space.s4) {
             ForEach(facts) { fact in
                 VStack(alignment: .leading, spacing: RX.Space.s1) {
-                    CapsLabel(fact.label)
+                    CapsLabel(LocalizedStringKey(fact.label))
                     RedactableText(fact.value, redacted: fact.redacted)
                         .font(fact.monospaced ? .system(size: 14, weight: .medium, design: .monospaced) : .rxMetricMD)
                         .foregroundStyle(.rxInk)
@@ -217,8 +224,8 @@ public enum RXFormat {
 
     /// "2 min ago", "Yesterday" style relative dates; "Never" before 1971.
     public static func relative(_ date: Date) -> String {
-        if date.timeIntervalSince1970 < 86400 * 365 { return "Never" }
-        if abs(date.timeIntervalSinceNow) < 60 { return "Now" }
+        if date.timeIntervalSince1970 < 86400 * 365 { return String(localized: "Never") }
+        if abs(date.timeIntervalSinceNow) < 60 { return String(localized: "Now") }
         return relativeFormatter.localizedString(for: date, relativeTo: Date())
     }
 }

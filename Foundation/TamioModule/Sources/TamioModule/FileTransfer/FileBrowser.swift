@@ -155,7 +155,7 @@ public final class LocalBrowser: FileBrowser {
         super.init(path: path)
     }
 
-    override public var title: String { "Local" }
+    override public var title: String { String(localized: "Local") }
 
     override func list(_ path: String) async -> Result<[FileEntry], FileBrowserError> {
         await Task.detached {
@@ -298,15 +298,15 @@ public final class RemoteBrowser: FileBrowser {
                     let outcome = shell.connectAndAuthenticate(identity: identity, autoIdentities: TamioStore.shared.workerIdentitiesForAutoAuth, for: machine)
                     guard outcome == .success else {
                         let message = shell.hostKeyRefusal ?? (outcome == .connectFailed
-                            ? shell.getLastError() ?? "Could not reach \(machine.remoteAddress):\(machine.remotePort)."
-                            : "Could not sign in as \(machine.loginUsername(with: identity)).")
+                            ? shell.getLastError() ?? String(localized: "Could not reach \(machine.remoteAddress):\(machine.remotePort).")
+                            : String(localized: "Could not sign in as \(machine.loginUsername(with: identity))."))
                         return continuation.resume(returning: .failure(FileBrowserError(message)))
                     }
                 }
                 if !shell.isConnectedFileTransfer {
                     shell.requestConnectFileTransferAndWait()
                     guard shell.isConnectedFileTransfer else {
-                        return continuation.resume(returning: .failure(FileBrowserError("\(machine.name) does not offer SFTP. Enable its sftp subsystem in sshd_config.")))
+                        return continuation.resume(returning: .failure(FileBrowserError(String(localized: "\(machine.name) does not offer SFTP. Enable its sftp subsystem in sshd_config."))))
                     }
                 }
                 continuation.resume(returning: .success(work(shell)))
@@ -335,7 +335,7 @@ public final class RemoteBrowser: FileBrowser {
         }
         switch result {
         case let .success(list):
-            guard let list else { return .failure(FileBrowserError("\(path) could not be read.")) }
+            guard let list else { return .failure(FileBrowserError(String(localized: "\(path) could not be read."))) }
             return .success(list)
         case let .failure(error):
             return .failure(error)
@@ -346,7 +346,7 @@ public final class RemoteBrowser: FileBrowser {
         let target = child(name)
         let result = await onShell { $0.requestCreateDirAndWait(target) }
         reload()
-        if case .success(false) = result { return FileBrowserError("\(name) could not be made.") }
+        if case .success(false) = result { return FileBrowserError(String(localized: "\(name) could not be made.")) }
         if case let .failure(error) = result { return error }
         return nil
     }
@@ -354,7 +354,7 @@ public final class RemoteBrowser: FileBrowser {
     override public func move(_ source: String, to target: String) async -> FileBrowserError? {
         let result = await onShell { $0.requestRenameFileAndWait(source, withNewPath: target) }
         reload()
-        if case .success(false) = result { return FileBrowserError("\((source as NSString).lastPathComponent) could not be moved.") }
+        if case .success(false) = result { return FileBrowserError(String(localized: "\((source as NSString).lastPathComponent) could not be moved.")) }
         if case let .failure(error) = result { return error }
         return nil
     }
@@ -365,7 +365,7 @@ public final class RemoteBrowser: FileBrowser {
             paths.allSatisfy { shell.requestDelete(forFileAndWait: $0, withProgressBlock: { _ in }, withContinuationHandler: { true }) }
         }
         reload()
-        if case .success(false) = result { return FileBrowserError("Not everything could be deleted.") }
+        if case .success(false) = result { return FileBrowserError(String(localized: "Not everything could be deleted.")) }
         if case let .failure(error) = result { return error }
         return nil
     }

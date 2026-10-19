@@ -91,7 +91,7 @@ struct UpdateNotice: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help("Show what is new and update")
+            .help(String(localized: "Show what is new and update"))
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }

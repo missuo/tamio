@@ -111,8 +111,16 @@ private struct HomeGroupSwitcher: View {
 
     struct Segment: Hashable {
         let filter: HomeGroupFilter
-        let title: String
+        let rawTitle: String
         let count: Int
+
+        var title: LocalizedStringKey {
+            switch filter {
+            case .all: return "All"
+            case .ungrouped: return "No Group"
+            case let .group(name): return LocalizedStringKey(name)
+            }
+        }
     }
 
     var segments: [Segment] {
@@ -122,17 +130,17 @@ private struct HomeGroupSwitcher: View {
         // Only once a server has a group: with none, there is nothing to
         // choose between.
         guard !groups.isEmpty else { return [] }
-        var items = [Segment(filter: .all, title: "All", count: machines.count)]
+        var items = [Segment(filter: .all, rawTitle: "All", count: machines.count)]
         for name in groups {
             items.append(Segment(
                 filter: .group(name),
-                title: name,
+                rawTitle: name,
                 count: machines.filter { $0.group == name }.count
             ))
         }
         let ungrouped = machines.filter { $0.group.isEmpty }.count
         if ungrouped > 0 {
-            items.append(Segment(filter: .ungrouped, title: "No Group", count: ungrouped))
+            items.append(Segment(filter: .ungrouped, rawTitle: "No Group", count: ungrouped))
         }
         return items
     }
@@ -167,17 +175,17 @@ private struct HomeGroupSwitcher: View {
                             .contentShape(Capsule())
                     }
                     .buttonStyle(.plain)
-                    .help(segment.count == 1 ? "1 server" : "\(segment.count) servers")
-                    .accessibilityLabel("\(segment.title), \(segment.count)")
+                    .help(segment.count == 1 ? String(localized: "1 server") : String(localized: "\(segment.count) servers"))
+                    .accessibilityLabel("\(segment.rawTitle), \(segment.count)")
                     .accessibilityAddTraits(isSelected ? .isSelected : [])
                 }
             }
             .padding(.horizontal, 4)
             .fixedSize()
             .animation(reduceMotion ? nil : .rxMove, value: active)
-            .help("Show every server, or one group's")
+            .help(String(localized: "Show every server, or one group's"))
             .accessibilityElement(children: .contain)
-            .accessibilityLabel("Group")
+            .accessibilityLabel(String(localized: "Group"))
             .onAppear { reconcile(segments) }
             .onChange(of: segments) { reconcile($0) }
         }
@@ -281,7 +289,7 @@ private struct HomeContent: View {
         }
     }
 
-    var noMatchTitle: String {
+    var noMatchTitle: LocalizedStringKey {
         switch filter {
         case .all: return "No servers match “\(search)”"
         case .ungrouped: return "No servers in no group match “\(search)”"

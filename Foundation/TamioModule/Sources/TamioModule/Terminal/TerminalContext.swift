@@ -28,7 +28,7 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
     public var navigationTitle: String {
         switch remoteType {
         case .machine: return machine.shortDescription(withComment: false)
-        case .command: return command?.command ?? "Unknown Command"
+        case .command: return command?.command ?? String(localized: "Unknown Command")
         }
     }
 
@@ -199,7 +199,7 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
         setupShellData()
 
         debugPrint("\(self) \(#function) \(machine.id)")
-        putInformation("[*] Creating Connection")
+        putInformation(String(localized: "[*] Creating Connection"))
         continueDecision = true
 
         surface.setupBellChain {
@@ -218,7 +218,7 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
         let identity: RDIdentity?
         if machine.associatedIdentity != nil {
             guard let resolved = TamioStore.shared.workerAssociatedIdentity(for: machine) else {
-                putInformation("Malformed machine or identity data")
+                putInformation(String(localized: "Malformed machine or identity data"))
                 return
             }
             identity = resolved
@@ -242,12 +242,12 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
             } else if let proxyFailure = shell.getLastError() {
                 putInformation(proxyFailure.replacingOccurrences(of: "\n", with: "\r\n"))
             } else {
-                putInformation("Unable to connect for \(machine.remoteAddress):\(machine.remotePort)")
+                putInformation(String(localized: "Unable to connect for \(machine.remoteAddress):\(machine.remotePort)"))
             }
             return
         case .authenticateFailed:
-            putInformation("Failed to authenticate connection")
-            putInformation("Did you forget to add identity or enable auto authentication?")
+            putInformation(String(localized: "Failed to authenticate connection"))
+            putInformation(String(localized: "Did you forget to add identity or enable auto authentication?"))
             return
         }
 
@@ -257,7 +257,7 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
             }
             var read = TamioStore.shared.machineGroup[self.machine.id]
             if read.isNotPlaceholder() {
-                read.lastBanner = self.shell.remoteBanner ?? "No Banner"
+                read.lastBanner = self.shell.remoteBanner ?? String(localized: "No Banner")
                 TamioStore.shared.machineGroup[self.machine.id] = read
             }
         }
@@ -302,10 +302,10 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
     public func processShutdown(exitFromShell: Bool = false) {
         if exitFromShell {
             putInformation("")
-            putInformation("[*] Connection Closed")
+            putInformation(String(localized: "[*] Connection Closed"))
         }
         if let lastError = shell.getLastError() {
-            putInformation("[i] Last Error Provided By Backend")
+            putInformation(String(localized: "[i] Last Error Provided By Backend"))
             putInformation("    " + lastError)
         }
         continueDecision = false

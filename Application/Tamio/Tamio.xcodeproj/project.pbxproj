@@ -55,6 +55,7 @@
 		DA0FCE8BE1CAB49BF7A258D9 /* MachineStatusView in Frameworks */ = {isa = PBXBuildFile; productRef = E178D6448CCD527E2E86C9A7 /* MachineStatusView */; };
 		E288C769C302172FF2B4E21B /* SymbolPicker in Frameworks */ = {isa = PBXBuildFile; productRef = 494A60B5E6422F9A68176956 /* SymbolPicker */; };
 		E6B055B6F5DC499B463F136E /* PresentError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9D95BD46C45D856C39E3568 /* PresentError.swift */; };
+		E7B54C8C9217F44A0F0879FD /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2CCA7D202C6C5E5196E9048C /* Localizable.xcstrings */; };
 		EACDC3F0CDA599CFD2B1BE38 /* TamioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D30D618CFFED4A6386D0E1 /* TamioApp.swift */; };
 		EB87D94F557DAFC57811CD08 /* ServerEditorDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478253D7DC3B55196BDD73C9 /* ServerEditorDialog.swift */; };
 		ECD3BB0A68E4995B319A09DF /* ServersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5F05A6A10CA869F43251F4 /* ServersView.swift */; };
@@ -87,6 +88,7 @@
 		2AD8E54833D616102BA84271 /* SnippetEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetEditorSheet.swift; sourceTree = "<group>"; };
 		2AFB73E4F5A4E0275611622A /* PortForwardBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortForwardBackend.swift; sourceTree = "<group>"; };
 		2C0346AB3930E486C971F3E1 /* tamio-mcp */ = {isa = PBXFileReference; path = "tamio-mcp"; sourceTree = "<group>"; };
+		2CCA7D202C6C5E5196E9048C /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		2EAB94544BDE15E396B57A48 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		2F41A429DA891AEEB06DA914 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		2FB6F8223DEF8EF4B924113F /* Tamio.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = Tamio.icon; sourceTree = "<group>"; };
@@ -217,6 +219,7 @@
 				493537BBE2EEB8BD3E33A0CD /* Interface */,
 				35D8A552D554A34B7DBE7279 /* Mac */,
 				80782A0426AD9449CC771A33 /* Packages */,
+				613738327ED69FBEF30031EB /* Resources */,
 				6AC0B13E47AA8789E7F65903 /* tamio */,
 				A7E8C5385D13D845783A686C /* Frameworks */,
 				E3909DDDCFAAC4C7172B6790 /* Products */,
@@ -268,6 +271,14 @@
 				C45AC04BF9EF83A970E52F65 /* Terminal */,
 			);
 			path = Interface;
+			sourceTree = "<group>";
+		};
+		613738327ED69FBEF30031EB /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2CCA7D202C6C5E5196E9048C /* Localizable.xcstrings */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		6AC0B13E47AA8789E7F65903 /* tamio */ = {
@@ -486,6 +497,7 @@
 				2E4369F69EA9DF974DF27F6A /* Assets.xcassets in Resources */,
 				54C706C4966389E84D9903AD /* EULA in Resources */,
 				ADF9F497480AAECF8EFA2978 /* LICENSE in Resources */,
+				E7B54C8C9217F44A0F0879FD /* Localizable.xcstrings in Resources */,
 				C78E22FC07482B9FD7C71BF3 /* Tamio.icon in Resources */,
 				2F609EB69F20470FF1BE9E8D /* skills in Resources */,
 				C5B61FEFE6D29C674F851CDE /* tamio-mcp in Resources */,

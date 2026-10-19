@@ -62,14 +62,21 @@ final class AgentBridge: ObservableObject, AgentEnvironment {
 
     func approve(_ request: AgentRequest) async -> Bool {
         Mac.activate()
-        let hosts = request.hosts.isEmpty ? "" : "\n\nServers: " + request.hosts.prefix(12).joined(separator: ", ")
-            + (request.hosts.count > 12 ? " and \(request.hosts.count - 12) more" : "")
+        let serversPrefix = String(localized: "Servers: ")
+        let moreServers = request.hosts.count > 12 ? " " + String(localized: "and \(request.hosts.count - 12) more") : ""
+        let hosts = request.hosts.isEmpty ? "" : "\n\n" + serversPrefix + request.hosts.prefix(12).joined(separator: ", ") + moreServers
         let detail = request.detail.count > 1200 ? String(request.detail.prefix(1200)) + "…" : request.detail
+        let forTask = request.task.map { String(localized: "For: \($0)\n\n") } ?? ""
         return await withCheckedContinuation { continuation in
             Mac.alert(
-                message: "\(request.client) wants to: \(request.title)",
-                informative: (request.task.map { "For: \($0)\n\n" } ?? "") + detail + hosts,
-                buttons: ["Allow", "Allow for 1 Hour", "Always Allow", "Deny"]
+                message: String(localized: "\(request.client) wants to: \(request.title)"),
+                informative: forTask + detail + hosts,
+                buttons: [
+                    String(localized: "Allow"),
+                    String(localized: "Allow for 1 Hour"),
+                    String(localized: "Always Allow"),
+                    String(localized: "Deny")
+                ]
             ) { index, _ in
                 switch index {
                 case 0: continuation.resume(returning: true)

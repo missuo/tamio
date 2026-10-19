@@ -13,14 +13,33 @@ struct ConfigLayout {
         case host(String)
     }
 
+    nonisolated(unsafe) static var pseudolocalize = false
+
+    static func pseudolocalizeString(_ text: String) -> String {
+        let map: [Character: Character] = [
+            "a": "á", "e": "é", "i": "í", "o": "ó", "u": "ú",
+            "A": "Á", "E": "É", "I": "Í", "O": "Ó", "U": "Ú",
+        ]
+        return "⟦" + String(text.map { map[$0] ?? $0 }) + "⟧"
+    }
+
+    static func tr(_ key: String, default defaultValue: String, bundle: Bundle = .module) -> String {
+        if pseudolocalize {
+            return pseudolocalizeString(defaultValue)
+        }
+        return bundle.localizedString(forKey: key, value: defaultValue, table: nil)
+    }
+
     struct Group: Identifiable {
         let id: String
-        let title: String
+        let englishTitle: String
+        var title: String { ConfigLayout.tr("group.\(id).title", default: englishTitle) }
+        func title(in bundle: Bundle) -> String { ConfigLayout.tr("group.\(id).title", default: englishTitle, bundle: bundle) }
         let items: [Item]
 
         init(_ id: String, _ title: String, _ items: [Item]) {
             self.id = id
-            self.title = title
+            self.englishTitle = title
             self.items = items
         }
 
@@ -30,13 +49,35 @@ struct ConfigLayout {
     }
 
     struct Category: Identifiable {
-        enum Section: String { case app = "Tamio", terminal = "Terminal", info = "" }
+        enum Section: String {
+            case app = "Tamio", terminal = "Terminal", info = ""
+
+            var localizedTitle: String {
+                localizedTitle(in: .module)
+            }
+
+            func localizedTitle(in bundle: Bundle) -> String {
+                guard !rawValue.isEmpty else { return "" }
+                let key = self == .app ? "section.app.title" : "section.terminal.title"
+                return ConfigLayout.tr(key, default: rawValue, bundle: bundle)
+            }
+        }
 
         let id: String
-        let title: String
+        let englishTitle: String
+        var title: String { ConfigLayout.tr("category.\(id).title", default: englishTitle) }
+        func title(in bundle: Bundle) -> String { ConfigLayout.tr("category.\(id).title", default: englishTitle, bundle: bundle) }
         let icon: String
         let section: Section
         let groups: [Group]
+
+        init(id: String, title: String, icon: String, section: Section, groups: [Group]) {
+            self.id = id
+            self.englishTitle = title
+            self.icon = icon
+            self.section = section
+            self.groups = groups
+        }
 
         /// Ghostty keys in this category.
         var keys: [String] {
@@ -189,10 +230,60 @@ struct ConfigLayout {
         "cursor-color": ("Fill", "Color of the cursor itself."),
         "cursor-text": ("Text under the cursor", nil),
         "cursor-opacity": ("Opacity", nil),
+        "keybind": ("Shortcuts", "Customize keyboard shortcuts for terminal actions."),
     ]
 
-    static func title(_ setting: ConfigSetting) -> String {
+    static func englishTitle(_ setting: ConfigSetting) -> String {
         wording[setting.key]?.title ?? setting.name
+    }
+
+    static func englishTitle(_ key: String) -> String {
+        guard let setting = ConfigCatalog.shared.setting(key: key) else {
+            return wording[key]?.title ?? key
+        }
+        return englishTitle(setting)
+    }
+
+    static func englishSummary(_ setting: ConfigSetting) -> String {
+        if let wording = wording[setting.key]?.summary { return wording }
+        let plain = setting.description
+            .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "`", with: "")
+            .replacingOccurrences(of: "**", with: "")
+        let firstLine = plain.split(separator: "\n", omittingEmptySubsequences: true).first.map(String.init) ?? plain
+        if let range = firstLine.range(of: ". ") {
+            return String(firstLine[..<range.lowerBound]) + "."
+        }
+        return firstLine
+    }
+
+    static func englishSummary(_ key: String) -> String {
+        guard let setting = ConfigCatalog.shared.setting(key: key) else {
+            return wording[key]?.summary ?? ""
+        }
+        return englishSummary(setting)
+    }
+
+    static func title(_ setting: ConfigSetting, bundle: Bundle = .module) -> String {
+        tr("setting.\(setting.key).title", default: englishTitle(setting), bundle: bundle)
+    }
+
+    static func title(_ key: String, bundle: Bundle = .module) -> String {
+        guard let setting = ConfigCatalog.shared.setting(key: key) else {
+            return tr("setting.\(key).title", default: wording[key]?.title ?? key, bundle: bundle)
+        }
+        return title(setting, bundle: bundle)
+    }
+
+    static func summary(_ setting: ConfigSetting, bundle: Bundle = .module) -> String {
+        tr("setting.\(setting.key).summary", default: englishSummary(setting), bundle: bundle)
+    }
+
+    static func summary(_ key: String, bundle: Bundle = .module) -> String {
+        guard let setting = ConfigCatalog.shared.setting(key: key) else {
+            return tr("setting.\(key).summary", default: wording[key]?.summary ?? "", bundle: bundle)
+        }
+        return summary(setting, bundle: bundle)
     }
 
     /// Human names for option values the catalog leaves raw.
@@ -203,7 +294,7 @@ struct ConfigLayout {
         "window-padding-color": ["background": "Background color", "extend": "Extend edge cells", "extend-always": "Always extend edge cells"],
     ]
 
-    static func optionName(_ key: String, value: String, fallback: String) -> String {
-        optionNames[key]?[value] ?? fallback
+    static func optionName(_ key: String, value: String, fallback: String, bundle: Bundle = .module) -> String {
+        tr("option.\(key).\(value)", default: optionNames[key]?[value] ?? fallback, bundle: bundle)
     }
 }

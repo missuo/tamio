@@ -28,12 +28,12 @@ class PortForwardBackend: ObservableObject {
         guard portFwd.isValid(),
               let mid = portFwd.usingMachine
         else {
-            UIBridge.presentError(with: "Invalid Info")
+            UIBridge.presentError(with: String(localized: "Invalid Info"))
             return
         }
         let machine = TamioStore.shared.machineGroup[mid]
         guard machine.isNotPlaceholder() else {
-            UIBridge.presentError(with: "Invalid Info")
+            UIBridge.presentError(with: String(localized: "Invalid Info"))
             return
         }
         let context = PortForwardContext(
@@ -48,7 +48,7 @@ class PortForwardBackend: ObservableObject {
         }
         container.append(context)
         context.begin()
-        UIBridge.presentSuccess(with: "Forward Created")
+        UIBridge.presentSuccess(with: String(localized: "Forward Created"))
     }
 
     private func putStatus(for pid: RDPortForward.ID, with state: PortForwardContext.Lifecycle) {

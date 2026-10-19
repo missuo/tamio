@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "TamioTerminal",
+    defaultLocalization: "en",
     platforms: [.macOS(.v14), .iOS(.v17)],
     products: [
         .library(name: "TamioTerminal", targets: ["TamioTerminal"]),

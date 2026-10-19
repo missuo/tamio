@@ -136,12 +136,12 @@ public final class KnownHosts: @unchecked Sendable {
     /// reason; nil when it was not.
     public func refusalMessage(host: String, port: Int) -> String? {
         guard let offered = refusedKey(host: host, port: port) else { return nil }
-        var lines = ["The host key of \(host):\(port) has changed, so the connection was refused."]
+        var lines = [String(localized: "The host key of \(host):\(port) has changed, so the connection was refused.")]
         if let saved = savedKey(host: host, port: port) {
-            lines.append("Saved: \(saved.type) \(saved.fingerprint)")
+            lines.append(String(localized: "Saved: \(saved.type) \(saved.fingerprint)"))
         }
-        lines.append("Offered: \(offered.type) \(offered.fingerprint)")
-        lines.append("If the server was reinstalled or its keys were replaced, choose Forget Host Key for it and connect again. If not, something may be intercepting the connection.")
+        lines.append(String(localized: "Offered: \(offered.type) \(offered.fingerprint)"))
+        lines.append(String(localized: "If the server was reinstalled or its keys were replaced, choose Forget Host Key for it and connect again. If not, something may be intercepting the connection."))
         return lines.joined(separator: "\n")
     }
 

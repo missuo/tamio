@@ -165,12 +165,18 @@ public struct RXFlowLayout: Layout {
 
 /// Toggle chip used by feature lists.
 public struct RXChip: View {
-    let title: String
+    let title: Text
     let isOn: Bool
     let action: () -> Void
 
-    public init(_ title: String, isOn: Bool, action: @escaping () -> Void) {
-        self.title = title
+    public init(_ title: LocalizedStringKey, isOn: Bool, action: @escaping () -> Void) {
+        self.title = Text(title)
+        self.isOn = isOn
+        self.action = action
+    }
+
+    public init<S: StringProtocol>(_ title: S, isOn: Bool, action: @escaping () -> Void) {
+        self.title = Text(verbatim: String(title))
         self.isOn = isOn
         self.action = action
     }
@@ -180,7 +186,7 @@ public struct RXChip: View {
             HStack(spacing: 4) {
                 Image(systemName: isOn ? "checkmark" : "plus")
                     .font(.system(size: 9, weight: .bold))
-                Text(title)
+                title
                     .font(.system(size: 12))
             }
             .foregroundStyle(isOn ? Color.rxAccent : Color.rxInk)
@@ -215,10 +221,11 @@ public extension View {
 
 /// Caps section header for grouped lists.
 public struct RXSectionHeader: View {
-    let title: String
-    public init(_ title: String) { self.title = title }
+    let label: CapsLabel
+    public init(_ title: LocalizedStringKey) { self.label = CapsLabel(title) }
+    public init<S: StringProtocol>(_ title: S) { self.label = CapsLabel(title) }
     public var body: some View {
-        CapsLabel(title)
+        label
             .textCase(nil)
     }
 }

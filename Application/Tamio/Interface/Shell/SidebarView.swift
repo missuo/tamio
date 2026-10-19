@@ -104,7 +104,7 @@ struct SidebarView: View {
                 KeyNotice()
                 UpdateNotice()
                 place(.settings, "Settings", systemImage: "gearshape")
-                    .help("Settings (⌘,)")
+                    .help(Text("Settings (⌘,)"))
                     .frame(height: 48, alignment: .top)
             }
             .padding(.horizontal, SidebarMetrics.inset)
@@ -116,17 +116,17 @@ struct SidebarView: View {
     private func ownerTitle(_ owner: SessionOwner) -> String {
         switch owner {
         case let .server(id): return store.machineGroup[id].name
-        case let .command(id): return terminals.sessionContexts.first { $0.id == id }?.displayName ?? "Terminal"
+        case let .command(id): return terminals.sessionContexts.first { $0.id == id }?.displayName ?? String(localized: "Terminal")
         }
     }
 
-    private func place(_ route: Route, _ title: String, systemImage: String, badge: Int = 0) -> some View {
+    private func place(_ route: Route, _ title: LocalizedStringKey, systemImage: String, badge: Int = 0) -> some View {
         SidebarRow(isSelected: selection.wrappedValue == .place(route)) {
             selection.wrappedValue = .place(route)
         } label: {
             SidebarLabel(title, systemImage: systemImage, badge: badge)
         }
-        .accessibilityLabel(badge > 0 ? "\(title), \(badge)" : title)
+        .accessibilityLabel(Text(title))
     }
 }
 
@@ -259,7 +259,7 @@ struct SidebarLabel<Title: View>: View {
 }
 
 extension SidebarLabel where Title == Text {
-    init(_ title: String, systemImage: String, badge: Int = 0) {
+    init(_ title: LocalizedStringKey, systemImage: String, badge: Int = 0) {
         self.init(systemImage: systemImage, badge: badge) { Text(title) }
     }
 }
@@ -297,9 +297,9 @@ private struct KeyNotice: View {
 
 /// "Manage", "Sessions": the small grey heading over a group of rows.
 private struct SidebarHeader: View {
-    let title: String
+    let title: LocalizedStringKey
 
-    init(_ title: String) {
+    init(_ title: LocalizedStringKey) {
         self.title = title
     }
 
@@ -334,7 +334,7 @@ private struct OwnerSidebarRow: View {
             let machine = store.machineGroup[id]
             return [machine.countryFlag, machine.name].compactMap { $0 }.joined(separator: " ")
         case let .command(id):
-            return terminals.sessionContexts.first { $0.id == id }?.displayName ?? "Terminal"
+            return terminals.sessionContexts.first { $0.id == id }?.displayName ?? String(localized: "Terminal")
         }
     }
 
@@ -372,7 +372,7 @@ private struct OwnerSidebarRow: View {
         }
         .sidebarRowShape(metrics)
         // The whole name, for one too long for the row.
-        .help("\(title) · " + openTools.map(\.title).joined(separator: ", ") + " open")
+        .help(String(localized: "\(title) · \(openTools.map(\.title).joined(separator: ", ")) open"))
         .contextMenu { menu }
     }
 
@@ -402,8 +402,8 @@ private struct OwnerSidebarRow: View {
             Divider()
             Button("Close All") {
                 Dialogs.requiresConfirmation(
-                    message: "Close everything open on \(title)?",
-                    confirmTitle: "Close All",
+                    message: String(localized: "Close everything open on \(title)?"),
+                    confirmTitle: String(localized: "Close All"),
                     destructive: true
                 ) { confirmed in
                     if confirmed { AppRouter.shared.closeAll(owner) }

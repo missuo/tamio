@@ -6,6 +6,7 @@
 //  Shared by the macOS and iOS tables so the two cannot drift apart.
 //
 
+import Foundation
 import TamioDesign
 
 public struct PortForwardPresentation: Equatable {
@@ -18,17 +19,17 @@ public struct PortForwardPresentation: Equatable {
     public init(state: PortForwardContext.Lifecycle?, running: Bool) {
         switch state {
         case .awaitingConnect, .openingChannel:
-            (status, text) = (.running, "Connecting")
+            (status, text) = (.running, String(localized: "Connecting"))
         case .forwardRunning:
-            (status, text) = running ? (.success, "Running") : (.off, "Stopped")
+            (status, text) = running ? (.success, String(localized: "Running")) : (.off, String(localized: "Stopped"))
         case .failedConnect:
-            (status, text) = (.danger, "Could not connect")
+            (status, text) = (.danger, String(localized: "Could not connect"))
         case .failedAuthenticate:
-            (status, text) = (.danger, "Could not sign in")
+            (status, text) = (.danger, String(localized: "Could not sign in"))
         case .forwardStopped:
-            (status, text) = running ? (.danger, "Forward ended") : (.off, "Stopped")
+            (status, text) = running ? (.danger, String(localized: "Forward ended")) : (.off, String(localized: "Stopped"))
         case .terminating, .terminated, .none:
-            (status, text) = running ? (.running, "Starting") : (.off, "Stopped")
+            (status, text) = running ? (.running, String(localized: "Starting")) : (.off, String(localized: "Stopped"))
         }
     }
 }

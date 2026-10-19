@@ -77,21 +77,21 @@ class MenubarTool {
         let copy = statusItem
         bootstrapLock.unlock()
         for item in copy where item.machine.id == machineId {
-            fail("This server is already in the menu bar")
+            fail(String(localized: "This server is already in the menu bar"))
             return
         }
 
         let machine = TamioStore.shared.machineGroup[machineId]
         guard machine.isNotPlaceholder() else {
-            fail("Could not add the server to the menu bar: its details are missing")
+            fail(String(localized: "Could not add the server to the menu bar: its details are missing"))
             return
         }
         guard machine.associatedIdentity != nil else {
-            fail("To show a server in the menu bar, choose an identity for it first (Edit Server › Identity)")
+            fail(String(localized: "To show a server in the menu bar, choose an identity for it first (Edit Server › Identity)"))
             return
         }
         guard let identity = TamioStore.shared.associatedIdentity(for: machine) else {
-            fail("Could not add the server to the menu bar: its identity is missing")
+            fail(String(localized: "Could not add the server to the menu bar: its identity is missing"))
             return
         }
         let compiler = ArgumentCompiler(machine: machine.id, identity: identity.id)

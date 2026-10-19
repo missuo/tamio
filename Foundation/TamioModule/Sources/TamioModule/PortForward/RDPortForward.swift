@@ -82,13 +82,13 @@ public struct RDPortForward: Codable, Identifiable, Equatable, Sendable {
 
     public func shortDescription() -> String {
         guard isValid() else {
-            return "Invalid Forward"
+            return String(localized: "Invalid Forward")
         }
         switch forwardOrientation {
         case .listenLocal:
-            return "localhost:\(bindPort) -\(getMachineName() ?? "Unknown")-> \(targetHost):\(targetPort)"
+            return "localhost:\(bindPort) -\(getMachineName() ?? String(localized: "Unknown"))-> \(targetHost):\(targetPort)"
         case .listenRemote:
-            return "\(getMachineName() ?? "Unknown"):\(bindPort) -localhost-> \(targetHost):\(targetPort)"
+            return "\(getMachineName() ?? String(localized: "Unknown")):\(bindPort) -localhost-> \(targetHost):\(targetPort)"
         }
     }
 

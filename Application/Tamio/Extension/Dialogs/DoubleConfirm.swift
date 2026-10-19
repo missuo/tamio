@@ -16,7 +16,7 @@ extension Dialogs {
     static func requiresConfirmation(
         message: String,
         informative: String? = nil,
-        confirmTitle: String = "Continue",
+        confirmTitle: String = String(localized: "Continue"),
         destructive: Bool = false,
         always: Bool = false,
         confirmation: @escaping (Bool) -> Void
@@ -34,7 +34,7 @@ extension Dialogs {
                 Mac.alert(
                     message: message,
                     informative: informative,
-                    buttons: [confirmTitle, "Cancel"],
+                    buttons: [confirmTitle, String(localized: "Cancel")],
                     destructiveFirstButton: destructive
                 ) { button, _ in
                     confirmation(button == 0)

@@ -68,12 +68,18 @@ public struct RXTag: View {
         case warning
     }
 
-    let text: String
+    let text: Text
     let systemImage: String?
     let style: Style
 
-    public init(_ text: String, systemImage: String? = nil, style: Style = .neutral) {
-        self.text = text
+    public init(_ text: LocalizedStringKey, systemImage: String? = nil, style: Style = .neutral) {
+        self.text = Text(text)
+        self.systemImage = systemImage
+        self.style = style
+    }
+
+    public init<S: StringProtocol>(_ text: S, systemImage: String? = nil, style: Style = .neutral) {
+        self.text = Text(verbatim: String(text))
         self.systemImage = systemImage
         self.style = style
     }
@@ -84,7 +90,7 @@ public struct RXTag: View {
                 Image(systemName: systemImage)
                     .font(.system(size: 10, weight: .semibold))
             }
-            Text(text)
+            text
                 .font(.rxCaption)
                 .lineLimit(1)
         }
@@ -117,7 +123,7 @@ public struct RedactableText: View {
     }
 
     public var body: some View {
-        Text(text)
+        Text(verbatim: text)
             .opacity(redacted ? 0 : 1)
             .overlay(alignment: .leading) {
                 if redacted {

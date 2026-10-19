@@ -21,8 +21,8 @@ enum ServerActions {
         let original = store.machineGroup[machine]
         guard original.isNotPlaceholder() else { return }
         Dialogs.requiresConfirmation(
-            message: "Duplicate \(original.name)?",
-            confirmTitle: "Duplicate"
+            message: String(localized: "Duplicate \(original.name)?"),
+            confirmTitle: String(localized: "Duplicate")
         ) { confirmed in
             guard confirmed else { return }
             var copy = original
@@ -46,12 +46,12 @@ enum ServerActions {
         let store = TamioStore.shared
         guard !machines.isEmpty else { return }
         let message = machines.count == 1
-            ? "Delete \(store.machineGroup[machines[0]].name)?"
-            : "Delete \(machines.count) servers?"
+            ? String(localized: "Delete \(store.machineGroup[machines[0]].name)?")
+            : String(localized: "Delete \(machines.count) servers?")
         Dialogs.requiresConfirmation(
             message: message,
-            informative: "Port forwards through it stop working.",
-            confirmTitle: "Delete",
+            informative: String(localized: "Port forwards through it stop working."),
+            confirmTitle: String(localized: "Delete"),
             destructive: true
         ) { confirmed in
             guard confirmed else { return }
@@ -75,9 +75,9 @@ enum ServerActions {
         let read = TamioStore.shared.machineGroup[machine]
         guard read.isNotPlaceholder() else { return }
         Dialogs.requiresConfirmation(
-            message: "Forget the host key of \(read.name)?",
-            informative: "The key the server presents on the next connection is saved as its key. Do this only when you know its keys were replaced.",
-            confirmTitle: "Forget"
+            message: String(localized: "Forget the host key of \(read.name)?"),
+            informative: String(localized: "The key the server presents on the next connection is saved as its key. Do this only when you know its keys were replaced."),
+            confirmTitle: String(localized: "Forget")
         ) { confirmed in
             guard confirmed else { return }
             read.forgetHostKey()
@@ -106,9 +106,9 @@ enum ServerTool: CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .terminal: return "Terminal"
-        case .files: return "Files"
-        case .monitor: return "Monitor"
+        case .terminal: return String(localized: "Terminal")
+        case .files: return String(localized: "Files")
+        case .monitor: return String(localized: "Monitor")
         }
     }
 
@@ -121,7 +121,7 @@ enum ServerTool: CaseIterable, Identifiable {
     }
 
     /// Tooltip: what the tool does, in a sentence.
-    var help: String {
+    var help: LocalizedStringKey {
         switch self {
         case .terminal: return "Open an SSH terminal on this server"
         case .files: return "Browse, upload and download files over SFTP"
@@ -287,7 +287,7 @@ struct ServerToolSwitcher: View {
         .pickerStyle(.segmented)
         .labelsHidden()
         .fixedSize()
-        .help("Switch between this server's terminal, files and monitor")
+        .help(String(localized: "Switch between this server's terminal, files and monitor"))
     }
 }
 

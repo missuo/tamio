@@ -29,7 +29,7 @@ public struct SystemCard: View {
             SubMetricRow([
                 .init("5 min", value: String(format: "%.2f", system.load5)),
                 .init("15 min", value: String(format: "%.2f", system.load15)),
-                .init("Processes", value: "\(system.runningProcs)", unit: "/ \(system.totalProcs) running"),
+                .init("Processes", value: "\(system.runningProcs)", unit: String(localized: "/ \(system.totalProcs) running")),
             ])
             .padding(.top, RX.Space.s5)
         }
@@ -51,8 +51,8 @@ public struct ProcessorCard: View {
 
     var title: String {
         let count = processor.cores.count
-        guard count > 0 else { return "Processor" }
-        return "Processor · \(count) \(count == 1 ? "core" : "cores")"
+        guard count > 0 else { return String(localized: "Processor") }
+        return count == 1 ? String(localized: "Processor · 1 core") : String(localized: "Processor · \(count) cores")
     }
 
     public var body: some View {
@@ -129,7 +129,7 @@ public struct MemoryCard: View {
         let status = session.status
         let total = Double(memory.memTotal)
         VStack(alignment: .leading, spacing: 0) {
-            CardHead(total > 0 ? "Memory · \(kB(total))" : "Memory") {
+            CardHead(total > 0 ? String(localized: "Memory · \(kB(total))") : String(localized: "Memory")) {
                 RXSegmented(selection: $showSwap, options: [
                     .init(false, "RAM"),
                     .init(true, "Swap"),
@@ -163,7 +163,7 @@ public struct MemoryCard: View {
                     (Double(memory.memFree), .rxSurfaceSunken),
                 ])
                 .padding(.top, RX.Space.s3)
-                .accessibilityLabel("\(kB(status.memoryUsedKB)) used, \(kB(status.memoryCacheKB)) cache, \(kB(Double(memory.memFree))) free")
+                .accessibilityLabel(String(localized: "\(kB(status.memoryUsedKB)) used, \(kB(status.memoryCacheKB)) cache, \(kB(Double(memory.memFree))) free"))
                 FlowRow {
                     LegendItem("Used", value: kB(status.memoryUsedKB), color: .rxAccent)
                     LegendItem("Cache", value: kB(status.memoryCacheKB), color: .rxSeries2)
@@ -220,7 +220,7 @@ public struct DiskCard: View {
                         UsageListRow(
                             name: element.mountPoint,
                             value: "\(RXFormat.percent(Double(element.percent)))%",
-                            detail: "\(element.used) of \(element.size)"
+                            detail: String(localized: "\(element.used) of \(element.size)")
                         ) {
                             UsageBar(fraction: Double(element.percent) / 100, thresholds: true)
                         }
@@ -297,9 +297,9 @@ public struct ThroughputCard: View {
         let peak = samples.max() ?? 0
         let rate = RXFormat.rate(current)
         VStack(alignment: .leading, spacing: 0) {
-            CardHead(isReceive ? "Receive" : "Transmit") {
+            CardHead(isReceive ? String(localized: "Receive") : String(localized: "Transmit")) {
                 if peak > 0 {
-                    HintText("peak \(RXFormat.rateString(peak))")
+                    HintText(String(localized: "peak \(RXFormat.rateString(peak))"))
                 }
             }
             .padding(.horizontal, RX.Space.s4)
@@ -371,8 +371,8 @@ public struct GraphicsCard: View {
     public var body: some View {
         if let graphics = session.status.graphics, !graphics.units.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
-                CardHead("Graphics · \(graphics.units.count) \(graphics.units.count == 1 ? "GPU" : "GPUs")") {
-                    HintText("Driver \(graphics.version)")
+                CardHead(graphics.units.count == 1 ? String(localized: "Graphics · 1 GPU") : String(localized: "Graphics · \(graphics.units.count) GPUs")) {
+                    HintText(String(localized: "Driver \(graphics.version)"))
                 }
                 VStack(spacing: RX.Space.s4) {
                     ForEach(graphics.units) { unit in
@@ -399,7 +399,7 @@ struct GPURow: View {
                     .foregroundStyle(.rxInk)
                     .lineLimit(1)
                 Spacer(minLength: RX.Space.s2)
-                Text("Fan \(unit.fan_speed)")
+                Text(String(localized: "Fan \(unit.fan_speed)"))
                     .font(.system(size: 12).monospacedDigit())
                     .foregroundStyle(.rxInkSecondary)
                     .lineLimit(1)
@@ -407,12 +407,12 @@ struct GPURow: View {
             labeledBar("GPU", percent: utilisation, color: .rxAccent)
             labeledBar("VRAM", percent: vram, color: .rxSeries2)
             if !unit.vbios_version.isEmpty {
-                HintText("vbios \(unit.vbios_version)")
+                HintText(String(localized: "vbios \(unit.vbios_version)"))
             }
         }
     }
 
-    func labeledBar(_ title: String, percent: Double, color: Color) -> some View {
+    func labeledBar(_ title: LocalizedStringKey, percent: Double, color: Color) -> some View {
         HStack(spacing: RX.Space.s2) {
             CapsLabel(title)
                 .frame(width: 40, alignment: .leading)

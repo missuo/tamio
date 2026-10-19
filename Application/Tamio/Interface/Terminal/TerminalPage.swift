@@ -79,12 +79,12 @@ struct TerminalPage: View {
                 .disabled(store.terminalFontSize >= 30)
                 .keyboardShortcut("+", modifiers: .command)
             }
-            .help("Text Size")
+            .help(String(localized: "Text Size"))
             Toggle(isOn: $snippetsShown) {
                 Label("Snippets", systemImage: "sidebar.trailing")
             }
             .keyboardShortcut("s", modifiers: [.command, .option])
-            .help("Show or hide the snippets panel (⌥⌘S)")
+            .help(String(localized: "Show or hide the snippets panel (⌥⌘S)"))
         }
         .serverToolSwitcher(
             machine: context.remoteType == .machine && context.machine.isNotPlaceholder() ? context.machine.id : nil,
@@ -177,8 +177,8 @@ enum TerminalSessionActions {
         let manager = TerminalManager.shared
         if manager.sessionAlive(forContext: context.id) {
             Dialogs.requiresConfirmation(
-                message: "Close the session on \(context.displayName)?",
-                confirmTitle: "Close Session",
+                message: String(localized: "Close the session on \(context.displayName)?"),
+                confirmTitle: String(localized: "Close Session"),
                 destructive: true
             ) { confirmed in
                 if confirmed { manager.closeSession(withContextID: context.id) }
@@ -213,16 +213,16 @@ extension TerminalManager.Context {
     @MainActor
     var sidebarTitle: String {
         let siblings = TerminalManager.shared.sessionContexts.filter { $0.remoteType == .machine && $0.machine.id == machine.id }
-        if let index = siblings.firstIndex(where: { $0.id == id }), siblings.count > 1 { return "Terminal \(index + 1)" }
-        return "Terminal"
+        if let index = siblings.firstIndex(where: { $0.id == id }), siblings.count > 1 { return String(localized: "Terminal \(index + 1)") }
+        return String(localized: "Terminal")
     }
 
     /// Reconnects with the details from when this session started.
     func reconnect() {
         guard closed else { return }
         DispatchQueue.global().async {
-            self.putInformation("[i] Reconnecting with the details from when this session started.")
-            self.putInformation("    If the server was edited, open a new terminal instead.")
+            self.putInformation(String(localized: "[i] Reconnecting with the details from when this session started."))
+            self.putInformation(String(localized: "    If the server was edited, open a new terminal instead."))
             self.processBootstrap()
         }
     }

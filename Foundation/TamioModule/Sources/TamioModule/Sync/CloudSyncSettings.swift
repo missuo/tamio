@@ -22,12 +22,12 @@ public struct CloudSyncSettings: View {
 
     public var body: some View {
         RXDividedStack {
-            RXFormRow("Sync with iCloud", description: (sync.isOn ? nil : sync.problem) ?? """
+            RXFormRow("Sync with iCloud", description: (sync.isOn ? nil : sync.problem) ?? String(localized: """
             On unless you turn it off, so your servers and what agents did on them are never lost \
             with a Mac. Everything is encrypted on this device before it goes to iCloud, under a \
             passphrase kept in your iCloud Keychain, so your other Macs sync by themselves. Apple \
             cannot read it.
-            """) {
+            """)) {
                 Toggle("Sync with iCloud", isOn: Binding(
                     get: { sync.isOn },
                     set: { on in
@@ -85,12 +85,12 @@ public struct CloudSyncSettings: View {
                     description: "What agents did on each server, so agents on other devices know.",
                     isOn: $sync.syncsActivity
                 )
-                RXFormRow("Passphrase", description: shown.map { "\($0) — type it on a device without iCloud Keychain." }
-                    ?? "Your other devices take it from iCloud Keychain, or ask for it.")
+                RXFormRow("Passphrase", description: shown.map { String(localized: "\($0) — type it on a device without iCloud Keychain.") }
+                    ?? String(localized: "Your other devices take it from iCloud Keychain, or ask for it."))
                 {
                     HStack(spacing: RX.Space.s2) {
                         if let passphrase = sync.currentPassphrase {
-                            Button(shown == nil ? "Show" : "Hide") { shown = shown == nil ? passphrase : nil }
+                            Button(shown == nil ? String(localized: "Show") : String(localized: "Hide")) { shown = shown == nil ? passphrase : nil }
                                 .buttonStyle(.rx(size: .small))
                             #if canImport(UIKit)
                                 if shown != nil {
@@ -132,16 +132,16 @@ public struct CloudSyncSettings: View {
         switch sync.status {
         case .off: return ""
         case let .unavailable(reason): return reason
-        case .syncing: return "Syncing…"
+        case .syncing: return String(localized: "Syncing…")
         case let .synced(date):
-            return "Up to date. Last synced at \(date.formatted(date: .omitted, time: .shortened))."
+            return String(localized: "Up to date. Last synced at \(date.formatted(date: .omitted, time: .shortened)).")
         case .locked:
-            return """
+            return String(localized: """
             The passphrase on this device does not open what is in iCloud. Enter the one your \
             other device uses, or replace what is stored with this device's data.
-            """
+            """)
         case .unreadable:
-            return "What is in iCloud cannot be read. Replace it with this device's data to go on."
+            return String(localized: "What is in iCloud cannot be read. Replace it with this device's data to go on.")
         case let .failed(reason): return reason
         }
     }
@@ -173,9 +173,9 @@ private struct PassphraseSheet: View {
         guard chooses else { return nil }
         if passphrase.isEmpty { return nil }
         if passphrase.count < CloudSync.minimumPassphraseLength {
-            return "At least \(CloudSync.minimumPassphraseLength) characters."
+            return String(localized: "At least \(CloudSync.minimumPassphraseLength) characters.")
         }
-        if !again.isEmpty, again != passphrase { return "The two do not match." }
+        if !again.isEmpty, again != passphrase { return String(localized: "The two do not match.") }
         return nil
     }
 
@@ -188,26 +188,26 @@ private struct PassphraseSheet: View {
 
     private var title: String {
         switch purpose {
-        case .create: return "Choose a Passphrase"
-        case .enter: return "Enter Your Passphrase"
-        case .change: return "Choose a New Passphrase"
+        case .create: return String(localized: "Choose a Passphrase")
+        case .enter: return String(localized: "Enter Your Passphrase")
+        case .change: return String(localized: "Choose a New Passphrase")
         }
     }
 
     private var lead: String {
         switch purpose {
         case .create:
-            return """
+            return String(localized: """
             It encrypts your servers and identities before they leave this device. You will \
             enter it once on each of your devices. It cannot be recovered if you forget it.
-            """
+            """)
         case .enter:
-            return "iCloud already holds data from one of your devices. Enter the passphrase you chose there."
+            return String(localized: "iCloud already holds data from one of your devices. Enter the passphrase you chose there.")
         case .change:
-            return """
+            return String(localized: """
             What is in iCloud is replaced with this device's servers and identities, encrypted \
             with the new passphrase. Your other devices will ask for it.
-            """
+            """)
         }
     }
 
@@ -233,7 +233,7 @@ private struct PassphraseSheet: View {
                 .buttonStyle(.rx)
                 .keyboardShortcut(.cancelAction)
             Spacer()
-            Button(purpose == .change ? "Replace" : "Turn On", action: submit)
+            Button(purpose == .change ? String(localized: "Replace") : String(localized: "Turn On"), action: submit)
                 .buttonStyle(.rxPrimary)
                 .keyboardShortcut(.defaultAction)
                 .disabled(!ready)

@@ -20,7 +20,7 @@ enum Dialogs {
     }
 
     @MainActor static func askForInput(title: String, message: String, defaultValue: String, complete: @escaping (String) -> Void) {
-        Mac.alert(message: title, informative: message, buttons: ["OK", "Cancel"], textField: defaultValue) { button, text in
+        Mac.alert(message: title, informative: message, buttons: [String(localized: "OK"), String(localized: "Cancel")], textField: defaultValue) { button, text in
             if button == 0, let text { complete(text) }
         }
     }

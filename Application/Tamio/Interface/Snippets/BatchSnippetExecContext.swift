@@ -25,7 +25,7 @@ final class BatchSnippetExecContext: ObservableObject, @unchecked Sendable {
             let object = TamioStore.shared.machineGroup[machine]
             guard object.isNotPlaceholder() else {
                 debugPrint("garbage machine found")
-                receivedBuffer[machine] = "\r\n[*] Malformed Machine Info\r\n"
+                receivedBuffer[machine] = "\r\n[*] \(String(localized: "Malformed Machine Info"))\r\n"
                 continue
             }
             shellObjects[object.id] = NSRemoteShell
@@ -206,7 +206,7 @@ final class BatchSnippetExecContext: ObservableObject, @unchecked Sendable {
             snippet.code,
             onBegin: {
                 debugPrint("channel begin")
-                self.appendToBuffer("[*] Execute Begin\r\n", for: machine)
+                self.appendToBuffer("[*] \(String(localized: "Execute Begin"))\r\n", for: machine)
             },
             onOutput: { output in
                 self.appendToBuffer(output, for: machine)
@@ -221,19 +221,19 @@ final class BatchSnippetExecContext: ObservableObject, @unchecked Sendable {
         case .completed:
             safeAccess {
                 self.shellObjects.removeValue(forKey: machine)
-                self.lockedAppendToBuffer("\r\n[*] Execution completed\r\n", for: machine)
+                self.lockedAppendToBuffer("\r\n[*] \(String(localized: "Execution completed"))\r\n", for: machine)
             }
         case .connectFailed:
             debugPrint("failed to connect to remote machine: \(machine)")
             let reason = shell.getLastError()
             safeAccess {
-                self.lockedAppendToBuffer("\r\n[E] \(reason ?? "Could not connect to the server")\r\n", for: machine)
+                self.lockedAppendToBuffer("\r\n[E] \(reason ?? String(localized: "Could not connect to the server"))\r\n", for: machine)
                 self.failedMachines.insert(machine)
             }
         case .authenticateFailed:
             debugPrint("auth failed for machine: \(machine)")
             safeAccess {
-                self.lockedAppendToBuffer("\r\n[E] The identity could not sign in\r\n", for: machine)
+                self.lockedAppendToBuffer("\r\n[E] \(String(localized: "The identity could not sign in"))\r\n", for: machine)
                 self.failedMachines.insert(machine)
             }
         }

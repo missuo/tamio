@@ -25,7 +25,7 @@ struct MonitorPage: View {
             }
         } header: {
             VStack(alignment: .leading, spacing: RX.Space.s5) {
-                PageTitle(store.machineRedacted == .all ? "Server" : session.machine.name)
+                PageTitle(store.machineRedacted == .all ? String(localized: "Server") : session.machine.name)
                 MonitorFacts(session: session, redactAddress: store.machineRedacted != .none)
             }
         } content: {

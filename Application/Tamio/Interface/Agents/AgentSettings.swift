@@ -51,13 +51,13 @@ struct AgentSetupSettings: View {
         RXDividedStack {
             copyRow("Claude Code", description: "Run once in Terminal.", text: bridge.claudeCommand)
             copyRow("Codex", description: "Add to ~/.codex/config.toml.", text: bridge.codexConfig)
-            RXFormRow("Tamio skill", description: installed ?? "Teaches an agent the rules: read a server's activity first, run through Tamio, report what it does by other means.") {
+            RXFormRow("Tamio skill", description: installed ?? String(localized: "Teaches an agent the rules: read a server's activity first, run through Tamio, report what it does by other means.")) {
                 HStack(spacing: RX.Space.s2) {
                     Button("Copy Command") { Dialogs.sendPasteboard(str: bridge.skillInstallCommand) }
                         .buttonStyle(.rx)
                         .help(bridge.skillInstallCommand)
                     Button("Install Skill") {
-                        installed = bridge.installSkill().map { "Not installed: \($0)" } ?? "Installed in ~/.claude/skills/tamio."
+                        installed = bridge.installSkill().map { String(localized: "Not installed: \($0)") } ?? String(localized: "Installed in ~/.claude/skills/tamio.")
                     }
                     .buttonStyle(.rxPrimary)
                 }
@@ -66,10 +66,10 @@ struct AgentSetupSettings: View {
         }
     }
 
-    func copyRow(_ title: String, description: String, text: String) -> some View {
+    func copyRow(_ title: LocalizedStringKey, description: LocalizedStringKey, text: String) -> some View {
         RXFormRow(title, description: description, alignTop: true) {
             VStack(alignment: .trailing, spacing: RX.Space.s2) {
-                Text(text)
+                Text(verbatim: text)
                     .font(.rxCode)
                     .foregroundStyle(.rxInk)
                     .textSelection(.enabled)
@@ -117,7 +117,7 @@ struct AgentActivitySettings: View {
                     Picker("Server", selection: $server) {
                         Text("All Servers").tag(String?.none)
                         ForEach(servers, id: \.id) { server in
-                            Text(server.name).tag(Optional(server.id))
+                            Text(verbatim: server.name).tag(Optional(server.id))
                         }
                     }
                     .labelsHidden()
@@ -135,9 +135,9 @@ struct AgentActivitySettings: View {
                     Spacer()
                     Button("Clear Activity…") {
                         Dialogs.requiresConfirmation(
-                            message: "Clear all agent activity?",
-                            informative: "It is cleared on this Mac only; with iCloud sync, other Macs keep theirs.",
-                            confirmTitle: "Clear",
+                            message: String(localized: "Clear all agent activity?"),
+                            informative: String(localized: "It is cleared on this Mac only; with iCloud sync, other Macs keep theirs."),
+                            confirmTitle: String(localized: "Clear"),
                             destructive: true
                         ) { if $0 { log.clear() } }
                     }
@@ -162,16 +162,16 @@ struct AgentActivityRow: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.rxAccent)
                     .frame(width: 14)
-                Text(entry.summary)
+                Text(verbatim: entry.summary)
                     .font(.rxBodyStrong)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: RX.Space.s2)
-                Text(RXFormat.relative(entry.date))
+                Text(verbatim: RXFormat.relative(entry.date))
                     .font(.rxHelp)
                     .foregroundStyle(.rxInkSecondary)
                     .fixedSize()
             }
-            Text([entry.client, entry.device, showsHosts ? entry.hostNames.joined(separator: ", ") : nil, entry.outcome]
+            Text(verbatim: [entry.client, entry.device, showsHosts ? entry.hostNames.joined(separator: ", ") : nil, entry.outcome]
                 .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "))
                 .font(.rxHelp)
                 .foregroundStyle(entry.outcome.hasPrefix("declined") ? Color.rxWarning : Color.rxInkSecondary)
@@ -182,14 +182,14 @@ struct AgentActivityRow: View {
             let lines = entry.detail.split(separator: "\n").count
             if !entry.detail.isEmpty, !(expanded && (entry.steps?.count ?? 0) > 1) {
                 if expanded || lines <= 3 {
-                    Text(entry.detail)
+                    Text(verbatim: entry.detail)
                         .font(.rxCode)
                         .foregroundStyle(.rxInk)
                         .fixedSize(horizontal: false, vertical: true)
                         .textSelection(.enabled)
                 } else {
                     Label(
-                        (entry.steps?.count ?? 0) > 1 ? "Show \(entry.steps?.count ?? 0) steps" : "Show \(lines) lines",
+                        (entry.steps?.count ?? 0) > 1 ? String(localized: "Show \(entry.steps?.count ?? 0) steps") : String(localized: "Show \(lines) lines"),
                         systemImage: "chevron.right"
                     )
                     .font(.rxHelp)
@@ -199,12 +199,12 @@ struct AgentActivityRow: View {
             if expanded, let steps = entry.steps, steps.count > 1 {
                 ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(index + 1). \(step.summary) · \(step.outcome)")
+                        Text(verbatim: "\(index + 1). \(step.summary) · \(step.outcome)")
                             .font(.rxHelp)
                             .foregroundStyle(step.outcome.hasPrefix("declined") || step.results.contains { $0.exitCode != 0 }
                                 ? Color.rxWarning : Color.rxInkSecondary)
                             .fixedSize(horizontal: false, vertical: true)
-                        Text(AgentActivity.line(step))
+                        Text(verbatim: AgentActivity.line(step))
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundStyle(.rxInk)
                             .textSelection(.enabled)
@@ -214,7 +214,7 @@ struct AgentActivityRow: View {
             } else if expanded {
                 ForEach(entry.results, id: \.host) { result in
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(result.host) · \(result.exitCode.map { "exit \($0)" } ?? "no exit code")")
+                        Text(verbatim: "\(result.host) · \(result.exitCode.map { String(localized: "exit \($0)") } ?? String(localized: "no exit code"))")
                             .font(.rxHelp)
                             .foregroundStyle(result.exitCode == 0 ? Color.rxInkSecondary : Color.rxDanger)
                         if !result.tail.isEmpty {

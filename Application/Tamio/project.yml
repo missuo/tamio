@@ -2,6 +2,11 @@
 # and embedded here. Regenerate the project with: xcodegen generate
 name: Tamio
 options:
+  developmentLanguage: en
+  knownRegions:
+    - Base
+    - en
+    - zh-Hans
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
@@ -28,6 +33,7 @@ targets:
       - Extension
       - Interface
       - Mac
+      - Resources/Localizable.xcstrings
       - path: ../../Resources/EULA
         buildPhase: resources
       - path: ../../Resources/LICENSE

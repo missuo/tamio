@@ -206,9 +206,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return true
         }
         Dialogs.requiresConfirmation(
-            message: "Quit Tamio?",
-            informative: "Open terminal sessions will be closed.",
-            confirmTitle: "Quit",
+            message: String(localized: "Quit Tamio?"),
+            informative: String(localized: "Open terminal sessions will be closed."),
+            confirmTitle: String(localized: "Quit"),
             destructive: true
         ) { confirmed in
             guard confirmed else { return }

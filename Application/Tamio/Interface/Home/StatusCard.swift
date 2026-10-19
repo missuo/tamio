@@ -91,12 +91,12 @@ struct StatusCard: View {
                 .menuIndicator(.hidden)
                 .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
                 .fixedSize()
-                .help("More actions")
+                .help(String(localized: "More actions"))
             }
         }
     }
 
-    func cardButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+    func cardButton(_ title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
         }
@@ -190,10 +190,10 @@ private struct StatusPhaseDot: View {
 
         var help: String {
             switch session.phase {
-            case .connected: return "Live"
-            case .connecting: return "Connecting…"
-            case let .failed(message): return "Offline: \(message)"
-            case .closed: return "Closed"
+            case .connected: return String(localized: "Live")
+            case .connecting: return String(localized: "Connecting…")
+            case let .failed(message): return String(localized: "Offline: \(message)")
+            case .closed: return String(localized: "Closed")
             }
         }
     }
@@ -209,7 +209,7 @@ private struct SystemLine: View {
     var body: some View {
         let system = session.status.system
         let release = system.releaseName
-        let uptime = system.uptimeSec > 0 ? "up \(RXFormat.duration(system.uptimeSec))" : ""
+        let uptime = system.uptimeSec > 0 ? String(localized: "up \(RXFormat.duration(system.uptimeSec))") : ""
         ViewThatFits(in: .horizontal) {
             if showsText, !release.isEmpty, !uptime.isEmpty { line(release + " · " + uptime) }
             if showsText, !release.isEmpty { line(release) }
@@ -279,22 +279,22 @@ struct StatusSlots: View {
         let root = status.fileSystem.elements.first { $0.mountPoint == "/" }
             ?? status.fileSystem.elements.max { $0.percent < $1.percent }
         return HStack(spacing: 0) {
-            reading("CPU", help: "\(status.cores) cores") {
+            reading("CPU", help: status.cores == 1 ? String(localized: "1 core") : String(localized: "\(status.cores) cores")) {
                 RingGauge(fraction: Double(status.processor.summary.sumUsed) / 100)
             }
-            reading("MEM", help: ShortBytes.string(status.memoryUsedKB * 1000) + " of " + ShortBytes.string(status.memory.memTotal * 1000)) {
+            reading("MEM", help: String(localized: "\(ShortBytes.string(status.memoryUsedKB * 1000)) of \(ShortBytes.string(status.memory.memTotal * 1000))")) {
                 RingGauge(
                     fraction: status.memoryUsedPercent / 100,
                     cache: status.memory.memTotal > 0 ? status.memoryCacheKB / status.memory.memTotal : 0
                 )
             }
-            reading("DISK", help: root.map { "\($0.used) of \($0.size)" } ?? "") {
+            reading("DISK", help: root.map { String(localized: "\($0.used) of \($0.size)") } ?? "") {
                 RingGauge(fraction: Double(root?.percent ?? 0) / 100, empty: root == nil)
             }
         }
     }
 
-    func reading(_ caption: String, help: String, @ViewBuilder gauge: () -> some View) -> some View {
+    func reading(_ caption: LocalizedStringKey, help: String, @ViewBuilder gauge: () -> some View) -> some View {
         VStack(spacing: 4) {
             gauge()
             Text(caption)
@@ -431,6 +431,6 @@ struct LoadRings: View {
         }
         .frame(width: 40, height: 40)
         .animation(.easeOut(duration: 0.5), value: values)
-        .help(String(format: "Load %.2f · %.2f · %.2f on %d cores", load.0, load.1, load.2, cores))
+        .help(String(localized: "Load \(String(format: "%.2f", load.0)) · \(String(format: "%.2f", load.1)) · \(String(format: "%.2f", load.2)) on \(cores) cores"))
     }
 }

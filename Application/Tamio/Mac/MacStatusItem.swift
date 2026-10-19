@@ -65,9 +65,9 @@ final class MacStatusItem: NSObject, NSPopoverDelegate {
     private func showMenu() {
         close()
         let menu = NSMenu()
-        menu.addItem(withTitle: "Open Tamio", action: #selector(openApp), keyEquivalent: "").target = self
+        menu.addItem(withTitle: String(localized: "Open Tamio"), action: #selector(openApp), keyEquivalent: "").target = self
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Quit Tamio", action: #selector(quit), keyEquivalent: "q").target = self
+        menu.addItem(withTitle: String(localized: "Quit Tamio"), action: #selector(quit), keyEquivalent: "q").target = self
         // Shown for this click only, so a left click still opens the popover.
         item.menu = menu
         item.button?.performClick(nil)

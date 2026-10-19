@@ -15,7 +15,7 @@ import SwiftUI
 struct PageScaffold<Leading: View, Trailing: View, Header: View, Content: View>: View {
     let scrolls: Bool
     let search: Binding<String>?
-    let searchPrompt: String
+    let searchPrompt: LocalizedStringKey
     let primary: ToolbarAction?
     let trailingMetrics: ToolbarCapsuleMetrics
     let leading: Leading
@@ -26,7 +26,7 @@ struct PageScaffold<Leading: View, Trailing: View, Header: View, Content: View>:
     init(
         scrolls: Bool = true,
         search: Binding<String>? = nil,
-        searchPrompt: String = "Search",
+        searchPrompt: LocalizedStringKey = "Search",
         primary: ToolbarAction? = nil,
         trailingMetrics: ToolbarCapsuleMetrics = .group,
         @ViewBuilder leading: () -> Leading,
@@ -81,7 +81,7 @@ extension PageScaffold where Header == EmptyView {
     init(
         scrolls: Bool = true,
         search: Binding<String>? = nil,
-        searchPrompt: String = "Search",
+        searchPrompt: LocalizedStringKey = "Search",
         primary: ToolbarAction? = nil,
         trailingMetrics: ToolbarCapsuleMetrics = .group,
         @ViewBuilder leading: () -> Leading,
@@ -121,7 +121,7 @@ extension View {
     func pageToolbar<Leading: View, Trailing: View>(
         primary: ToolbarAction? = nil,
         trailingMetrics: ToolbarCapsuleMetrics = .group,
-        search: (text: Binding<String>, prompt: String)? = nil,
+        search: (text: Binding<String>, prompt: LocalizedStringKey)? = nil,
         @ViewBuilder leading: () -> Leading,
         @ViewBuilder trailing: () -> Trailing
     ) -> some View {
@@ -135,7 +135,7 @@ private struct PageToolbar<Leading: View, Trailing: View>: ViewModifier {
     let primary: ToolbarAction?
     let trailingMetrics: ToolbarCapsuleMetrics
     /// Search at the trailing end of the toolbar.
-    let search: (text: Binding<String>, prompt: String)?
+    let search: (text: Binding<String>, prompt: LocalizedStringKey)?
     @Environment(\.isActivePage) private var isActive
     @Environment(\.serverToolSwitch) private var toolSwitch
 
@@ -183,7 +183,6 @@ struct ToolbarCapsuleMetrics {
     var minSlot: CGFloat = 35
     /// From the trailing edge of the window, past the toolbar's own margin.
     var inset: CGFloat = 4
-
     /// Buttons in a `ToolbarItemGroup`.
     static let group = ToolbarCapsuleMetrics()
     /// A lone button: no minimum width.
@@ -196,11 +195,11 @@ struct ToolbarCapsuleMetrics {
 /// inside the page instead: a hidden page's search field would stay in the toolbar).
 private struct OptionalSearch: ViewModifier {
     let text: Binding<String>?
-    let prompt: String
+    let prompt: LocalizedStringKey
 
     func body(content: Content) -> some View {
         if let text {
-            content.searchable(text: text, placement: .toolbar, prompt: prompt)
+            content.searchable(text: text, placement: .toolbar, prompt: Text(prompt))
         } else {
             content
         }
@@ -211,13 +210,13 @@ private struct OptionalSearch: ViewModifier {
 /// label (HIG: prefer simple, recognizable symbols in toolbars). A page passes
 /// its primary action to the scaffold, which draws it tinted and apart.
 struct ToolbarAction: View {
-    let title: String
+    let title: LocalizedStringKey
     let systemImage: String
     var primary = false
     var isEnabled = true
     let action: () -> Void
 
-    init(_ title: String, systemImage: String, primary: Bool = false, isEnabled: Bool = true, action: @escaping () -> Void) {
+    init(_ title: LocalizedStringKey, systemImage: String, primary: Bool = false, isEnabled: Bool = true, action: @escaping () -> Void) {
         self.title = title
         self.systemImage = systemImage
         self.primary = primary
@@ -232,13 +231,13 @@ struct ToolbarAction: View {
             }
             .rxPrimaryAction()
             .disabled(!isEnabled)
-            .help(title)
+            .help(Text(title))
         } else {
             Button(action: action) {
                 Label(title, systemImage: systemImage)
             }
             .disabled(!isEnabled)
-            .help(title)
+            .help(Text(title))
         }
     }
 }

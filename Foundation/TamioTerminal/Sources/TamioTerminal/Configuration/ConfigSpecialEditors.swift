@@ -29,23 +29,23 @@ struct ConfigThemePicker: View {
                 }
                 Spacer()
             }
-            RXSearchField("Search \(ConfigCatalog.shared.themeNames.count) themes", text: $search, width: nil)
+            RXSearchField(String(format: ConfigLayout.tr("theme.search_placeholder", default: "Search %d themes"), ConfigCatalog.shared.themeNames.count), text: $search, width: nil)
             HStack(spacing: RX.Space.s2) {
-                Text(selected.isEmpty ? "No theme: the base colors below apply." : "Using \(selected)")
+                Text(selected.isEmpty ? ConfigLayout.tr("theme.no_theme_help", default: "No theme: the base colors below apply.") : String(format: ConfigLayout.tr("theme.using_theme", default: "Using %@"), selected))
                     .font(.rxHelp)
                     .foregroundStyle(.rxInkSecondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Spacer(minLength: RX.Space.s2)
                 if !selected.isEmpty {
-                    Button("Remove") { value = "" }
+                    Button(ConfigLayout.tr("action.remove", default: "Remove")) { value = "" }
                         .buttonStyle(.rx(.plain, size: .small))
                         .fixedSize()
-                        .help("Use no theme; the base colors below apply")
+                        .help(ConfigLayout.tr("theme.remove_help", default: "Use no theme; the base colors below apply"))
                 }
             }
             if !selected.isEmpty && ConfigCatalog.shared.themes[selected] == nil {
-                HelpText("“\(selected)” is not a bundled theme, so it is not applied. Pick one below.", isError: true)
+                HelpText(String(format: ConfigLayout.tr("theme.not_bundled_warning", default: "“%@” is not a bundled theme, so it is not applied. Pick one below."), selected), isError: true)
             }
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: RX.Space.s2)], spacing: RX.Space.s2) {
@@ -90,7 +90,7 @@ struct ConfigPaletteEditor: View {
     @State private var extended = false
     var body: some View {
         VStack(alignment: .leading, spacing: RX.Space.s3) {
-            Toggle("Show all 256 colors", isOn: $extended)
+            Toggle(ConfigLayout.tr("palette.show_all_256", default: "Show all 256 colors"), isOn: $extended)
                 .rxSwitchToggle()
                 .controlSize(.small)
                 .tint(.rxAccent)
@@ -102,13 +102,13 @@ struct ConfigPaletteEditor: View {
                             .font(.system(size: 11).monospacedDigit())
                             .foregroundStyle(.rxInkSecondary)
                             .frame(width: 22, alignment: .trailing)
-                        ColorPicker("Color \(index)", selection: Binding(get: { Color(configHex: model.document.effectivePalette(index, dark: scheme == .dark)) }, set: { color in model.edit { $0.setPalette(index, color: color.configHex) } }), supportsOpacity: false)
+                        ColorPicker(String(format: ConfigLayout.tr("palette.color_index", default: "Color %d"), index), selection: Binding(get: { Color(configHex: model.document.effectivePalette(index, dark: scheme == .dark)) }, set: { color in model.edit { $0.setPalette(index, color: color.configHex) } }), supportsOpacity: false)
                             .labelsHidden()
                             .frame(width: 40)
-                        TextField("Color", text: Binding(get: { model.document.effectivePalette(index, dark: scheme == .dark) }, set: { color in model.edit { $0.setPalette(index, color: color) } }))
+                        TextField(ConfigLayout.tr("palette.color_field", default: "Color"), text: Binding(get: { model.document.effectivePalette(index, dark: scheme == .dark) }, set: { color in model.edit { $0.setPalette(index, color: color) } }))
                             .textFieldStyle(.plain)
                             .font(.system(size: 11, design: .monospaced))
-                        RXIconButton("Reset Color \(index)", systemImage: "arrow.counterclockwise", kind: .plain, size: .small) {
+                        RXIconButton(String(format: ConfigLayout.tr("palette.reset_color_index", default: "Reset Color %d"), index), systemImage: "arrow.counterclockwise", kind: .plain, size: .small) {
                             model.edit { $0.setPalette(index, color: nil) }
                         }
                         .disabled(model.document.paletteOverrides[index] == nil)

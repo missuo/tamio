@@ -80,14 +80,15 @@ struct TerminalSnippetPanel: View {
     var header: some View {
         VStack(alignment: .leading, spacing: RX.Space.s2) {
             HStack(alignment: .firstTextBaseline, spacing: RX.Space.s2) {
-                Text("SNIPPETS")
+                Text("Snippets")
+                    .textCase(.uppercase)
                     .font(.system(size: 13, weight: .bold))
                 Spacer(minLength: RX.Space.s2)
                 Button(action: close) {
                     Label("Close", systemImage: "xmark")
                 }
                 .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
-                .help("Hide Snippets (⌥⌘S)")
+                .help(String(localized: "Hide Snippets (⌥⌘S)"))
             }
             if !store.snippetGroup.snippets.isEmpty {
                 TextField("Search snippets", text: $search)
@@ -135,7 +136,7 @@ struct TerminalSnippetPanel: View {
             Hairline()
             HStack(alignment: .center, spacing: RX.Space.s2) {
                 // Whole, on two lines if need be: never cut short.
-                Text(context.closed ? "Reconnect to run snippets." : "\(store.snippetGroup.snippets.count) saved")
+                Text(context.closed ? String(localized: "Reconnect to run snippets.") : String(localized: "\(store.snippetGroup.snippets.count) saved"))
                     .font(.rxHelp)
                     .foregroundStyle(.rxInkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -188,7 +189,7 @@ private struct SnippetRow: View {
         HStack(spacing: RX.Space.s2) {
             SymbolTile(snippet.getSFAvatar(), size: 24, tinted: false)
             VStack(alignment: .leading, spacing: 1) {
-                Text(snippet.name.isEmpty ? "Untitled" : snippet.name)
+                Text(snippet.name.isEmpty ? String(localized: "Untitled") : snippet.name)
                     .font(.rxBody)
                     .foregroundStyle(.rxInk)
                     .lineLimit(1)
@@ -211,7 +212,7 @@ private struct SnippetRow: View {
         .opacity(enabled ? 1 : 0.6)
         .onHover { hovered = $0 }
         .onTapGesture { if enabled { run() } }
-        .help(enabled ? command : "Reconnect to run \(snippet.name)")
+        .help(enabled ? command : String(localized: "Reconnect to run \(snippet.name)"))
         .contextMenu {
             Button("Run", action: run)
                 .disabled(!enabled)
@@ -222,7 +223,7 @@ private struct SnippetRow: View {
             Button("Edit…", action: edit)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(snippet.name.isEmpty ? "Untitled" : snippet.name)
+        .accessibilityLabel(snippet.name.isEmpty ? String(localized: "Untitled") : snippet.name)
         .accessibilityValue(firstLine)
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { if enabled { run() } }

@@ -100,13 +100,20 @@ public struct SplitBar: View {
 
 /// Legend entry: swatch, name, bold value.
 public struct LegendItem: View {
-    let title: String
+    let title: Text
     let value: String
     let color: Color
     let outlined: Bool
 
-    public init(_ title: String, value: String, color: Color, outlined: Bool = false) {
-        self.title = title
+    public init(_ title: LocalizedStringKey, value: String, color: Color, outlined: Bool = false) {
+        self.title = Text(title)
+        self.value = value
+        self.color = color
+        self.outlined = outlined
+    }
+
+    public init<S: StringProtocol>(_ title: S, value: String, color: Color, outlined: Bool = false) {
+        self.title = Text(verbatim: String(title))
         self.value = value
         self.color = color
         self.outlined = outlined
@@ -121,9 +128,9 @@ public struct LegendItem: View {
                         .strokeBorder(outlined ? Color.rxControlBorder : .clear, lineWidth: 1)
                 )
                 .frame(width: 8, height: 8)
-            Text(title)
+            title
                 .foregroundStyle(.rxInkSecondary)
-            Text(value)
+            Text(verbatim: value)
                 .fontWeight(.semibold)
                 .monospacedDigit()
                 .foregroundStyle(.rxInk)

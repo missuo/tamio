@@ -247,7 +247,7 @@ private struct FontFamilyList: View {
     var body: some View {
         VStack(alignment: .leading, spacing: RX.Space.s2) {
             RXSearchField("Search fonts", text: $search, width: nil)
-            Toggle("Monospaced fonts only", isOn: $monospacedOnly)
+            Toggle(ConfigLayout.tr("font.monospaced_only", default: "Monospaced fonts only"), isOn: $monospacedOnly)
                 .rxCheckboxToggle()
                 .font(.rxHelp)
             ScrollViewReader { proxy in
@@ -262,7 +262,7 @@ private struct FontFamilyList: View {
                 .onAppear { if !selection.isEmpty { proxy.scrollTo(selection, anchor: .center) } }
             }
             if families.isEmpty {
-                HelpText("No installed font matches.")
+                HelpText(ConfigLayout.tr("font.no_matching_fonts", default: "No installed font matches."))
             }
         }
         .padding(RX.Space.s3)
@@ -322,7 +322,7 @@ struct ConfigFontFamilyEditor: View {
             )
             ForEach(Array(families.enumerated().dropFirst()), id: \.offset) { index, _ in
                 HStack(spacing: RX.Space.s1) {
-                    Text("Fallback")
+                    Text(ConfigLayout.tr("font.fallback", default: "Fallback"))
                         .font(.rxHelp)
                         .foregroundStyle(.rxInkSecondary)
                     ConfigFontPicker(
@@ -332,9 +332,9 @@ struct ConfigFontFamilyEditor: View {
                             next[index] = name
                             write(next)
                         }),
-                        placeholder: "Choose…"
+                        placeholder: ConfigLayout.tr("font.choose_placeholder", default: "Choose…")
                     )
-                    RXIconButton("Remove Fallback", systemImage: "minus.circle", kind: .plain, size: .small) {
+                    RXIconButton(ConfigLayout.tr("font.remove_fallback", default: "Remove Fallback"), systemImage: "minus.circle", kind: .plain, size: .small) {
                         var next = families
                         guard next.indices.contains(index) else { return }
                         next.remove(at: index)
@@ -344,7 +344,7 @@ struct ConfigFontFamilyEditor: View {
             }
             if addingFallback {
                 HStack(spacing: RX.Space.s1) {
-                    Text("Fallback")
+                    Text(ConfigLayout.tr("font.fallback", default: "Fallback"))
                         .font(.rxHelp)
                         .foregroundStyle(.rxInkSecondary)
                     ConfigFontPicker(
@@ -352,9 +352,9 @@ struct ConfigFontFamilyEditor: View {
                             addingFallback = false
                             if !name.isEmpty { write(families + [name]) }
                         }),
-                        placeholder: "Choose…"
+                        placeholder: ConfigLayout.tr("font.choose_placeholder", default: "Choose…")
                     )
-                    RXIconButton("Cancel", systemImage: "minus.circle", kind: .plain, size: .small) {
+                    RXIconButton(ConfigLayout.tr("action.cancel", default: "Cancel"), systemImage: "minus.circle", kind: .plain, size: .small) {
                         addingFallback = false
                     }
                 }
@@ -362,11 +362,11 @@ struct ConfigFontFamilyEditor: View {
                 Button {
                     addingFallback = true
                 } label: {
-                    Label("Add Fallback", systemImage: "plus")
+                    Label(ConfigLayout.tr("font.add_fallback", default: "Add Fallback"), systemImage: "plus")
                 }
                 .buttonStyle(.rx(.plain, size: .small))
                 .fixedSize()
-                .help("Used for characters the main font does not have")
+                .help(ConfigLayout.tr("font.fallback_help", default: "Used for characters the main font does not have"))
             }
         }
     }
@@ -384,8 +384,8 @@ struct ConfigFontStylePicker: View {
 
     private func name(_ value: String) -> String {
         switch value {
-        case "default", "": return "Default"
-        case "false": return "Disabled (use regular)"
+        case "default", "": return ConfigLayout.tr("option.default", default: "Default")
+        case "false": return ConfigLayout.tr("font.style_disabled", default: "Disabled (use regular)")
         default: return value
         }
     }
@@ -394,10 +394,10 @@ struct ConfigFontStylePicker: View {
         let value = model.binding(key)
         let styles = FontLibrary.styles(of: family)
         Menu {
-            Picker("Style", selection: value) {
-                Text("Default").tag("default")
+            Picker(ConfigLayout.tr("font.picker_style", default: "Style"), selection: value) {
+                Text(ConfigLayout.tr("option.default", default: "Default")).tag("default")
                 if key != "font-style" {
-                    Text("Disabled (use regular)").tag("false")
+                    Text(ConfigLayout.tr("font.style_disabled", default: "Disabled (use regular)")).tag("false")
                 }
                 Divider()
                 ForEach(styles, id: \.self) { Text($0).tag($0) }
@@ -423,7 +423,7 @@ struct ConfigFontStylePicker: View {
         .rxButtonMenu(indicator: false)
         .buttonStyle(.rx)
         .fixedSize()
-        .help(family.isEmpty ? "Styles of the built-in font" : "Styles installed for \(family)")
+        .help(family.isEmpty ? ConfigLayout.tr("font.styles_builtin_help", default: "Styles of the built-in font") : String(format: ConfigLayout.tr("font.styles_installed_help", default: "Styles installed for %@"), family))
     }
 }
 
@@ -471,7 +471,7 @@ struct ConfigFontFeatureEditor: View {
         let groupOrder = features.map(\.group).reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }
         VStack(alignment: .leading, spacing: RX.Space.s3) {
             if features.isEmpty {
-                HelpText("\(family) has no OpenType features to switch.")
+                HelpText(String(format: ConfigLayout.tr("font.no_features_help", default: "%@ has no OpenType features to switch."), family))
             }
             ForEach(groupOrder, id: \.self) { group in
                 VStack(alignment: .leading, spacing: 6) {
@@ -487,26 +487,26 @@ struct ConfigFontFeatureEditor: View {
             let others = entries.filter { !known.contains(parse($0).tag) }
             if !others.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
-                    CapsLabel("Other")
+                    CapsLabel(ConfigLayout.tr("font.other_features", default: "Other"))
                     RXFlowLayout(spacing: 6) {
                         ForEach(others, id: \.self) { entry in
                             RXChip(entry, isOn: true) { write(entries.filter { $0 != entry }) }
-                                .help("Remove \(entry)")
+                                .help(String(format: ConfigLayout.tr("font.remove_feature", default: "Remove %@"), entry))
                         }
                     }
                 }
             }
             HStack(spacing: RX.Space.s2) {
-                TextField("Other feature, e.g. ss07 or -liga", text: $custom)
+                TextField(ConfigLayout.tr("font.other_feature_placeholder", default: "Other feature, e.g. ss07 or -liga"), text: $custom)
                     .textFieldStyle(.rxMono)
                     .frame(width: 240)
                     .onSubmit(addCustom)
-                Button("Add", action: addCustom)
+                Button(ConfigLayout.tr("action.add", default: "Add"), action: addCustom)
                     .buttonStyle(.rx(size: .small))
                     .disabled(custom.trimmingCharacters(in: .whitespaces).isEmpty)
             }
             if family.isEmpty {
-                HelpText("Showing the features of the built-in font; choose a font under Font to see its own.")
+                HelpText(ConfigLayout.tr("font.features_builtin_note", default: "Showing the features of the built-in font; choose a font under Font to see its own."))
             }
         }
     }
@@ -548,9 +548,9 @@ struct ConfigFontVariationEditor: View {
         let axes = FontLibrary.axes(of: family)
         VStack(alignment: .trailing, spacing: RX.Space.s2) {
             if family.isEmpty {
-                HelpText("Choose a variable font under Font to adjust its axes.")
+                HelpText(ConfigLayout.tr("font.variation_choose_note", default: "Choose a variable font under Font to adjust its axes."))
             } else if axes.isEmpty {
-                HelpText("\(family) is not a variable font.")
+                HelpText(String(format: ConfigLayout.tr("font.not_variable_font", default: "%@ is not a variable font."), family))
             }
             ForEach(axes) { axis in
                 HStack(spacing: RX.Space.s2) {
@@ -587,14 +587,14 @@ struct ConfigByteInput: View {
 
     var body: some View {
         HStack(spacing: RX.Space.s1) {
-            TextField("MB", value: Binding(get: { megabytes }, set: { set(megabytes: $0) }), format: .number.precision(.fractionLength(0 ... 1)))
+            TextField(ConfigLayout.tr("byte.mb", default: "MB"), value: Binding(get: { megabytes }, set: { set(megabytes: $0) }), format: .number.precision(.fractionLength(0 ... 1)))
                 .multilineTextAlignment(.trailing)
                 .textFieldStyle(.rx)
                 .frame(width: 96)
-            Stepper("Megabytes", onIncrement: { set(megabytes: megabytes + 1) },
+            Stepper(ConfigLayout.tr("byte.megabytes", default: "Megabytes"), onIncrement: { set(megabytes: megabytes + 1) },
                     onDecrement: { set(megabytes: megabytes - 1) })
                 .labelsHidden()
-            Text("MB")
+            Text(ConfigLayout.tr("byte.mb", default: "MB"))
                 .font(.rxBody)
                 .foregroundStyle(.rxInkSecondary)
         }

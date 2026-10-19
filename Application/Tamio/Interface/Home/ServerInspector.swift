@@ -41,7 +41,7 @@ struct ServerInspector: View {
                     Label("Close", systemImage: "xmark")
                 }
                 .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
-                .help("Close (Esc)")
+                .help(String(localized: "Close (Esc)"))
             }
             .padding(.horizontal, RX.Space.s4)
             .padding(.top, RX.Space.s3)
@@ -127,7 +127,7 @@ private struct InspectorOverview: View {
                         .foregroundStyle(.rxInkSecondary)
                         .textSelection(.enabled)
                     if status.system.uptimeSec > 0 {
-                        Text("· up \(RXFormat.duration(status.system.uptimeSec))")
+                        Text("· \(String(localized: "up \(RXFormat.duration(status.system.uptimeSec))"))")
                             .font(.rxHelp)
                             .foregroundStyle(.rxInkSecondary)
                     }
@@ -152,11 +152,12 @@ private struct InspectorOverview: View {
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.rxSurfaceSunken))
     }
 
-    func fact(_ label: String, _ value: String, unit: String = "", dot: Color? = nil) -> some View {
+    func fact(_ label: LocalizedStringKey, _ value: String, unit: String = "", dot: Color? = nil) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 4) {
                 if let dot { RoundedRectangle(cornerRadius: 1.5).fill(dot).frame(width: 3, height: 9) }
-                Text(label.uppercased())
+                Text(label)
+                    .textCase(.uppercase)
                     .font(.system(size: 10, weight: .medium))
                     .tracking(0.4)
                     .foregroundStyle(.rxInkSecondary)
@@ -196,7 +197,7 @@ private struct InspectorOverview: View {
                 fact("Idle", RXFormat.percent(idle), unit: "%")
                 fact("Uptime", RXFormat.duration(status.system.uptimeSec))
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("LOAD").font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
+                    Text("Load").textCase(.uppercase).font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
                     LoadRings(load: (Double(status.system.load1), Double(status.system.load5), Double(status.system.load15)),
                               cores: status.cores)
                         .scaleEffect(0.8)
@@ -219,7 +220,7 @@ private struct InspectorOverview: View {
             if memory.swapTotal > 0 {
                 let used = max(0, memory.swapTotal - memory.swapFree)
                 HStack {
-                    fact("Swap", RXFormat.bytes(used * 1000).value, unit: RXFormat.bytes(used * 1000).unit + " of " + RXFormat.bytesString(memory.swapTotal * 1000))
+                    fact("Swap", RXFormat.bytes(used * 1000).value, unit: RXFormat.bytes(used * 1000).unit + " " + String(localized: "of") + " " + RXFormat.bytesString(memory.swapTotal * 1000))
                     UsageBar(fraction: used / memory.swapTotal, color: .rxSuccess, thresholds: true)
                         .frame(width: 120)
                 }
@@ -270,7 +271,7 @@ private struct InspectorOverview: View {
                     }
                 } label: {
                     HStack {
-                        Text("VIRTUAL INTERFACES").font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
+                        Text("Virtual Interfaces").textCase(.uppercase).font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
                         Spacer()
                         Text("\(virtual.count)").font(.system(size: 11)).foregroundStyle(.rxInkSecondary)
                     }
@@ -304,7 +305,7 @@ private struct InspectorOverview: View {
             Text(pair.unit).font(.system(size: 10)).foregroundStyle(.rxInkSecondary)
             RoundedRectangle(cornerRadius: 1.5).fill(color).frame(width: 3, height: 9)
         }
-        .help("Since the server booted")
+        .help(String(localized: "Since the server booted"))
     }
 
     func compact(_ value: Int) -> String {
@@ -345,9 +346,10 @@ private struct InspectorOverview: View {
                 Grid(alignment: .trailing, horizontalSpacing: RX.Space.s3, verticalSpacing: 3) {
                     GridRow {
                         Text("")
-                        ForEach(["SPEED", "TOTAL", "IOPS", "WAIT"], id: \.self) {
-                            Text($0).font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
-                        }
+                        Text("SPEED").font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
+                        Text("TOTAL").font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
+                        Text("IOPS").font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
+                        Text("WAIT").font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
                     }
                     ioRow("R", io.readBytesPerSec, io.readBytesTotal, io.readOpsPerSec, io.readWaitMs)
                     ioRow("W", io.writeBytesPerSec, io.writeBytesTotal, io.writeOpsPerSec, io.writeWaitMs)
@@ -407,7 +409,7 @@ private struct ShareRing: View {
             Circle().trim(from: upShare, to: total > 0 ? 1 : 0).stroke(Color.rxSuccess, style: StrokeStyle(lineWidth: 5, lineCap: .butt)).rotationEffect(.degrees(-90))
         }
         .frame(width: 34, height: 34)
-        .help(total > 0 ? "\(RXFormat.percent(upShare * 100))% sent, \(RXFormat.percent((1 - upShare) * 100))% received" : "")
+        .help(total > 0 ? String(localized: "\(RXFormat.percent(upShare * 100))% sent, \(RXFormat.percent((1 - upShare) * 100))% received") : "")
     }
 }
 
@@ -543,13 +545,18 @@ private struct ProcessList: View {
         }
     }
 
-    func header(_ title: String, _ key: Sort) -> some View {
+    func header(_ title: LocalizedStringKey, _ key: Sort) -> some View {
         Button {
             sort = key
         } label: {
-            Text(title + (sort == key ? (key == .name ? " ↑" : " ↓") : ""))
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(sort == key ? Color.rxInk : Color.rxInkSecondary)
+            HStack(spacing: 2) {
+                Text(title)
+                if sort == key {
+                    Text(key == .name ? " ↑" : " ↓")
+                }
+            }
+            .font(.system(size: 11, weight: .medium))
+            .foregroundStyle(sort == key ? Color.rxInk : Color.rxInkSecondary)
         }
         .buttonStyle(.plain)
     }
@@ -560,9 +567,9 @@ private struct ProcessList: View {
 
     func kill(_ row: Row, signal: String) {
         Dialogs.requiresConfirmation(
-            message: "Send SIG\(signal) to \(row.pid)?",
+            message: String(localized: "Send SIG\(signal) to \(row.pid)?"),
             informative: row.command,
-            confirmTitle: signal == "KILL" ? "Kill -9" : "Kill",
+            confirmTitle: signal == "KILL" ? String(localized: "Kill -9") : String(localized: "Kill"),
             destructive: true
         ) { confirmed in
             guard confirmed else { return }
@@ -611,14 +618,14 @@ private final class ContainerModel: ObservableObject {
         """
         guard let output = await session.run(listing, timeout: 20) else { return }
         if output.contains("TAMIO:NODOCKER") {
-            problem = "Docker isn't installed on this server."
+            problem = String(localized: "Docker isn't installed on this server.")
             loaded = true
             return
         }
         if output.contains("permission denied") || output.contains("Got permission denied") {
             let server = TamioStore.shared.machineGroup[machine]
             let user = server.loginUsername(with: TamioStore.shared.associatedIdentity(for: server))
-            problem = "\(user) can't reach the Docker socket. Add the user to the docker group."
+            problem = String(localized: "\(user) can't reach the Docker socket. Add the user to the docker group.")
             loaded = true
             return
         }
@@ -653,7 +660,7 @@ private final class ContainerModel: ObservableObject {
     }
 
     private func publish(_ list: [Container]) {
-        problem = list.isEmpty ? "No containers on this server." : nil
+        problem = list.isEmpty ? String(localized: "No containers on this server.") : nil
         let sorted = list.sorted { lhs, rhs in
             if lhs.running != rhs.running { return lhs.running }
             let left = Double(lhs.cpu.dropLast()) ?? 0, right = Double(rhs.cpu.dropLast()) ?? 0
@@ -762,9 +769,9 @@ private struct ContainerList: View {
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.rxSurfaceSunken))
     }
 
-    func column(_ title: String, _ value: String) -> some View {
+    func column(_ title: LocalizedStringKey, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(title.uppercased()).font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
+            Text(title).textCase(.uppercase).font(.system(size: 10, weight: .medium)).foregroundStyle(.rxInkSecondary)
             Text(value.isEmpty ? "—" : value).font(.system(size: 12, weight: .semibold).monospacedDigit()).lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

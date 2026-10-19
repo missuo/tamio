@@ -136,20 +136,39 @@ public extension ButtonStyle where Self == RXButtonStyle {
 
 /// Icon-only 28×28 button with an accessible label and tooltip.
 public struct RXIconButton: View {
-    let title: String
+    enum Title {
+        case key(LocalizedStringKey)
+        case verbatim(String)
+    }
+
+    let title: Title
     let systemImage: String
     let kind: RXButtonStyle.Kind
     let size: RXButtonStyle.Size
     let action: () -> Void
 
     public init(
-        _ title: String,
+        _ title: LocalizedStringKey,
         systemImage: String,
         kind: RXButtonStyle.Kind = .bordered,
         size: RXButtonStyle.Size = .regular,
         action: @escaping () -> Void
     ) {
-        self.title = title
+        self.title = .key(title)
+        self.systemImage = systemImage
+        self.kind = kind
+        self.size = size
+        self.action = action
+    }
+
+    public init<S: StringProtocol>(
+        _ title: S,
+        systemImage: String,
+        kind: RXButtonStyle.Kind = .bordered,
+        size: RXButtonStyle.Size = .regular,
+        action: @escaping () -> Void
+    ) {
+        self.title = .verbatim(String(title))
         self.systemImage = systemImage
         self.kind = kind
         self.size = size
@@ -157,12 +176,22 @@ public struct RXIconButton: View {
     }
 
     public var body: some View {
-        Button(action: action) {
-            Label(title, systemImage: systemImage)
+        switch title {
+        case let .key(key):
+            Button(action: action) {
+                Label(key, systemImage: systemImage)
+            }
+            .buttonStyle(RXButtonStyle(kind, size: size, iconOnly: true))
+            .help(key)
+            .accessibilityLabel(key)
+        case let .verbatim(text):
+            Button(action: action) {
+                Label(text, systemImage: systemImage)
+            }
+            .buttonStyle(RXButtonStyle(kind, size: size, iconOnly: true))
+            .help(text)
+            .accessibilityLabel(text)
         }
-        .buttonStyle(RXButtonStyle(kind, size: size, iconOnly: true))
-        .help(title)
-        .accessibilityLabel(title)
     }
 }
 
@@ -173,12 +202,18 @@ public struct RXIconButton: View {
 public struct RXSegmented<Value: Hashable>: View {
     public struct Option {
         let value: Value
-        let title: String
+        let title: Text
         let systemImage: String?
 
-        public init(_ value: Value, _ title: String, systemImage: String? = nil) {
+        public init(_ value: Value, _ title: LocalizedStringKey, systemImage: String? = nil) {
             self.value = value
-            self.title = title
+            self.title = Text(title)
+            self.systemImage = systemImage
+        }
+
+        public init<S: StringProtocol>(_ value: Value, _ title: S, systemImage: String? = nil) {
+            self.value = value
+            self.title = Text(verbatim: String(title))
             self.systemImage = systemImage
         }
     }
@@ -227,7 +262,7 @@ public struct RXSegmented<Value: Hashable>: View {
                 if let systemImage = option.systemImage {
                     Image(systemName: systemImage)
                 }
-                Text(option.title)
+                option.title
             }
             .font(.system(size: 13))
             .foregroundStyle(isSelected && !atRest ? Color.white : Color.primary.opacity(isSelected || atRest ? 1 : 0.85))
@@ -259,9 +294,9 @@ public struct RXSegmented<Value: Hashable>: View {
                 ForEach(options.indices, id: \.self) { index in
                     let option = options[index]
                     if let systemImage = option.systemImage {
-                        Label(option.title, systemImage: systemImage).tag(option.value)
+                        Label { option.title } icon: { Image(systemName: systemImage) }.tag(option.value)
                     } else {
-                        Text(option.title).tag(option.value)
+                        option.title.tag(option.value)
                     }
                 }
             }
@@ -336,26 +371,47 @@ public extension View {
 
 /// Caption label above a field, optional help or error underneath.
 public struct RXField<Content: View>: View {
-    let label: String
-    let help: String?
-    let error: String?
+    let label: CapsLabel
+    let help: HelpText?
+    let error: HelpText?
     let content: Content
 
-    public init(_ label: String, help: String? = nil, error: String? = nil, @ViewBuilder content: () -> Content) {
-        self.label = label
-        self.help = help
-        self.error = error
+    public init(_ label: LocalizedStringKey, help: LocalizedStringKey? = nil, error: LocalizedStringKey? = nil, @ViewBuilder content: () -> Content) {
+        self.label = CapsLabel(label)
+        self.help = help.map { HelpText($0) }
+        self.error = error.map { HelpText($0, isError: true) }
+        self.content = content()
+    }
+
+    public init<H: StringProtocol>(_ label: LocalizedStringKey, help: H?, error: String? = nil, @ViewBuilder content: () -> Content) {
+        self.label = CapsLabel(label)
+        self.help = help.flatMap { $0.isEmpty ? nil : HelpText($0) }
+        self.error = error.flatMap { $0.isEmpty ? nil : HelpText($0, isError: true) }
+        self.content = content()
+    }
+
+    public init<E: StringProtocol>(_ label: LocalizedStringKey, error: E?, @ViewBuilder content: () -> Content) {
+        self.label = CapsLabel(label)
+        self.help = nil
+        self.error = error.flatMap { $0.isEmpty ? nil : HelpText($0, isError: true) }
+        self.content = content()
+    }
+
+    public init<S: StringProtocol>(_ label: S, help: String? = nil, error: String? = nil, @ViewBuilder content: () -> Content) {
+        self.label = CapsLabel(label)
+        self.help = help.flatMap { $0.isEmpty ? nil : HelpText($0) }
+        self.error = error.flatMap { $0.isEmpty ? nil : HelpText($0, isError: true) }
         self.content = content()
     }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            CapsLabel(label)
+            label
             content
-            if let error, !error.isEmpty {
-                HelpText(error, isError: true)
-            } else if let help, !help.isEmpty {
-                HelpText(help)
+            if let error {
+                error
+            } else if let help {
+                help
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -365,17 +421,23 @@ public struct RXField<Content: View>: View {
 /// A read-only value drawn like a field.
 public struct RXValueField: View {
     let text: String
-    let placeholder: String
+    let placeholder: Text
     let monospaced: Bool
 
-    public init(_ text: String, placeholder: String = "", monospaced: Bool = false) {
+    public init(_ text: String, placeholder: LocalizedStringKey = "", monospaced: Bool = false) {
         self.text = text
-        self.placeholder = placeholder
+        self.placeholder = Text(placeholder)
+        self.monospaced = monospaced
+    }
+
+    public init<P: StringProtocol>(_ text: String, placeholder: P, monospaced: Bool = false) {
+        self.text = text
+        self.placeholder = Text(verbatim: String(placeholder))
         self.monospaced = monospaced
     }
 
     public var body: some View {
-        Text(text.isEmpty ? placeholder : text)
+        (text.isEmpty ? placeholder : Text(verbatim: text))
             .font(monospaced ? .rxCode : .rxBody)
             .foregroundStyle(text.isEmpty ? Color.rxInkSecondary : Color.rxInk)
             .lineLimit(1)
@@ -393,12 +455,18 @@ public struct RXValueField: View {
 
 /// A 28pt filter field at the left of a toolbar. Filters the current list live.
 public struct RXSearchField: View {
-    let prompt: String
+    let prompt: Text
     @Binding var text: String
     let width: CGFloat?
 
-    public init(_ prompt: String, text: Binding<String>, width: CGFloat? = 220) {
-        self.prompt = prompt
+    public init(_ prompt: LocalizedStringKey, text: Binding<String>, width: CGFloat? = 220) {
+        self.prompt = Text(prompt)
+        _text = text
+        self.width = width
+    }
+
+    public init<S: StringProtocol>(_ prompt: S, text: Binding<String>, width: CGFloat? = 220) {
+        self.prompt = Text(verbatim: String(prompt))
         _text = text
         self.width = width
     }
@@ -408,7 +476,8 @@ public struct RXSearchField: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 12))
                 .foregroundStyle(.rxInkSecondary)
-            TextField(prompt, text: $text)
+            TextField(text: $text, prompt: prompt) { prompt }
+                .labelsHidden()
                 .textFieldStyle(.plain)
                 .font(.rxBody)
                 .disableAutocorrection(true)
@@ -463,40 +532,53 @@ private struct RXGroupedButtonBody: View {
 public struct RXPicker<Value: Hashable>: View {
     public struct Option {
         let value: Value
-        let title: String
+        let title: Text
 
-        public init(_ value: Value, _ title: String) {
+        public init(_ value: Value, _ title: LocalizedStringKey) {
             self.value = value
-            self.title = title
+            self.title = Text(title)
+        }
+
+        public init<S: StringProtocol>(_ value: Value, _ title: S) {
+            self.value = value
+            self.title = Text(verbatim: String(title))
         }
     }
 
     @Binding var selection: Value
     let options: [Option]
-    let placeholder: String
+    let placeholder: Text
 
-    public init(selection: Binding<Value>, options: [Option], placeholder: String = "Choose…") {
+    public init(selection: Binding<Value>, options: [Option], placeholder: LocalizedStringKey = "Choose…") {
         _selection = selection
         self.options = options
-        self.placeholder = placeholder
+        self.placeholder = Text(placeholder)
     }
 
-    var title: String {
+    public init<S: StringProtocol>(selection: Binding<Value>, options: [Option], placeholder: S) {
+        _selection = selection
+        self.options = options
+        self.placeholder = Text(verbatim: String(placeholder))
+    }
+
+    var title: Text {
         options.first { $0.value == selection }?.title ?? placeholder
     }
 
     public var body: some View {
         Menu {
-            Picker(placeholder, selection: $selection) {
+            Picker(selection: $selection) {
                 ForEach(options.indices, id: \.self) { index in
-                    Text(options[index].title).tag(options[index].value)
+                    options[index].title.tag(options[index].value)
                 }
+            } label: {
+                placeholder
             }
             .pickerStyle(.inline)
             .labelsHidden()
         } label: {
             HStack(spacing: 6) {
-                Text(title)
+                title
                     .font(.rxBody)
                     .foregroundStyle(options.contains { $0.value == selection } ? Color.rxInk : Color.rxInkSecondary)
                     .lineLimit(1)

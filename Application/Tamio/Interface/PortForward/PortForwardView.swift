@@ -135,13 +135,13 @@ private struct PortForwardRow: View {
     var body: some View {
         let status = PortForwardPresentation(state: backend.lastStatus[forward.id], running: running)
         HStack(spacing: 0) {
-            RXTag(forward.forwardOrientation == .listenLocal ? "Listen local" : "Listen remote")
+            RXTag(forward.forwardOrientation == .listenLocal ? String(localized: "Listen local") : String(localized: "Listen remote"))
                 .frame(width: ForwardColumns.orientation, alignment: .leading)
             Text(":\(forward.bindPort)")
                 .font(.rxCode)
                 .foregroundStyle(.rxInk)
                 .frame(width: ForwardColumns.bind, alignment: .leading)
-            RedactableText(forward.getMachineName() ?? "No server", redacted: store.machineRedacted == .all)
+            RedactableText(forward.getMachineName() ?? String(localized: "No server"), redacted: store.machineRedacted == .all)
                 .font(.rxBody)
                 .foregroundStyle(forward.usingMachine == nil ? Color.rxInkSecondary : Color.rxInk)
                 .lineLimit(1)
@@ -169,7 +169,7 @@ private struct PortForwardRow: View {
             .controlSize(.small)
             .tint(.rxAccent)
             .disabled(!forward.isValid())
-            .help(forward.isValid() ? (running ? "Stop" : "Start") : "Incomplete")
+            .help(forward.isValid() ? (running ? String(localized: "Stop") : String(localized: "Start")) : String(localized: "Incomplete"))
             .frame(width: ForwardColumns.toggle, alignment: .trailing)
         }
         .padding(.horizontal, RX.Space.s3)
@@ -201,8 +201,8 @@ enum PortForwardActions {
     static func delete(_ id: RDPortForward.ID) {
         let forward = TamioStore.shared.portForwardGroup[id]
         Dialogs.requiresConfirmation(
-            message: "Delete the forward on port \(forward.bindPort)?",
-            confirmTitle: "Delete",
+            message: String(localized: "Delete the forward on port \(forward.bindPort)?"),
+            confirmTitle: String(localized: "Delete"),
             destructive: true
         ) { confirmed in
             guard confirmed else { return }
@@ -236,8 +236,8 @@ struct PortForwardEditorSheet: View {
 
     var body: some View {
         SheetScaffold(
-            forward == nil ? "New Port Forward" : "Edit Port Forward",
-            lead: orientation == .listenLocal ? "This Mac :port → server → target" : "Server :port → this Mac → target"
+            forward == nil ? String(localized: "New Port Forward") : String(localized: "Edit Port Forward"),
+            lead: orientation == .listenLocal ? String(localized: "This Mac :port → server → target") : String(localized: "Server :port → this Mac → target")
         ) {
             VStack(alignment: .leading, spacing: 14) {
                 RXField("Orientation") {

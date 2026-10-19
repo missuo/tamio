@@ -92,4 +92,87 @@ final class ConfigurationTests: XCTestCase {
         XCTAssertNil(draft.shareURL())
         XCTAssertThrowsError(try ConfigDocument.decodeShareOrText("https://ghostty.zerebos.com/#share=%%%"))
     }
+
+    func testLocalizationCoversEveryTamioSetting() throws {
+        let path = try XCTUnwrap(Bundle.module.path(forResource: "zh-Hans", ofType: "lproj"))
+        let zhBundle = try XCTUnwrap(Bundle(path: path))
+
+        XCTAssertEqual(ConfigCatalog.tamioKeys.count, 66, "Exactly 66 settings should be in tamioKeys")
+
+        for key in ConfigCatalog.tamioKeys {
+            let englishTitle = ConfigLayout.englishTitle(key)
+            let zhTitle = ConfigLayout.title(key, bundle: zhBundle)
+            XCTAssertFalse(zhTitle.isEmpty, "Missing Chinese title for \(key)")
+            XCTAssertNotEqual(zhTitle, englishTitle, "Chinese title for \(key) should not match English fallback")
+
+            let englishSummary = ConfigLayout.englishSummary(key)
+            let zhSummary = ConfigLayout.summary(key, bundle: zhBundle)
+            XCTAssertFalse(zhSummary.isEmpty, "Missing Chinese summary for \(key)")
+            XCTAssertNotEqual(zhSummary, englishSummary, "Chinese summary for \(key) should not match English fallback")
+        }
+
+        for category in ConfigLayout.categories {
+            let zhCat = category.title(in: zhBundle)
+            XCTAssertFalse(zhCat.isEmpty, "Empty title for category \(category.id)")
+            if !["mcp", "about"].contains(category.id) {
+                XCTAssertNotEqual(zhCat, category.englishTitle, "Category \(category.id) should be translated in Chinese")
+            }
+            for group in category.groups {
+                let zhGroup = group.title(in: zhBundle)
+                XCTAssertFalse(zhGroup.isEmpty, "Empty title for group \(group.id)")
+                if !["Tamio", "ssh", "server"].contains(group.id) {
+                    XCTAssertNotEqual(zhGroup, group.englishTitle, "Group \(group.id) should be translated in Chinese")
+                }
+            }
+        }
+
+        for (key, options) in ConfigLayout.optionNames {
+            for (value, englishFallback) in options {
+                let zhOpt = ConfigLayout.optionName(key, value: value, fallback: englishFallback, bundle: zhBundle)
+                XCTAssertFalse(zhOpt.isEmpty, "Empty option for \(key).\(value)")
+                XCTAssertNotEqual(zhOpt, englishFallback, "Option \(key).\(value) should be translated in Chinese")
+            }
+        }
+
+        XCTAssertEqual(KeybindingNames.groupTitle("Clipboard", bundle: zhBundle), "剪贴板")
+        XCTAssertEqual(KeybindingNames.action("clear_screen", bundle: zhBundle), "清屏")
+        XCTAssertEqual(KeybindingNames.key("space", bundle: zhBundle), "空格")
+        XCTAssertEqual(ConfigDuration.unitName("ms", bundle: zhBundle), "毫秒")
+    }
+
+    func testPseudolocalizationTransformsAllSettingStrings() {
+        ConfigLayout.pseudolocalize = true
+        defer { ConfigLayout.pseudolocalize = false }
+
+        XCTAssertEqual(ConfigCatalog.tamioKeys.count, 66)
+
+        for key in ConfigCatalog.tamioKeys {
+            let title = ConfigLayout.title(key)
+            let summary = ConfigLayout.summary(key)
+
+            XCTAssertTrue(title.hasPrefix("⟦") && title.hasSuffix("⟧"), "Title for \(key) should be pseudolocalized: \(title)")
+            XCTAssertTrue(summary.hasPrefix("⟦") && summary.hasSuffix("⟧"), "Summary for \(key) should be pseudolocalized: \(summary)")
+
+            let englishTitle = ConfigLayout.englishTitle(key)
+            if englishTitle.contains(where: { "aeiouAEIOU".contains($0) }) {
+                XCTAssertNotEqual(title, "⟦" + englishTitle + "⟧")
+            }
+        }
+
+        for category in ConfigLayout.categories {
+            let catTitle = category.title
+            XCTAssertTrue(catTitle.hasPrefix("⟦") && catTitle.hasSuffix("⟧"), "Category \(category.id) should be pseudolocalized: \(catTitle)")
+            for group in category.groups {
+                let grpTitle = group.title
+                XCTAssertTrue(grpTitle.hasPrefix("⟦") && grpTitle.hasSuffix("⟧"), "Group \(group.id) should be pseudolocalized: \(grpTitle)")
+            }
+        }
+
+        for (key, options) in ConfigLayout.optionNames {
+            for (value, fallback) in options {
+                let opt = ConfigLayout.optionName(key, value: value, fallback: fallback)
+                XCTAssertTrue(opt.hasPrefix("⟦") && opt.hasSuffix("⟧"), "Option \(key).\(value) should be pseudolocalized: \(opt)")
+            }
+        }
+    }
 }

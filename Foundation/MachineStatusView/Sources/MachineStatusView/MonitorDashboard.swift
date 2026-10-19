@@ -95,7 +95,7 @@ public struct MonitorPlaceholder: View {
                     "Can't connect",
                     systemImage: "exclamationmark.triangle",
                     message: message,
-                    actionTitle: retry == nil ? nil : "Try Again",
+                    actionTitle: retry == nil ? nil : LocalizedStringKey("Try Again"),
                     action: retry
                 )
             case .closed:

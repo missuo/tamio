@@ -207,9 +207,9 @@ private struct HostKeysRow: View {
         ) {
             Button("Forget All…") {
                 Dialogs.requiresConfirmation(
-                    message: "Forget all saved host keys?",
-                    informative: "The key each server presents on its next connection is saved as its key.",
-                    confirmTitle: "Forget All"
+                    message: String(localized: "Forget all saved host keys?"),
+                    informative: String(localized: "The key each server presents on its next connection is saved as its key."),
+                    confirmTitle: String(localized: "Forget All")
                 ) { confirmed in
                     guard confirmed else { return }
                     KnownHosts.shared.forgetAll()
@@ -328,7 +328,7 @@ private struct UpdateSettings: View {
                     set: { downloads = $0; Mac.automaticallyDownloadsUpdates = $0 }
                 ))
                 .disabled(!checks)
-                RXFormRow("Check now", description: lastCheck.map { "Last checked \(RXFormat.relative($0))." } ?? "Not checked yet.") {
+                RXFormRow("Check now", description: lastCheck.map { String(localized: "Last checked \(RXFormat.relative($0)).") } ?? String(localized: "Not checked yet.")) {
                     Button("Check for Updates…") {
                         center.checkNow()
                         lastCheck = Date()
@@ -374,15 +374,15 @@ enum AboutDocument: String, Identifiable {
 
     var title: String {
         switch self {
-        case .license: return "License"
-        case .agreement: return "End User License Agreement"
+        case .license: return String(localized: "License")
+        case .agreement: return String(localized: "End User License Agreement")
         }
     }
 
     var text: String {
         guard let url = Bundle.main.url(forResource: rawValue, withExtension: nil),
               let string = try? String(contentsOf: url, encoding: .utf8)
-        else { return "The text could not be loaded." }
+        else { return String(localized: "The text could not be loaded.") }
         return string
     }
 }

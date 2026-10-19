@@ -44,7 +44,7 @@ struct SnippetsView: View {
                     Divider()
                     ForEach(groupNames, id: \.self) { Text($0).tag(String?.some($0)) }
                 }
-                .help("Filter by group")
+                .help(String(localized: "Filter by group"))
             }
         } trailing: {
         } header: {
@@ -109,7 +109,7 @@ private struct SnippetTile: View {
             HStack(alignment: .top, spacing: RX.Space.s3) {
                 SymbolTile(snippet.getSFAvatar())
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(snippet.name.isEmpty ? "Untitled" : snippet.name)
+                    Text(snippet.name.isEmpty ? String(localized: "Untitled") : snippet.name)
                         .font(.rxBodyStrong)
                         .foregroundStyle(.rxInk)
                         .lineLimit(1)
@@ -146,7 +146,7 @@ enum SnippetActions {
     static func run(_ id: RDSnippet.ID) {
         let snippet = TamioStore.shared.snippetGroup[id]
         guard !snippet.code.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            Dialogs.presentError(with: "This snippet has no command to run.")
+            Dialogs.presentError(with: String(localized: "This snippet has no command to run."))
             return
         }
         ServerPickerPanel.present(
@@ -173,8 +173,8 @@ enum SnippetActions {
     static func delete(_ id: RDSnippet.ID) {
         let snippet = TamioStore.shared.snippetGroup[id]
         Dialogs.requiresConfirmation(
-            message: "Delete \(snippet.name.isEmpty ? "this snippet" : snippet.name)?",
-            confirmTitle: "Delete",
+            message: snippet.name.isEmpty ? String(localized: "Delete this snippet?") : String(localized: "Delete \(snippet.name)?"),
+            confirmTitle: String(localized: "Delete"),
             destructive: true
         ) { confirmed in
             if confirmed { TamioStore.shared.snippetGroup.delete(id) }

@@ -144,7 +144,7 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
     }
 
     func callConnect() {
-        putInformation("Connecting...")
+        putInformation(String(localized: "Connecting..."))
         onMainThread {
             self.processConnection = true
             self.connectionPhase = .connecting
@@ -164,18 +164,18 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
         case .success:
             break
         case .connectFailed:
-            putInformation(shell.hostKeyRefusal ?? shell.getLastError() ?? "Unable to connect for \(machine.remoteAddress):\(machine.remotePort)")
+            putInformation(shell.hostKeyRefusal ?? shell.getLastError() ?? String(localized: "Unable to connect for \(machine.remoteAddress):\(machine.remotePort)"))
             onMainThread { self.processShutdown() }
             return
         case .authenticateFailed:
-            putInformation("Failed to authenticate connection, did you forget to add identity or enable auto authentication?")
+            putInformation(String(localized: "Failed to authenticate connection, did you forget to add identity or enable auto authentication?"))
             onMainThread { self.processShutdown() }
             return
         }
 
         shell.requestConnectFileTransferAndWait()
         guard shell.isConnectedFileTransfer else {
-            putInformation("Failed to setup file transfer protocol")
+            putInformation(String(localized: "Failed to setup file transfer protocol"))
             onMainThread { self.processShutdown() }
             return
         }
@@ -190,7 +190,7 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
     }
 
     public func processShutdown() {
-        putInformation("Connection Closed")
+        putInformation(String(localized: "Connection Closed"))
         // you are in charge to cancel sftp operation at interface level
         // because sftp operations are in control blocks which are not canceled during fly
         // I may add a control later tho
@@ -234,14 +234,14 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
         let currentDir = currentDir
         let currentUrl = currentUrl
         DispatchQueue.global().async { [self] in
-            putInformation("Loading... \(currentDir)")
+            putInformation(String(localized: "Loading... \(currentDir)"))
             onMainThread { self.isProgressRunning = true }
             let files = shell.requestFileList(at: currentDir)
             var builder = [RemoteFile]()
             for file in files ?? [] {
                 builder.append(.init(base: currentUrl, name: file.name, fstat: file))
             }
-            putInformation("Load Complete")
+            putInformation(String(localized: "Load Complete"))
             onMainThread {
                 // A navigation that happened meanwhile issues its own load;
                 // this one's result belongs to a directory already left.
@@ -256,14 +256,14 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
         guard connectionAvailableCheckPassed() else { return }
         let url = currentUrl.appendingPathComponent(name)
         DispatchQueue.global().async { [self] in
-            putInformation("Creating Folder \(url.path)...")
+            putInformation(String(localized: "Creating Folder \(url.path)..."))
             onMainThread { self.isProgressRunning = true }
             let done = shell.requestCreateDirAndWait(url.path)
             if done {
-                putInformation("Folder Created")
+                putInformation(String(localized: "Folder Created"))
             } else {
                 let error = shell.getLastFileTransferError()
-                FileTransferInterface.uiHandler.presentError("Failed to Create")
+                FileTransferInterface.uiHandler.presentError(String(localized: "Failed to Create"))
                 print("SFTP \(machine.name) Error: \(error ?? "Unknown")")
             }
             loadCurrentFileList()
@@ -287,7 +287,7 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
             }
             let total = urls.count
             var current = 0
-            putInformation("Uploading...")
+            putInformation(String(localized: "Uploading..."))
             for url in urls {
                 defer { current += 1 }
                 onMainThread {
@@ -307,12 +307,12 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
                 }
                 guard done else {
                     let error = shell.getLastFileTransferError()
-                    FileTransferInterface.uiHandler.presentError("Error Occurred")
+                    FileTransferInterface.uiHandler.presentError(String(localized: "Error Occurred"))
                     print("SFTP \(machine.name) Error: \(error ?? "Unknown")")
                     break
                 }
             }
-            putInformation("Upload Completed")
+            putInformation(String(localized: "Upload Completed"))
             loadCurrentFileList()
         }
     }
@@ -320,14 +320,14 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
     public func rename(from: URL, to: URL) {
         guard connectionAvailableCheckPassed() else { return }
         DispatchQueue.global().async { [self] in
-            putInformation("Renaming...")
+            putInformation(String(localized: "Renaming..."))
             onMainThread { self.isProgressRunning = true }
             let done = shell.requestRenameFileAndWait(from.path, withNewPath: to.path)
             if done {
-                putInformation("Renamed Successfully")
+                putInformation(String(localized: "Renamed Successfully"))
             } else {
                 let error = shell.getLastFileTransferError()
-                FileTransferInterface.uiHandler.presentError("Failed to Rename")
+                FileTransferInterface.uiHandler.presentError(String(localized: "Failed to Rename"))
                 print("SFTP \(machine.name) Error: \(error ?? "Unknown")")
             }
             loadCurrentFileList()
@@ -343,7 +343,7 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
                 self.currentProgressCancelable = true
                 self.currentProcessingFile = item.path
             }
-            putInformation("Deleting...")
+            putInformation(String(localized: "Deleting..."))
             let done = shell.requestDelete(
                 forFileAndWait: item.path
             ) { file in
@@ -352,10 +352,10 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
                 self.continueCurrentProgress
             }
             if done {
-                putInformation("Delete Completed")
+                putInformation(String(localized: "Delete Completed"))
             } else {
                 let error = shell.getLastFileTransferError()
-                FileTransferInterface.uiHandler.presentError("Error Occurred")
+                FileTransferInterface.uiHandler.presentError(String(localized: "Error Occurred"))
                 print("SFTP \(machine.name) Error: \(error ?? "Unknown")")
             }
             loadCurrentFileList()
@@ -383,7 +383,7 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
                 self.isProgressRunning = true
                 self.currentProgressCancelable = true
             }
-            putInformation("Downloading...")
+            putInformation(String(localized: "Downloading..."))
             let done = shell.requestDownload(
                 fromFileAndWait: fromPath,
                 toLocalPath: to
@@ -395,13 +395,13 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
                 self.continueCurrentProgress
             }
             if done {
-                putInformation("Download Completed")
+                putInformation(String(localized: "Download Completed"))
                 onMainThread {
                     FileTransferInterface.uiHandler.downloadCompleted()
                 }
             } else {
                 let error = shell.getLastFileTransferError()
-                FileTransferInterface.uiHandler.presentError("Error Occurred")
+                FileTransferInterface.uiHandler.presentError(String(localized: "Error Occurred"))
                 print("SFTP \(machine.name) Error: \(error ?? "Unknown")")
             }
             loadCurrentFileList()

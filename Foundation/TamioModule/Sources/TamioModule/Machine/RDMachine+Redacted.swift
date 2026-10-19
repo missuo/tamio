@@ -20,11 +20,11 @@ public extension RDMachine.RedactedLevel {
     var tooltip: String {
         switch self {
         case .none:
-            return "Show Everything"
+            return String(localized: "Show Everything")
         case .sensitive:
-            return "Hide Addresses"
+            return String(localized: "Hide Addresses")
         case .all:
-            return "Hide Names and Addresses"
+            return String(localized: "Hide Names and Addresses")
         }
     }
 }

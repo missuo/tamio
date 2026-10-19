@@ -44,9 +44,9 @@ enum ServerPickerPanel {
     /// The multi-select server picker used by Open Terminals, Run snippet and Port Forward.
     @MainActor
     static func present(
-        title: String,
-        lead: String? = nil,
-        confirmTitle: String,
+        title: LocalizedStringKey,
+        lead: LocalizedStringKey? = nil,
+        confirmTitle: LocalizedStringKey,
         allowsMany: Bool,
         preselected: Set<RDMachine.ID> = [],
         onComplete: @escaping ([RDMachine.ID]) -> Void

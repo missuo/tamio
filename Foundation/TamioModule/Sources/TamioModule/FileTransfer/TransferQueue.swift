@@ -115,11 +115,12 @@ public final class TransferJob: ObservableObject, Identifiable {
 
     public var title: String {
         let names = sources.map { ($0 as NSString).lastPathComponent }
-        let what = names.count == 1 ? names[0] : "\(names.count) items"
+        let what = names.count == 1 ? names[0] : String(localized: "\(names.count) items")
+        let server = to?.name ?? String(localized: "server")
         switch direction {
-        case .upload: return "\(what) → \(to?.name ?? "server")"
-        case .download: return "\(what) → this Mac"
-        case .relay: return "\(what) → \(to?.name ?? "server")"
+        case .upload: return String(localized: "\(what) → \(server)")
+        case .download: return String(localized: "\(what) → this Mac")
+        case .relay: return String(localized: "\(what) → \(server)")
         }
     }
 
@@ -185,11 +186,11 @@ public final class TransferJob: ObservableObject, Identifiable {
                     let outcome = shell.connectAndAuthenticate(identity: identity, autoIdentities: TamioStore.shared.workerIdentitiesForAutoAuth, for: machine)
                     guard outcome == .success else {
                         let reason = outcome == .connectFailed ? shell.getLastError() : nil
-                        return (nil, shell.hostKeyRefusal ?? reason ?? "Could not connect to \(machine.name).")
+                        return (nil, shell.hostKeyRefusal ?? reason ?? String(localized: "Could not connect to \(machine.name)."))
                     }
                     shell.requestConnectFileTransferAndWait()
                     guard shell.isConnectedFileTransfer else {
-                        return (nil, "\(machine.name) does not offer SFTP.")
+                        return (nil, String(localized: "\(machine.name) does not offer SFTP."))
                     }
                     return (shell, nil)
                 }
@@ -204,30 +205,30 @@ public final class TransferJob: ObservableObject, Identifiable {
                 }
                 switch direction {
                 case .upload:
-                    guard let to else { return continuation.resume(returning: "No server to upload to.") }
+                    guard let to else { return continuation.resume(returning: String(localized: "No server to upload to.")) }
                     let (shell, error) = open(to)
                     defer { close(shell) }
                     guard let shell else { return continuation.resume(returning: error) }
                     for source in sources where flag.value {
                         if !shell.requestUpload(forFileAndWait: source, toDirectory: destination, onProgress: progress, withContinuationHandler: { flag.value }) {
-                            return continuation.resume(returning: flag.value ? (shell.getLastFileTransferError() ?? "\((source as NSString).lastPathComponent) could not be uploaded.") : nil)
+                            return continuation.resume(returning: flag.value ? (shell.getLastFileTransferError() ?? String(localized: "\((source as NSString).lastPathComponent) could not be uploaded.")) : nil)
                         }
                     }
                     continuation.resume(returning: nil)
                 case .download:
-                    guard let from else { return continuation.resume(returning: "No server to download from.") }
+                    guard let from else { return continuation.resume(returning: String(localized: "No server to download from.")) }
                     let (shell, error) = open(from)
                     defer { close(shell) }
                     guard let shell else { return continuation.resume(returning: error) }
                     for source in sources where flag.value {
                         let target = (destination as NSString).appendingPathComponent((source as NSString).lastPathComponent)
                         if !shell.requestDownload(fromFileAndWait: source, toLocalPath: target, onProgress: progress, withContinuationHandler: { flag.value }) {
-                            return continuation.resume(returning: flag.value ? (shell.getLastFileTransferError() ?? "\((source as NSString).lastPathComponent) could not be downloaded.") : nil)
+                            return continuation.resume(returning: flag.value ? (shell.getLastFileTransferError() ?? String(localized: "\((source as NSString).lastPathComponent) could not be downloaded.")) : nil)
                         }
                     }
                     continuation.resume(returning: nil)
                 case .relay:
-                    guard let from, let to else { return continuation.resume(returning: "Two servers are needed.") }
+                    guard let from, let to else { return continuation.resume(returning: String(localized: "Two servers are needed.")) }
                     let staging = FileManager.default.temporaryDirectory.appendingPathComponent("tamio-relay-\(UUID().uuidString)")
                     try? FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
                     defer { try? FileManager.default.removeItem(at: staging) }
@@ -240,10 +241,10 @@ public final class TransferJob: ObservableObject, Identifiable {
                     for path in sources where flag.value {
                         let local = staging.appendingPathComponent((path as NSString).lastPathComponent).path
                         guard source.requestDownload(fromFileAndWait: path, toLocalPath: local, onProgress: progress, withContinuationHandler: { flag.value }) else {
-                            return continuation.resume(returning: flag.value ? (source.getLastFileTransferError() ?? "\((path as NSString).lastPathComponent) could not be read.") : nil)
+                            return continuation.resume(returning: flag.value ? (source.getLastFileTransferError() ?? String(localized: "\((path as NSString).lastPathComponent) could not be read.")) : nil)
                         }
                         guard target.requestUpload(forFileAndWait: local, toDirectory: destination, onProgress: progress, withContinuationHandler: { flag.value }) else {
-                            return continuation.resume(returning: flag.value ? (target.getLastFileTransferError() ?? "\((path as NSString).lastPathComponent) could not be written.") : nil)
+                            return continuation.resume(returning: flag.value ? (target.getLastFileTransferError() ?? String(localized: "\((path as NSString).lastPathComponent) could not be written.")) : nil)
                         }
                     }
                     continuation.resume(returning: nil)

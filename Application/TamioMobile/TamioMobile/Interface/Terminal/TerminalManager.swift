@@ -25,7 +25,7 @@ class TerminalManager: ObservableObject {
         if !force {
             for terminal in terminals where terminal.machine.id == machineId {
                 UIBridge.requiresConfirmation(
-                    message: "Another terminal for this machine is already running"
+                    message: String(localized: "Another terminal for this machine is already running")
                 ) { confirmed in
                     guard confirmed else {
                         return
@@ -37,7 +37,7 @@ class TerminalManager: ObservableObject {
         }
         let machine = TamioStore.shared.machineGroup[machineId]
         guard machine.isNotPlaceholder() else {
-            UIBridge.presentError(with: "Unknown Bad Data")
+            UIBridge.presentError(with: String(localized: "Unknown Bad Data"))
             return
         }
         let object = TerminalContext(machine: machine)
@@ -51,7 +51,7 @@ class TerminalManager: ObservableObject {
         if !force {
             for terminal in terminals where terminal.command == command {
                 UIBridge.requiresConfirmation(
-                    message: "Another terminal for this command is already running"
+                    message: String(localized: "Another terminal for this command is already running")
                 ) { confirmed in
                     guard confirmed else {
                         return

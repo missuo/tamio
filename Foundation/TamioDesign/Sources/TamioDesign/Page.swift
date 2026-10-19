@@ -11,23 +11,33 @@ import SwiftUI
 
 /// Page title plus an optional one-line subtitle.
 public struct PageTitle: View {
-    let title: String
-    let subtitle: String?
+    let title: Text
+    let subtitle: Text?
 
-    public init(_ title: String, subtitle: String? = nil) {
-        self.title = title
-        self.subtitle = subtitle
+    public init(_ title: LocalizedStringKey, subtitle: LocalizedStringKey? = nil) {
+        self.title = Text(title)
+        self.subtitle = subtitle.map { Text($0) }
+    }
+
+    public init<Sub: StringProtocol>(_ title: LocalizedStringKey, subtitle: Sub?) {
+        self.title = Text(title)
+        self.subtitle = subtitle.flatMap { $0.isEmpty ? nil : Text(verbatim: String($0)) }
+    }
+
+    public init<S: StringProtocol>(_ title: S, subtitle: String? = nil) {
+        self.title = Text(verbatim: String(title))
+        self.subtitle = subtitle.flatMap { $0.isEmpty ? nil : Text(verbatim: $0) }
     }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: RX.Space.s1) {
-            Text(title)
+            title
                 .font(.rxPageTitle)
                 .tracking(-0.26)
                 .foregroundStyle(.rxInk)
                 .fixedSize(horizontal: false, vertical: true)
-            if let subtitle, !subtitle.isEmpty {
-                Text(subtitle)
+            if let subtitle {
+                subtitle
                     .font(.rxBody)
                     .foregroundStyle(.rxInkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -42,22 +52,64 @@ public struct PageTitle: View {
 /// What a list shows when empty: icon, heading, one sentence, the one fixing action.
 public struct EmptyStateView: View {
     let systemImage: String
-    let title: String
-    let message: String
-    let actionTitle: String?
+    let title: Text
+    let message: Text?
+    let actionTitle: Text?
     let action: (() -> Void)?
 
     public init(
-        _ title: String,
+        _ title: LocalizedStringKey,
+        systemImage: String,
+        message: LocalizedStringKey? = nil,
+        actionTitle: LocalizedStringKey? = nil,
+        action: (() -> Void)? = nil
+    ) {
+        self.title = Text(title)
+        self.systemImage = systemImage
+        self.message = message.map { Text($0) }
+        self.actionTitle = actionTitle.map { Text($0) }
+        self.action = action
+    }
+
+    public init<M: StringProtocol>(
+        _ title: LocalizedStringKey,
+        systemImage: String,
+        message: M,
+        actionTitle: LocalizedStringKey? = nil,
+        action: (() -> Void)? = nil
+    ) {
+        self.title = Text(title)
+        self.systemImage = systemImage
+        self.message = message.isEmpty ? nil : Text(verbatim: String(message))
+        self.actionTitle = actionTitle.map { Text($0) }
+        self.action = action
+    }
+
+    public init<M: StringProtocol, A: StringProtocol>(
+        _ title: LocalizedStringKey,
+        systemImage: String,
+        message: M,
+        actionTitle: A?,
+        action: (() -> Void)? = nil
+    ) {
+        self.title = Text(title)
+        self.systemImage = systemImage
+        self.message = message.isEmpty ? nil : Text(verbatim: String(message))
+        self.actionTitle = actionTitle.flatMap { $0.isEmpty ? nil : Text(verbatim: String($0)) }
+        self.action = action
+    }
+
+    public init<S: StringProtocol>(
+        _ title: S,
         systemImage: String,
         message: String = "",
         actionTitle: String? = nil,
         action: (() -> Void)? = nil
     ) {
-        self.title = title
+        self.title = Text(verbatim: String(title))
         self.systemImage = systemImage
-        self.message = message
-        self.actionTitle = actionTitle
+        self.message = message.isEmpty ? nil : Text(verbatim: message)
+        self.actionTitle = actionTitle.flatMap { $0.isEmpty ? nil : Text(verbatim: $0) }
         self.action = action
     }
 
@@ -68,18 +120,18 @@ public struct EmptyStateView: View {
                 .foregroundStyle(.rxInkSecondary)
                 .frame(height: 36)
                 .rxPop()
-            Text(title)
+            title
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.rxInk)
-            if !message.isEmpty {
-                Text(message)
+            if let message {
+                message
                     .font(.rxBody)
                     .foregroundStyle(.rxInkSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 320)
             }
             if let actionTitle, let action {
-                Button(actionTitle, action: action)
+                Button(action: action) { actionTitle }
                     .buttonStyle(.rxPrimary)
                     .padding(.top, RX.Space.s1)
             }
@@ -102,7 +154,7 @@ public struct CodeBlock: View {
     }
 
     public var body: some View {
-        Text(code.isEmpty ? " " : code)
+        Text(verbatim: code.isEmpty ? " " : code)
             .font(.rxCode)
             .foregroundStyle(.rxTerminalForeground)
             .lineLimit(lineLimit)
@@ -121,38 +173,48 @@ public struct CodeBlock: View {
 
 /// A column caption in a table header.
 public struct TableHeaderLabel: View {
-    let text: String
+    let label: CapsLabel
     let alignment: Alignment
 
-    public init(_ text: String, alignment: Alignment = .leading) {
-        self.text = text
+    public init(_ text: LocalizedStringKey, alignment: Alignment = .leading) {
+        self.label = CapsLabel(text)
+        self.alignment = alignment
+    }
+
+    public init<S: StringProtocol>(_ text: S, alignment: Alignment = .leading) {
+        self.label = CapsLabel(text)
         self.alignment = alignment
     }
 
     public var body: some View {
-        CapsLabel(text)
+        label
             .frame(maxWidth: .infinity, alignment: alignment)
     }
 }
 
 /// A group row inside a table.
 public struct TableGroupRow: View {
-    let title: String
+    let title: Text
     let trailing: String?
 
-    public init(_ title: String, trailing: String? = nil) {
-        self.title = title
+    public init(_ title: LocalizedStringKey, trailing: String? = nil) {
+        self.title = Text(title)
+        self.trailing = trailing
+    }
+
+    public init<S: StringProtocol>(_ title: S, trailing: String? = nil) {
+        self.title = Text(verbatim: String(title))
         self.trailing = trailing
     }
 
     public var body: some View {
         HStack {
-            Text(title)
+            title
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.rxInkSecondary)
             Spacer()
             if let trailing {
-                Text(trailing)
+                Text(verbatim: trailing)
                     .font(.system(size: 11))
                     .foregroundStyle(.rxInkSecondary)
             }
@@ -179,14 +241,28 @@ public extension View {
 
 /// The standard sheet: title, one-line lead, body, then a footer of actions.
 public struct SheetScaffold<Content: View, Footer: View>: View {
-    let title: String
-    let lead: String?
+    let title: Text
+    let lead: Text?
     let content: Content
     let footer: Footer
 
-    public init(_ title: String, lead: String? = nil, @ViewBuilder content: () -> Content, @ViewBuilder footer: () -> Footer) {
-        self.title = title
-        self.lead = lead
+    public init(_ title: LocalizedStringKey, lead: LocalizedStringKey? = nil, @ViewBuilder content: () -> Content, @ViewBuilder footer: () -> Footer) {
+        self.title = Text(title)
+        self.lead = lead.map { Text($0) }
+        self.content = content()
+        self.footer = footer()
+    }
+
+    public init<L: StringProtocol>(_ title: LocalizedStringKey, lead: L?, @ViewBuilder content: () -> Content, @ViewBuilder footer: () -> Footer) {
+        self.title = Text(title)
+        self.lead = lead.flatMap { $0.isEmpty ? nil : Text(verbatim: String($0)) }
+        self.content = content()
+        self.footer = footer()
+    }
+
+    public init<S: StringProtocol>(_ title: S, lead: String? = nil, @ViewBuilder content: () -> Content, @ViewBuilder footer: () -> Footer) {
+        self.title = Text(verbatim: String(title))
+        self.lead = lead.flatMap { $0.isEmpty ? nil : Text(verbatim: $0) }
         self.content = content()
         self.footer = footer()
     }
@@ -194,11 +270,11 @@ public struct SheetScaffold<Content: View, Footer: View>: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: RX.Space.s1) {
-                Text(title)
+                title
                     .font(.rxSheetTitle)
                     .foregroundStyle(.rxInk)
-                if let lead, !lead.isEmpty {
-                    Text(lead)
+                if let lead {
+                    lead
                         .font(.rxBody)
                         .foregroundStyle(.rxInkSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -219,10 +295,14 @@ public struct SheetScaffold<Content: View, Footer: View>: View {
 
 /// Blocking "Operation in progress" HUD over a `scrim`.
 public struct ProgressHUD: View {
-    let text: String
+    let text: Text
 
-    public init(_ text: String = "Working…") {
-        self.text = text
+    public init(_ text: LocalizedStringKey = "Working…") {
+        self.text = Text(text)
+    }
+
+    public init<S: StringProtocol>(_ text: S) {
+        self.text = Text(verbatim: String(text))
     }
 
     public var body: some View {
@@ -231,7 +311,7 @@ public struct ProgressHUD: View {
             VStack(spacing: RX.Space.s3) {
                 ProgressView()
                     .rxSpinner()
-                Text(text)
+                text
                     .font(.rxBody)
                     .foregroundStyle(.rxInk)
             }
@@ -261,13 +341,13 @@ public struct ProgressRowView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: RX.Space.s2) {
             HStack(spacing: RX.Space.s2) {
-                Text(title)
+                Text(verbatim: title)
                     .font(.rxBody)
                     .foregroundStyle(.rxInk)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Spacer(minLength: RX.Space.s2)
-                Text(detail)
+                Text(verbatim: detail)
                     .font(.rxBody.monospacedDigit())
                     .foregroundStyle(.rxInkSecondary)
                     .lineLimit(1)

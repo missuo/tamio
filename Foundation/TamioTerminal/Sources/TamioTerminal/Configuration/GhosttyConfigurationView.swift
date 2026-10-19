@@ -91,10 +91,10 @@ public struct GhosttyConfigurationView: View {
                 resetConfirm: $resetConfirm
             )
             .onAppear(perform: installApplyHandler)
-            .confirmationDialog("Reset every terminal setting to its default?", isPresented: $resetConfirm) {
-                Button("Reset", role: .destructive) { model.edit { $0 = ConfigDocument() } }
+            .confirmationDialog(ConfigLayout.tr("dialog.reset_terminal.title", default: "Reset every terminal setting to its default?"), isPresented: $resetConfirm) {
+                Button(ConfigLayout.tr("action.reset", default: "Reset"), role: .destructive) { model.edit { $0 = ConfigDocument() } }
             } message: {
-                Text("Tamio's General and Connection preferences are kept.")
+                Text(ConfigLayout.tr("dialog.reset_terminal.message", default: "Tamio's General and Connection preferences are kept."))
             }
         #endif
     }
@@ -149,10 +149,10 @@ public struct GhosttyConfigurationView: View {
         // category it is next opened at.
         .onChange(of: active) { if !$0 { search = "" } }
         .animation(.easeOut(duration: 0.18), value: search.isEmpty)
-        .confirmationDialog("Reset every terminal setting to its default?", isPresented: $resetConfirm) {
-            Button("Reset", role: .destructive) { model.edit { $0 = ConfigDocument() } }
+        .confirmationDialog(ConfigLayout.tr("dialog.reset_terminal.title", default: "Reset every terminal setting to its default?"), isPresented: $resetConfirm) {
+            Button(ConfigLayout.tr("action.reset", default: "Reset"), role: .destructive) { model.edit { $0 = ConfigDocument() } }
         } message: {
-            Text("Tamio's General and Connection preferences are kept.")
+            Text(ConfigLayout.tr("dialog.reset_terminal.message", default: "Tamio's General and Connection preferences are kept."))
         }
         .frame(minWidth: embedded ? 700 : 960, minHeight: 560)
     }
@@ -237,7 +237,7 @@ public struct GhosttyConfigurationView: View {
                                     .font(.rxBodyStrong)
                                     .foregroundStyle(.rxInk)
                                 Spacer()
-                                Button("Show in \(category.title)") {
+                                Button(String(format: ConfigLayout.tr("search.show_in_category", default: "Show in %@"), category.title)) {
                                     pageState.jump = groups.first?.1.first.map { .init(category: category.id, key: $0) }
                                     navigation.go(category.id)
                                     search = ""
@@ -252,7 +252,7 @@ public struct GhosttyConfigurationView: View {
                     }
                 }
                 if settings.isEmpty && hosts.isEmpty {
-                    EmptyStateView("No settings match “\(search)”", systemImage: "magnifyingglass")
+                    EmptyStateView(String(format: ConfigLayout.tr("search.no_match", default: "No settings match “%@”"), search), systemImage: "magnifyingglass")
                         .rxCard()
                 }
             }
@@ -263,7 +263,13 @@ public struct GhosttyConfigurationView: View {
     }
 
     private func searchSubtitle(_ count: Int) -> String {
-        count == 0 ? "Nothing found" : "\(count) match\(count == 1 ? "" : "es") for “\(search)”"
+        if count == 0 {
+            return ConfigLayout.tr("search.nothing_found", default: "Nothing found")
+        } else if count == 1 {
+            return String(format: ConfigLayout.tr("search.matches_single", default: "1 match for “%@”"), search)
+        } else {
+            return String(format: ConfigLayout.tr("search.matches_multiple", default: "%d matches for “%@”"), count, search)
+        }
     }
 
     private var tokens: [Substring] { search.lowercased().split(whereSeparator: \.isWhitespace) }
@@ -275,7 +281,7 @@ public struct GhosttyConfigurationView: View {
             for group in category.groups {
                 for case let .host(id) in group.items {
                     guard let section = hostSections[id] else { continue }
-                    let text = "\(category.title) \(group.title) \(section.keywords)".lowercased()
+                    let text = "\(category.englishTitle) \(category.title) \(group.englishTitle) \(group.title) \(section.keywords)".lowercased()
                     if tokens.allSatisfy({ text.contains($0) }) { result.insert(id) }
                 }
             }
@@ -291,9 +297,16 @@ public struct GhosttyConfigurationView: View {
             for group in category.groups {
                 for case let .setting(key) in group.items {
                     guard let setting = ConfigCatalog.shared.setting(key: key) else { continue }
-                    let wording = ConfigLayout.wording[key]
-                    let haystack = [setting.key, setting.name, setting.description, wording?.title ?? "", wording?.summary ?? "", category.title, group.title]
-                        .joined(separator: " ").lowercased()
+                    let engTitle = ConfigLayout.englishTitle(setting)
+                    let engSummary = ConfigLayout.englishSummary(setting)
+                    let locTitle = ConfigLayout.title(setting)
+                    let locSummary = ConfigLayout.summary(setting)
+                    let haystack = [
+                        setting.key, setting.name, setting.description,
+                        engTitle, engSummary, locTitle, locSummary,
+                        category.englishTitle, category.title,
+                        group.englishTitle, group.title,
+                    ].joined(separator: " ").lowercased()
                     if tokens.allSatisfy({ haystack.contains($0) }) { result.insert(key) }
                 }
             }
@@ -325,7 +338,7 @@ public struct GhosttyConfigurationView: View {
                         ForEach([ConfigLayout.Category.Section.app, .terminal, .info], id: \.self) { section in
                             let members = categories.filter { $0.section == section }
                             if !members.isEmpty {
-                                Section(section.rawValue) {
+                                Section(section.localizedTitle) {
                                     ForEach(members) { category in
                                         NavigationLink {
                                             categoryPage(category)
@@ -335,7 +348,7 @@ public struct GhosttyConfigurationView: View {
                                                 Spacer()
                                                 let count = modifiedCount(category)
                                                 if count > 0 {
-                                                    Text("\(count) changed")
+                                                    Text(String(format: ConfigLayout.tr("category.changed_count", default: "%d changed"), count))
                                                         .font(.rxHelp)
                                                         .foregroundStyle(.rxInkSecondary)
                                                 }
@@ -350,21 +363,21 @@ public struct GhosttyConfigurationView: View {
                     searchContent()
                 }
             }
-            .searchable(text: $search, prompt: "Search settings")
-            .navigationTitle("Settings")
+            .searchable(text: $search, prompt: Text(ConfigLayout.tr("search.prompt", default: "Search settings")))
+            .navigationTitle(ConfigLayout.tr("navigation.settings", default: "Settings"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
-                        Button { model.undo() } label: { Label("Undo", systemImage: "arrow.uturn.backward") }
+                        Button { model.undo() } label: { Label(ConfigLayout.tr("action.undo", default: "Undo"), systemImage: "arrow.uturn.backward") }
                             .disabled(model.undoStack.isEmpty)
-                        Button { model.redo() } label: { Label("Redo", systemImage: "arrow.uturn.forward") }
+                        Button { model.redo() } label: { Label(ConfigLayout.tr("action.redo", default: "Redo"), systemImage: "arrow.uturn.forward") }
                             .disabled(model.redoStack.isEmpty)
                         Divider()
                         Button(role: .destructive) { resetConfirm = true } label: {
-                            Label("Reset Terminal Settings…", systemImage: "arrow.counterclockwise")
+                            Label(ConfigLayout.tr("action.reset_terminal_settings", default: "Reset Terminal Settings…"), systemImage: "arrow.counterclockwise")
                         }
                     } label: {
-                        Label("More", systemImage: "ellipsis.circle")
+                        Label(ConfigLayout.tr("action.more", default: "More"), systemImage: "ellipsis.circle")
                     }
                 }
             }
@@ -380,7 +393,7 @@ private extension View {
     @ViewBuilder
     func configSearch(text: Binding<String>, active: Bool) -> some View {
         if active {
-            searchable(text: text, placement: .toolbar, prompt: "Search settings")
+            searchable(text: text, placement: .toolbar, prompt: Text(ConfigLayout.tr("search.prompt", default: "Search settings")))
         } else {
             self
         }

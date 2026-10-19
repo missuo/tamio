@@ -39,16 +39,22 @@ public extension View {
 
 /// Uppercase `caption-caps` label in `ink-secondary`.
 public struct CapsLabel: View {
-    let text: String
+    let text: Text
     var color: Color = .rxInkSecondary
 
-    public init(_ text: String, color: Color = .rxInkSecondary) {
-        self.text = text
+    public init(_ text: LocalizedStringKey, color: Color = .rxInkSecondary) {
+        self.text = Text(text)
+        self.color = color
+    }
+
+    public init<S: StringProtocol>(_ text: S, color: Color = .rxInkSecondary) {
+        self.text = Text(verbatim: String(text))
         self.color = color
     }
 
     public var body: some View {
-        Text(text.uppercased())
+        text
+            .textCase(.uppercase)
             .font(.rxCaption)
             .tracking(rxCapsTracking)
             .foregroundStyle(color)
@@ -58,17 +64,22 @@ public struct CapsLabel: View {
 
 /// A card's head row: caption on the left, at most one control on the right.
 public struct CardHead<Trailing: View>: View {
-    let title: String
+    let label: CapsLabel
     let trailing: Trailing
 
-    public init(_ title: String, @ViewBuilder trailing: () -> Trailing) {
-        self.title = title
+    public init(_ title: LocalizedStringKey, @ViewBuilder trailing: () -> Trailing) {
+        self.label = CapsLabel(title)
+        self.trailing = trailing()
+    }
+
+    public init<S: StringProtocol>(_ title: S, @ViewBuilder trailing: () -> Trailing) {
+        self.label = CapsLabel(title)
         self.trailing = trailing()
     }
 
     public var body: some View {
         HStack(spacing: RX.Space.s2) {
-            CapsLabel(title)
+            label
             Spacer(minLength: RX.Space.s2)
             trailing
         }
@@ -77,17 +88,22 @@ public struct CardHead<Trailing: View>: View {
 }
 
 public extension CardHead where Trailing == EmptyView {
-    init(_ title: String) {
+    init(_ title: LocalizedStringKey) {
+        self.init(title) { EmptyView() }
+    }
+
+    init<S: StringProtocol>(_ title: S) {
         self.init(title) { EmptyView() }
     }
 }
 
 /// Small scale or source hint (`axis` style, `ink-tertiary`).
 public struct HintText: View {
-    let text: String
-    public init(_ text: String) { self.text = text }
+    let text: Text
+    public init(_ text: LocalizedStringKey) { self.text = Text(text) }
+    public init<S: StringProtocol>(_ text: S) { self.text = Text(verbatim: String(text)) }
     public var body: some View {
-        Text(text)
+        text
             .font(.rxAxis)
             .foregroundStyle(.rxInkTertiary)
             .lineLimit(1)
@@ -96,15 +112,20 @@ public struct HintText: View {
 
 /// One-sentence help text (`ink-secondary`, 11pt); `danger` when `isError`.
 public struct HelpText: View {
-    let text: String
+    let text: Text
     let isError: Bool
-    public init(_ text: String, isError: Bool = false) {
-        self.text = text
+    public init(_ text: LocalizedStringKey, isError: Bool = false) {
+        self.text = Text(text)
+        self.isError = isError
+    }
+
+    public init<S: StringProtocol>(_ text: S, isError: Bool = false) {
+        self.text = Text(verbatim: String(text))
         self.isError = isError
     }
 
     public var body: some View {
-        Text(text)
+        text
             .font(.rxHelp)
             .foregroundStyle(isError ? Color.rxDanger : Color.rxInkSecondary)
             .fixedSize(horizontal: false, vertical: true)

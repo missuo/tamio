@@ -57,18 +57,7 @@ struct ConfigSettingRow: View {
     #endif
 
     /// Tamio's wording, else the catalog description's first sentence, without markdown.
-    private var summary: String {
-        if let wording = ConfigLayout.wording[setting.key]?.summary { return wording }
-        let plain = setting.description
-            .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
-            .replacingOccurrences(of: "`", with: "")
-            .replacingOccurrences(of: "**", with: "")
-        let firstLine = plain.split(separator: "\n", omittingEmptySubsequences: true).first.map(String.init) ?? plain
-        if let range = firstLine.range(of: ". ") {
-            return String(firstLine[..<range.lowerBound]) + "."
-        }
-        return firstLine
-    }
+    private var summary: String { ConfigLayout.summary(setting) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: RX.Space.s3) {
@@ -79,7 +68,7 @@ struct ConfigSettingRow: View {
                             .font(.rxBody)
                             .foregroundStyle(.rxInk)
                         if setting.deprecated != nil {
-                            RXTag("Deprecated", style: .warning)
+                            RXTag(ConfigLayout.tr("badge.deprecated", default: "Deprecated"), style: .warning)
                         }
                     }
                     if !summary.isEmpty {
@@ -94,14 +83,14 @@ struct ConfigSettingRow: View {
                             .disabled(setting.disabled == true)
                     }
                     Button { help.toggle() } label: {
-                        Label("About \(setting.name)", systemImage: "questionmark.circle")
+                        Label(String(format: ConfigLayout.tr("action.about_setting", default: "About %@"), ConfigLayout.title(setting)), systemImage: "questionmark.circle")
                     }
                     .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
-                    .help("About \(setting.name)")
+                    .help(String(format: ConfigLayout.tr("action.about_setting", default: "About %@"), ConfigLayout.title(setting)))
                     .popover(isPresented: $help) {
                         ScrollView {
                             VStack(alignment: .leading, spacing: RX.Space.s3) {
-                                Text(setting.name).font(.rxSheetTitle)
+                                Text(ConfigLayout.title(setting)).font(.rxSheetTitle)
                                 Text(setting.key)
                                     .font(.system(size: 11, design: .monospaced))
                                     .foregroundStyle(.rxInkSecondary)
@@ -110,7 +99,7 @@ struct ConfigSettingRow: View {
                                 if let note = setting.note {
                                     HelpText(note.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression))
                                 }
-                                Link("Ghostty documentation", destination: URL(string: "https://ghostty.org/docs/config/reference#" + setting.key)!)
+                                Link(ConfigLayout.tr("link.ghostty_docs", default: "Ghostty documentation"), destination: URL(string: "https://ghostty.org/docs/config/reference#" + setting.key)!)
                             }
                             .padding(RX.Space.s4)
                             #if os(macOS) || targetEnvironment(macCatalyst)
@@ -127,12 +116,12 @@ struct ConfigSettingRow: View {
                     }
                     // Only a changed setting can be reset; the slot stays so controls don't shift.
                     Button { model.reset(setting.key) } label: {
-                        Label("Reset to Default", systemImage: "arrow.counterclockwise")
+                        Label(ConfigLayout.tr("action.reset_default", default: "Reset to Default"), systemImage: "arrow.counterclockwise")
                     }
                     .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
                     .opacity(isModified ? 1 : 0)
                     .disabled(!isModified)
-                    .help("Reset \(setting.name) to its default")
+                    .help(String(format: ConfigLayout.tr("help.reset_setting_default", default: "Reset %@ to its default"), ConfigLayout.title(setting)))
                     .animation(.easeOut(duration: 0.15), value: isModified)
                 }
             }
@@ -209,12 +198,12 @@ struct ConfigWidgetView: View {
                     Menu {
                         ForEach(widget?.presets ?? []) { option in Button(option.name) { value.wrappedValue = option.value } }
                     } label: {
-                        Text("Presets")
+                        Text(ConfigLayout.tr("menu.presets", default: "Presets"))
                     }
                     .rxButtonMenu()
                     .buttonStyle(.rx(size: .small))
                     .fixedSize()
-                    .help("Choose a common value")
+                    .help(ConfigLayout.tr("help.choose_common_value", default: "Choose a common value"))
                     if widget?.type == "custom-color" { colorInput } else { numericInput }
                 }
             case "number": numericInput
@@ -246,7 +235,7 @@ struct ConfigWidgetView: View {
                 if setting.key == "keybind" {
                     ConfigKeybindingList(model: model)
                 } else {
-                    TextField(widget?.placeholder ?? "Not set", text: value)
+                    TextField(widget?.placeholder ?? ConfigLayout.tr("placeholder.not_set", default: "Not set"), text: value)
                         .textFieldStyle(.rx)
                         .frame(width: 240)
                 }
@@ -255,7 +244,7 @@ struct ConfigWidgetView: View {
 
     private var optionPicker: some View {
         Picker(setting.name, selection: value) {
-            Text("Default").tag("")
+            Text(ConfigLayout.tr("option.default", default: "Default")).tag("")
             Divider()
             ForEach(widget?.options ?? []) { option in
                 Text(ConfigLayout.optionName(setting.key, value: option.value, fallback: option.name)).tag(option.value).disabled(option.disabled == true)
@@ -270,7 +259,7 @@ struct ConfigWidgetView: View {
 
     private var numericInput: some View {
         HStack(spacing: RX.Space.s1) {
-            TextField(widget?.placeholder ?? (setting.defaultValue.values.first ?? "Default"), text: value)
+            TextField(widget?.placeholder ?? (setting.defaultValue.values.first ?? ConfigLayout.tr("option.default", default: "Default")), text: value)
                 .multilineTextAlignment(.trailing)
                 .textFieldStyle(.rx)
                 .frame(width: 96)
@@ -465,11 +454,11 @@ struct ConfigRepeatableEditor: View {
                     }))
                     .textFieldStyle(.plain)
                     .font(.rxCode)
-                    RXIconButton("Move Up", systemImage: "arrow.up", kind: .plain, size: .small) {
+                    RXIconButton(ConfigLayout.tr("action.move_up", default: "Move Up"), systemImage: "arrow.up", kind: .plain, size: .small) {
                         model.edit { var a = $0.values(key); a.swapAt(index, index - 1); $0.set(key, a) }
                     }
                     .disabled(index == 0)
-                    RXIconButton("Remove", systemImage: "minus.circle", kind: .plain, size: .small) {
+                    RXIconButton(ConfigLayout.tr("action.remove", default: "Remove"), systemImage: "minus.circle", kind: .plain, size: .small) {
                         model.edit { var a = $0.values(key); a.remove(at: index); $0.set(key, a) }
                     }
                 }
@@ -480,7 +469,7 @@ struct ConfigRepeatableEditor: View {
             Button {
                 model.edit { $0.set(key, $0.values(key) + [""]) }
             } label: {
-                Label("Add Value", systemImage: "plus")
+                Label(ConfigLayout.tr("action.add_value", default: "Add Value"), systemImage: "plus")
                     .font(.rxBody)
                     .foregroundStyle(.rxInkSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)

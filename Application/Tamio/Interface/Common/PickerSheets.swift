@@ -9,9 +9,9 @@ import TamioModule
 import SwiftUI
 
 struct ServerPickerSheet: View {
-    let title: String
-    let lead: String?
-    let confirmTitle: String
+    let title: LocalizedStringKey
+    let lead: LocalizedStringKey?
+    let confirmTitle: LocalizedStringKey
     let allowsMany: Bool
     /// nil when cancelled.
     let onComplete: ([RDMachine.ID]?) -> Void
@@ -21,9 +21,9 @@ struct ServerPickerSheet: View {
     @State private var searchText = ""
 
     init(
-        title: String,
-        lead: String?,
-        confirmTitle: String,
+        title: LocalizedStringKey,
+        lead: LocalizedStringKey?,
+        confirmTitle: LocalizedStringKey,
         allowsMany: Bool,
         initialSelection: Set<RDMachine.ID> = [],
         onComplete: @escaping ([RDMachine.ID]?) -> Void
@@ -48,7 +48,7 @@ struct ServerPickerSheet: View {
                 HStack(spacing: RX.Space.s2) {
                     RXSearchField("Search servers", text: $searchText, width: nil)
                     if allowsMany {
-                        Button(allSelected ? "Deselect All" : "Select All") {
+                        Button(allSelected ? String(localized: "Deselect All") : String(localized: "Select All")) {
                             if allSelected {
                                 selection.subtract(machines.map(\.id))
                             } else {
@@ -62,8 +62,8 @@ struct ServerPickerSheet: View {
                 ScrollView {
                     if machines.isEmpty {
                         EmptyStateView(
-                            store.machineGroup.machines.isEmpty ? "No servers yet" : "No matches",
-                            systemImage: "server.rack",
+                            store.machineGroup.machines.isEmpty ? String(localized: "No servers yet") : String(localized: "No matches"),
+                            systemImage: "server.rack"
                         )
                     } else {
                         RXDividedStack {
@@ -86,7 +86,7 @@ struct ServerPickerSheet: View {
             }
         } footer: {
             if allowsMany {
-                Text("\(selection.count) selected")
+                Text(selection.count == 1 ? String(localized: "1 selected") : String(localized: "\(selection.count) selected"))
                     .font(.rxBody.monospacedDigit())
                     .foregroundStyle(.rxInkSecondary)
             }

@@ -184,7 +184,7 @@ struct ConfigCategoryContent: View {
                             if section.rawValue.isEmpty {
                                 Spacer().frame(height: RX.Space.s4)
                             } else {
-                                Text(section.rawValue)
+                                Text(section.localizedTitle)
                                     .font(.rxSectionLabel)
                                     .foregroundStyle(.rxInkSecondary)
                                     .padding(.horizontal, RX.Space.s3)
@@ -297,7 +297,7 @@ struct ConfigCategoryContent: View {
                     Spacer()
                     Button { model.message = "" } label: { Image(systemName: "xmark") }
                         .buttonStyle(.borderless)
-                        .accessibilityLabel("Dismiss")
+                        .accessibilityLabel(ConfigLayout.tr("action.dismiss", default: "Dismiss"))
                 }
                 .padding(.horizontal, RX.Space.s4)
                 .padding(.vertical, RX.Space.s3)
@@ -314,12 +314,12 @@ struct ConfigCategoryContent: View {
 
         var body: some View {
             ControlGroup {
-                Button { navigation.step(-1) } label: { Label("Back", systemImage: "chevron.left") }
+                Button { navigation.step(-1) } label: { Label(ConfigLayout.tr("action.back", default: "Back"), systemImage: "chevron.left") }
                     .disabled(!chrome.state.canGoBack)
-                    .help("Previous category")
-                Button { navigation.step(1) } label: { Label("Forward", systemImage: "chevron.right") }
+                    .help(ConfigLayout.tr("help.previous_category", default: "Previous category"))
+                Button { navigation.step(1) } label: { Label(ConfigLayout.tr("action.forward", default: "Forward"), systemImage: "chevron.right") }
                     .disabled(!chrome.state.canGoForward)
-                    .help("Next category")
+                    .help(ConfigLayout.tr("help.next_category", default: "Next category"))
             }
         }
     }
@@ -346,7 +346,7 @@ struct ConfigCategoryContent: View {
                     withAnimation(.easeInOut(duration: 0.25)) { showPreview.toggle() }
                 } label: {
                     Label {
-                        Text("Preview")
+                        Text(ConfigLayout.tr("preview.title", default: "Preview"))
                     } icon: {
                         // Tinted only while showing: any colour given here
                         // would also replace the dimming of a disabled button.
@@ -358,7 +358,7 @@ struct ConfigCategoryContent: View {
                     }
                 }
                 .disabled(!terminal || !chrome.state.previews)
-                .help(showPreview ? "Hide the live terminal preview" : "Show a live terminal preview beside the settings")
+                .help(showPreview ? ConfigLayout.tr("help.hide_preview", default: "Hide the live terminal preview") : ConfigLayout.tr("help.show_preview", default: "Show a live terminal preview beside the settings"))
                 .accessibilityAddTraits(showPreview ? .isSelected : [])
             #else
                 ControlGroup {
@@ -367,32 +367,32 @@ struct ConfigCategoryContent: View {
                 }
                 reset(terminal)
                 Toggle(isOn: $showPreview.animation(.easeInOut(duration: 0.25))) {
-                    Label("Preview", systemImage: "sidebar.right")
+                    Label(ConfigLayout.tr("preview.title", default: "Preview"), systemImage: "sidebar.right")
                 }
                 .toggleStyle(.button)
                 .disabled(!terminal || !chrome.state.previews)
-                .help(showPreview ? "Hide the live terminal preview" : "Show a live terminal preview beside the settings")
+                .help(showPreview ? ConfigLayout.tr("help.hide_preview", default: "Hide the live terminal preview") : ConfigLayout.tr("help.show_preview", default: "Show a live terminal preview beside the settings"))
             #endif
         }
 
         private func undo(_ terminal: Bool) -> some View {
-            Button { model.undo() } label: { Label("Undo", systemImage: "arrow.uturn.backward") }
+            Button { model.undo() } label: { Label(ConfigLayout.tr("action.undo", default: "Undo"), systemImage: "arrow.uturn.backward") }
                 .disabled(!history.canUndo || !terminal)
-                .help("Undo the last terminal setting change")
+                .help(ConfigLayout.tr("help.undo_change", default: "Undo the last terminal setting change"))
         }
 
         private func redo(_ terminal: Bool) -> some View {
-            Button { model.redo() } label: { Label("Redo", systemImage: "arrow.uturn.forward") }
+            Button { model.redo() } label: { Label(ConfigLayout.tr("action.redo", default: "Redo"), systemImage: "arrow.uturn.forward") }
                 .disabled(!history.canRedo || !terminal)
-                .help("Redo")
+                .help(ConfigLayout.tr("help.redo_change", default: "Redo"))
         }
 
         private func reset(_ terminal: Bool) -> some View {
             Button { resetConfirm = true } label: {
-                Label("Reset Terminal Settings…", systemImage: "arrow.counterclockwise")
+                Label(ConfigLayout.tr("action.reset_terminal_settings", default: "Reset Terminal Settings…"), systemImage: "arrow.counterclockwise")
             }
             .disabled(!terminal)
-            .help("Reset every terminal setting to its default")
+            .help(ConfigLayout.tr("help.reset_all_defaults", default: "Reset every terminal setting to its default"))
         }
     }
 #endif

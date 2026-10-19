@@ -193,12 +193,15 @@ enum AgentTools {
             if name == "run_snippet" {
                 command = try snippet(named: a["snippet"]?.string ?? "").code
             }
-            guard !command.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw AgentToolError("The command is empty.") }
+            guard !command.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw AgentToolError(String(localized: "The command is empty.")) }
             let sudo = a["sudo"]?.bool ?? false
             let count = machines.count
+            let title = count == 1
+                ? (sudo ? String(localized: "Run on 1 server with sudo") : String(localized: "Run on 1 server"))
+                : (sudo ? String(localized: "Run on \(count) servers with sudo") : String(localized: "Run on \(count) servers"))
             try await server.requireApproval(AgentRequest(
                 client: client, tool: name,
-                title: "Run on \(count) server\(count == 1 ? "" : "s")\(sudo ? " with sudo" : "")",
+                title: title,
                 detail: command, hosts: machines.map(\.name), hostIDs: machines.map(\.id.uuidString)
             ))
             let results = await AgentRunner.run(
@@ -211,7 +214,7 @@ enum AgentTools {
             let existing = name == "update_host" ? try server.machine(named: a["host"]?.string ?? "") : nil
             var machine = existing ?? RDMachine(lastConnection: Date(timeIntervalSince1970: 0))
             if existing == nil {
-                guard let address = a["address"]?.string, !address.isEmpty else { throw AgentToolError("address is needed.") }
+                guard let address = a["address"]?.string, !address.isEmpty else { throw AgentToolError(String(localized: "address is needed.")) }
                 machine.remoteAddress = address
                 machine.remotePort = "22"
             }
@@ -248,7 +251,7 @@ enum AgentTools {
             ].compactMap { $0 }.joined(separator: "\n")
             try await server.requireApproval(AgentRequest(
                 client: client, tool: name,
-                title: existing == nil ? "Add server \(machine.name)" : "Change server \(existing!.name)",
+                title: existing == nil ? String(localized: "Add server \(machine.name)") : String(localized: "Change server \(existing!.name)"),
                 detail: changes, hosts: [machine.name], hostIDs: [machine.id.uuidString]
             ))
             if let identity {
@@ -263,7 +266,7 @@ enum AgentTools {
 
         case "remove_host":
             let machine = try server.machine(named: a["host"]?.string ?? "")
-            try await server.requireApproval(AgentRequest(client: client, tool: name, title: "Remove server \(machine.name)",
+            try await server.requireApproval(AgentRequest(client: client, tool: name, title: String(localized: "Remove server \(machine.name)"),
                                                           detail: "\(machine.remoteAddress):\(machine.remotePort)", hosts: [machine.name], hostIDs: [machine.id.uuidString]))
             if let identity = store.associatedIdentity(for: machine), identity.isPrivate {
                 store.identityGroup.delete(identity.id)
@@ -288,15 +291,20 @@ enum AgentTools {
                 identity.publicKey = pair.publicKey
             } else {
                 guard let key = a["private_key"]?.string?.trimmingCharacters(in: .whitespacesAndNewlines), key.contains("PRIVATE KEY") else {
-                    throw AgentToolError("Give private_key (-----BEGIN … PRIVATE KEY-----) or generate: true.")
+                    throw AgentToolError(String(localized: "Give private_key (-----BEGIN … PRIVATE KEY-----) or generate: true."))
                 }
                 identity.privateKey = key + "\n"
                 identity.publicKey = a["public_key"]?.string ?? ""
                 identity.password = a["passphrase"]?.string ?? ""
             }
+            let detail = a["generate"]?.bool == true
+                ? String(localized: "A new Ed25519 key, made by Tamio")
+                : (identity.keyAlgorithm != nil
+                    ? String(localized: "A \(identity.keyAlgorithm!) key the agent provided")
+                    : String(localized: "A private key the agent provided"))
             try await server.requireApproval(AgentRequest(
-                client: client, tool: name, title: "Add SSH key \(label)",
-                detail: a["generate"]?.bool == true ? "A new Ed25519 key, made by Tamio" : "A \(identity.keyAlgorithm ?? "private") key the agent provided",
+                client: client, tool: name, title: String(localized: "Add SSH key \(label)"),
+                detail: detail,
                 hosts: []
             ))
             store.identityGroup.insert(identity)
@@ -305,8 +313,9 @@ enum AgentTools {
         case "remove_identity":
             let identity = try self.identity(named: a["identity"]?.string ?? "")
             let users = AgentIdentity(identity).usedBy
-            try await server.requireApproval(AgentRequest(client: client, tool: name, title: "Remove SSH key \(identity.displayName)",
-                                                          detail: users.isEmpty ? "Not used by any server" : "Used by " + users.joined(separator: ", "), hosts: users))
+            let detail = users.isEmpty ? String(localized: "Not used by any server") : String(localized: "Used by \(users.joined(separator: ", "))")
+            try await server.requireApproval(AgentRequest(client: client, tool: name, title: String(localized: "Remove SSH key \(identity.displayName)"),
+                                                          detail: detail, hosts: users))
             store.identityGroup.delete(identity.id)
             return ["removed": .string(identity.displayName)]
 
@@ -320,16 +329,17 @@ enum AgentTools {
             if let value = a["code"]?.string { snippet.code = value }
             if let value = a["group"]?.string { snippet.group = value }
             if let value = a["comment"]?.string { snippet.comment = value }
-            guard !snippet.name.isEmpty else { throw AgentToolError("name is needed.") }
+            guard !snippet.name.isEmpty else { throw AgentToolError(String(localized: "name is needed.")) }
+            let title = name == "add_snippet" ? String(localized: "Save snippet \(snippet.name)") : String(localized: "Change snippet \(snippet.name)")
             try await server.requireApproval(AgentRequest(client: client, tool: name,
-                                                          title: (name == "add_snippet" ? "Save snippet " : "Change snippet ") + snippet.name,
+                                                          title: title,
                                                           detail: snippet.code, hosts: []))
             store.snippetGroup.insert(snippet)
             return .from(AgentSnippet(snippet))
 
         case "remove_snippet":
             let snippet = try self.snippet(named: a["snippet"]?.string ?? "")
-            try await server.requireApproval(AgentRequest(client: client, tool: name, title: "Remove snippet \(snippet.name)", detail: snippet.code, hosts: []))
+            try await server.requireApproval(AgentRequest(client: client, tool: name, title: String(localized: "Remove snippet \(snippet.name)"), detail: snippet.code, hosts: []))
             store.snippetGroup.delete(snippet.id)
             return ["removed": .string(snippet.name)]
 
@@ -339,7 +349,7 @@ enum AgentTools {
         case "add_port_forward":
             let machine = try server.machine(named: a["host"]?.string ?? "")
             guard let bind = a["bind_port"]?.int, let target = a["target_host"]?.string, let targetPort = a["target_port"]?.int else {
-                throw AgentToolError("bind_port, target_host and target_port are needed.")
+                throw AgentToolError(String(localized: "bind_port, target_host and target_port are needed."))
             }
             var forward = RDPortForward()
             forward.usingMachine = machine.id
@@ -347,11 +357,12 @@ enum AgentTools {
             forward.bindPort = bind
             forward.targetHost = target
             forward.targetPort = targetPort
+            let detail = forward.forwardOrientation == .listenLocal
+                ? String(localized: "localhost:\(bind) → \(target):\(targetPort) (from the server)")
+                : String(localized: "server port \(bind) → \(target):\(targetPort) (from this Mac)")
             try await server.requireApproval(AgentRequest(
-                client: client, tool: name, title: "Add port forward through \(machine.name)",
-                detail: forward.forwardOrientation == .listenLocal
-                    ? "localhost:\(bind) → \(target):\(targetPort) (from the server)"
-                    : "server port \(bind) → \(target):\(targetPort) (from this Mac)",
+                client: client, tool: name, title: String(localized: "Add port forward through \(machine.name)"),
+                detail: detail,
                 hosts: [machine.name]
             ))
             store.portForwardGroup.insert(forward)
@@ -361,8 +372,13 @@ enum AgentTools {
         case "start_port_forward", "stop_port_forward", "remove_port_forward":
             let forward = try self.forward(named: a["forward"]?.string ?? "")
             let host = forward.usingMachine.map { store.machineGroup[$0].name } ?? "?"
-            let verb = name == "start_port_forward" ? "Start" : name == "stop_port_forward" ? "Stop" : "Remove"
-            try await server.requireApproval(AgentRequest(client: client, tool: name, title: "\(verb) port forward through \(host)",
+            let title: String
+            switch name {
+            case "start_port_forward": title = String(localized: "Start port forward through \(host)")
+            case "stop_port_forward": title = String(localized: "Stop port forward through \(host)")
+            default: title = String(localized: "Remove port forward through \(host)")
+            }
+            try await server.requireApproval(AgentRequest(client: client, tool: name, title: title,
                                                           detail: "\(forward.bindPort) → \(forward.targetHost):\(forward.targetPort)", hosts: [host]))
             switch name {
             case "start_port_forward": server.environment?.startForward(forward.id)
@@ -385,7 +401,7 @@ enum AgentTools {
         case "log_activity":
             let machines = try (a["hosts"]?.strings ?? []).map(server.machine(named:))
             guard !machines.isEmpty, let summary = a["summary"]?.string, !summary.isEmpty else {
-                throw AgentToolError("hosts and summary are needed.")
+                throw AgentToolError(String(localized: "hosts and summary are needed."))
             }
             let commands = a["commands"]?.strings ?? []
             let detail = [a["details"]?.string, commands.isEmpty ? nil : commands.map { "$ " + $0 }.joined(separator: "\n")]
@@ -399,7 +415,7 @@ enum AgentTools {
             return ["recorded": .string(entry.id.uuidString)]
 
         default:
-            throw AgentToolError("No tool named \(name).")
+            throw AgentToolError(String(localized: "No tool named \(name)."))
         }
     }
 
@@ -409,7 +425,7 @@ enum AgentTools {
         if let id = UUID(uuidString: reference), let identity = identities.first(where: { $0.id == id }) { return identity }
         let matches = identities.filter { $0.displayName.caseInsensitiveCompare(reference) == .orderedSame }
         if matches.count == 1 { return matches[0] }
-        throw AgentToolError(matches.isEmpty ? "No identity named \(reference). list_identities shows them." : "\(matches.count) identities are called \(reference); use its id.")
+        throw AgentToolError(matches.isEmpty ? String(localized: "No identity named \(reference). list_identities shows them.") : String(localized: "\(matches.count) identities are called \(reference); use its id."))
     }
 
     @MainActor
@@ -418,14 +434,14 @@ enum AgentTools {
         if let id = UUID(uuidString: reference), let snippet = snippets.first(where: { $0.id == id }) { return snippet }
         let matches = snippets.filter { $0.name.caseInsensitiveCompare(reference) == .orderedSame }
         if matches.count == 1 { return matches[0] }
-        throw AgentToolError(matches.isEmpty ? "No snippet named \(reference)." : "\(matches.count) snippets are called \(reference); use its id.")
+        throw AgentToolError(matches.isEmpty ? String(localized: "No snippet named \(reference).") : String(localized: "\(matches.count) snippets are called \(reference); use its id."))
     }
 
     @MainActor
     static func forward(named reference: String) throws -> RDPortForward {
         guard let id = UUID(uuidString: reference),
               let forward = TamioStore.shared.portForwardGroup.forwards.first(where: { $0.id == id })
-        else { throw AgentToolError("No port forward \(reference). list_port_forwards shows them.") }
+        else { throw AgentToolError(String(localized: "No port forward \(reference). list_port_forwards shows them.")) }
         return forward
     }
 
