@@ -17,8 +17,10 @@ import Foundation
 public protocol AgentEnvironment: AnyObject {
     /// Asks the user; true to go ahead.
     func approve(_ request: AgentRequest) async -> Bool
+    /// Starts background sessions for `machines` when needed before reading metrics.
+    func prepareMetrics(for machines: [RDMachine.ID])
     /// Live readings for a server, nil when it has none.
-    func metrics(for machine: RDMachine.ID) -> JSONValue?
+    func metrics(for machine: RDMachine.ID) async -> JSONValue?
     func isForwarding(_ forward: RDPortForward.ID) -> Bool
     func startForward(_ forward: RDPortForward.ID)
     func stopForward(_ forward: RDPortForward.ID)

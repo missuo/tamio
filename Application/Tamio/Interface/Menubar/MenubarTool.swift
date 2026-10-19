@@ -44,6 +44,7 @@ class MenubarTool {
             createRuncat(for: id, quiet: true)
         }
         persist()
+        AppDelegate.shared?.updateWindowStatus()
     }
 
     struct ArgumentCompiler: Codable {
@@ -108,7 +109,10 @@ class MenubarTool {
         bootstrapLock.lock()
         statusItem.append(item)
         bootstrapLock.unlock()
-        if !quiet { persist() }
+        if !quiet {
+            persist()
+            AppDelegate.shared?.updateWindowStatus()
+        }
     }
 
     #if DEBUG
@@ -131,11 +135,12 @@ class MenubarTool {
         return statusItem.first { $0.key == key }
     }
 
-    func remove(menubarItem: MenubarStatusItem.ID) {
+    @MainActor func remove(menubarItem: MenubarStatusItem.ID) {
         bootstrapLock.lock()
         statusItem = statusItem
             .filter { $0.id != menubarItem }
         bootstrapLock.unlock()
         persist()
+        AppDelegate.shared?.updateWindowStatus()
     }
 }

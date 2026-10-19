@@ -341,6 +341,13 @@ public final class MonitorCenter: ObservableObject {
         session.shutdown()
     }
 
+    public func closeAll() {
+        guard !sessions.isEmpty else { return }
+        let open = sessions
+        sessions = []
+        for session in open { session.shutdown() }
+    }
+
 }
 
 /// Published state changes on the main thread only and the shell is used on

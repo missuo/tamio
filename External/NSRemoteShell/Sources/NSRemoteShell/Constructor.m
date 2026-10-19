@@ -16,16 +16,45 @@ int kLIBSSH2_CONSTRUCTOR_SUCCESS = 0;
 #if TARGET_OS_OSX
 
 /*
- 
+
  https://developer.apple.com/library/archive/documentation/Performance/Conceptual/power_efficiency_guidelines_osx/AppNap.html
- 
+
  App Nap will make our Timer inside CFRunLoop not waking up on schedule
  which will then cause a port forward to die
- 
- we are here to disable it on macOS
- 
+
+ Hold the activity while at least one TSEventLoop is running, and release it
+ when every shell has closed so an idle backgrounded app can enter App Nap.
+
  */
-NSObject *activity = NULL;
+static NSObject *activity = NULL;
+static NSInteger activityCount = 0;
+
+void nsremoteshell_activity_begin(void) {
+    @synchronized ([NSProcessInfo class]) {
+        activityCount += 1;
+        if (activityCount == 1 && !activity) {
+            activity = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityLatencyCritical reason:@"NSRemoteShell is latency critical"];
+        }
+    }
+}
+
+void nsremoteshell_activity_end(void) {
+    @synchronized ([NSProcessInfo class]) {
+        if (activityCount <= 0) {
+            return;
+        }
+        activityCount -= 1;
+        if (activityCount == 0 && activity) {
+            [[NSProcessInfo processInfo] endActivity:activity];
+            activity = NULL;
+        }
+    }
+}
+
+#else
+
+void nsremoteshell_activity_begin(void) {}
+void nsremoteshell_activity_end(void) {}
 
 #endif
 
@@ -35,9 +64,6 @@ __attribute__((constructor)) void libssh2_constructor(void) {
         kLIBSSH2_CONSTRUCTOR_SUCCESS = 1;
         NSRLog(@"libssh2 init success");
     }
-#if TARGET_OS_OSX
-    activity = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityLatencyCritical reason:@"NSRemoteShell is latency critical"];
-#endif
 }
 
 __attribute__((destructor)) void libssh2_destructor(void) {
@@ -45,8 +71,12 @@ __attribute__((destructor)) void libssh2_destructor(void) {
         libssh2_exit();
     }
 #if TARGET_OS_OSX
-    if (activity) {
-        [[NSProcessInfo processInfo] endActivity:activity];
+    @synchronized ([NSProcessInfo class]) {
+        if (activity) {
+            [[NSProcessInfo processInfo] endActivity:activity];
+            activity = NULL;
+        }
+        activityCount = 0;
     }
 #endif
 }

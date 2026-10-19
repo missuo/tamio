@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import Combine
 import MachineStatusView
 import SwiftUI
 import TamioModule
@@ -68,26 +69,55 @@ struct TamioCommands: Commands {
             }
         }
         CommandGroup(replacing: .appSettings) {
-            Button("Settings…") { AppRouter.shared.openSettings() }
-                .keyboardShortcut(",", modifiers: .command)
+            Button("Settings…") {
+                MainWindow.show()
+                AppRouter.shared.openSettings()
+            }
+            .keyboardShortcut(",", modifiers: .command)
         }
         CommandGroup(after: .newItem) {
-            Button("New Server…") { AppRouter.shared.presentNewServer = true }
-                .keyboardShortcut("n", modifiers: [.command, .shift])
-            Button("Open Terminals…") { AppRouter.shared.openTerminals() }
-                .keyboardShortcut("t", modifiers: [.command, .shift])
+            Button("New Server…") {
+                MainWindow.show()
+                AppRouter.shared.presentNewServer = true
+            }
+            .keyboardShortcut("n", modifiers: [.command, .shift])
+            Button("Open Terminals…") {
+                MainWindow.show()
+                AppRouter.shared.openTerminals()
+            }
+            .keyboardShortcut("t", modifiers: [.command, .shift])
         }
         CommandGroup(after: .sidebar) {
-            Button("Home") { AppRouter.shared.route = .home }
-                .keyboardShortcut("1", modifiers: .command)
-            Button("Servers") { AppRouter.shared.route = .servers }
-                .keyboardShortcut("2", modifiers: .command)
-            Button("Identities") { AppRouter.shared.route = .identities }
-                .keyboardShortcut("3", modifiers: .command)
-            Button("Snippets") { AppRouter.shared.route = .snippets }
-                .keyboardShortcut("4", modifiers: .command)
-            Button("Port Forward") { AppRouter.shared.route = .portForward }
-                .keyboardShortcut("5", modifiers: .command)
+            Button("Home") {
+                MainWindow.show()
+                AppRouter.shared.route = .home
+            }
+            .keyboardShortcut("1", modifiers: .command)
+            Button("Servers") {
+                MainWindow.show()
+                AppRouter.shared.route = .servers
+            }
+            .keyboardShortcut("2", modifiers: .command)
+            Button("Identities") {
+                MainWindow.show()
+                AppRouter.shared.route = .identities
+            }
+            .keyboardShortcut("3", modifiers: .command)
+            Button("Snippets") {
+                MainWindow.show()
+                AppRouter.shared.route = .snippets
+            }
+            .keyboardShortcut("4", modifiers: .command)
+            Button("Port Forward") {
+                MainWindow.show()
+                AppRouter.shared.route = .portForward
+            }
+            .keyboardShortcut("5", modifiers: .command)
+            Divider()
+        }
+        CommandGroup(before: .windowList) {
+            Button("Main Window") { MainWindow.show() }
+                .keyboardShortcut("0", modifiers: .command)
             Divider()
         }
     }
@@ -108,12 +138,18 @@ enum MainWindow {
 
     /// Brings the main window forward, reopening it if it was closed.
     @MainActor static func show() {
-        if let window = Mac.mainWindow, window.isVisible {
+        if let window = Mac.mainWindow, window.isVisible || window.isMiniaturized {
             Mac.activate(window: window)
+            AppDelegate.shared?.windowDidAppear()
             return
         }
         Mac.activate()
-        openWindow?(id: id)
+        if let openWindow {
+            openWindow(id: id)
+        } else if let window = Mac.mainWindow {
+            window.makeKeyAndOrderFront(nil)
+        }
+        AppDelegate.shared?.windowDidAppear()
     }
 }
 
@@ -121,27 +157,20 @@ enum MainWindow {
 class AppDelegate: NSObject, NSApplicationDelegate {
     /// Set once at launch on the main thread; read there ever after.
     @MainActor private(set) static var shared: AppDelegate!
+    private var cancellables = Set<AnyCancellable>()
 
     override init() {
         super.init()
         debugPrint("\(self) \(#function)")
         assert(AppDelegate.shared == nil, "duplicated init of AppDelegate")
         AppDelegate.shared = self
-
-        let timer = Timer(
-            timeInterval: 1,
-            target: self,
-            selector: #selector(windowStatusWatcher),
-            userInfo: nil,
-            repeats: true
-        )
-        CFRunLoopAddTimer(CFRunLoopGetMain(), timer, .commonModes)
     }
 
     func applicationDidFinishLaunching(_: Notification) {
         AppearancePreference.applyStored()
         Mac.mayTerminate = { AppDelegate.shared.mayTerminate() }
         Mac.openApp = { MainWindow.show() }
+        observeWindows()
         MenubarTool.shared.restore()
         #if DEBUG
             if ProcessInfo.processInfo.environment["TAMIO_PREVIEW_TERMINAL"] != nil,
@@ -180,6 +209,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationSupportsSecureRestorableState(_: NSApplication) -> Bool { true }
 
+    /// Closing the window leaves Tamio running in the background so MCP
+    /// clients, port forwards and open terminals stay connected, and reopening
+    /// the window is immediate. Only Quit terminates the process.
+    func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool { false }
+
     /// Open Tamio from the menu bar, or a click on the Dock icon, brings the
     /// window back when it was closed.
     func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows: Bool) -> Bool {
@@ -192,6 +226,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return .terminateNow
     }
 
+    func applicationWillTerminate(_: Notification) {
+        AgentSocket.shared.stop()
+    }
 
     /// Set once the user agreed to quit, so the quit that follows goes through.
     @MainActor private var quitConfirmed = false
@@ -222,10 +259,69 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return false
     }
 
+    // MARK: - Window lifecycle and background residency
+
+    private func observeWindows() {
+        let center = NotificationCenter.default
+        center.publisher(for: NSWindow.didBecomeKeyNotification)
+            .sink { [weak self] notification in
+                guard let window = notification.object as? NSWindow, Mac.isOrdinaryWindow(window) else { return }
+                self?.windowDidAppear()
+            }
+            .store(in: &cancellables)
+
+        center.publisher(for: NSWindow.didDeminiaturizeNotification)
+            .sink { [weak self] notification in
+                guard let window = notification.object as? NSWindow, Mac.isOrdinaryWindow(window) else { return }
+                self?.windowDidAppear()
+            }
+            .store(in: &cancellables)
+
+        center.publisher(for: NSWindow.willCloseNotification)
+            .sink { [weak self] notification in
+                guard let self, let window = notification.object as? NSWindow, Mac.isOrdinaryWindow(window) else { return }
+                if !Mac.hasVisibleWindow(excluding: window) {
+                    self.enterBackgroundResidency(closing: window)
+                }
+                DispatchQueue.main.async { [weak self] in
+                    self?.updateWindowStatus()
+                }
+            }
+            .store(in: &cancellables)
+
+        TransferQueue.shared.$jobs
+            .sink { [weak self] _ in
+                guard let self, !Mac.hasVisibleWindow, TransferQueue.shared.active.isEmpty else { return }
+                FileTransferManager.shared.closeAll()
+            }
+            .store(in: &cancellables)
+    }
+
+    /// Resumes window-bound background polling when the main window is shown.
+    func windowDidAppear() {
+        LiveStatusCenter.shared.setWindowVisible(true)
+        updateWindowStatus()
+    }
+
+    /// Releases window-only resources when the last window closes while keeping
+    /// MCP, the store, port forwards and open terminal shells alive.
+    private func enterBackgroundResidency(closing: NSWindow?) {
+        for context in TerminalManager.shared.sessionContexts {
+            context.termInterface.setActive(false)
+        }
+        LiveStatusCenter.shared.setWindowVisible(false)
+        MonitorCenter.shared.closeAll()
+        if TransferQueue.shared.active.isEmpty {
+            FileTransferManager.shared.closeAll()
+        }
+        Mac.setAccessory(!Mac.hasVisibleWindow(excluding: closing) && MenubarTool.shared.hasCat)
+    }
+
     /// With every window closed and a server in the menu bar, Tamio leaves the
-    /// Dock and stays in the menu bar.
-    @objc
-    func windowStatusWatcher() {
-        Mac.setAccessory(!Mac.hasVisibleWindow && MenubarTool.shared.hasCat)
+    /// Dock and stays in the menu bar; otherwise its Dock icon stays for reopen.
+    func updateWindowStatus() {
+        let visible = Mac.hasVisibleWindow
+        LiveStatusCenter.shared.setWindowVisible(visible)
+        Mac.setAccessory(!visible && MenubarTool.shared.hasCat)
     }
 }

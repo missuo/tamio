@@ -8,14 +8,16 @@
 // TS: Thread Safe
 
 #import "TSEventLoop.h"
+#import "Constructor.h"
 
-@interface TSEventLoop () 
+@interface TSEventLoop ()
 
 @property (nonatomic, nonnull, strong) NSThread *associatedThread;
 @property (nonatomic, nonnull, strong) NSRunLoop *associatedRunLoop;
 @property (nonatomic, nonnull, strong) NSTimer *associatedTimer;
 @property (nonatomic, nonnull, strong) NSPort *associatedPort;
 @property (nonatomic, nullable, weak) NSRemoteShell *parent;
+@property (nonatomic, assign) BOOL loopDestroyed;
 
 @end
 
@@ -24,6 +26,8 @@
 - (instancetype)initWithParent:(__weak NSRemoteShell*)parent {
     if (self = [super init]) {
         _parent = parent;
+        _loopDestroyed = NO;
+        nsremoteshell_activity_begin();
         _associatedThread = [[NSThread alloc] initWithTarget:self
                                                     selector:@selector(associatedThreadHandler)
                                                       object:NULL];
@@ -93,6 +97,16 @@
 }
 
 - (void)destroyLoop {
+    BOOL shouldEndActivity = NO;
+    @synchronized (self) {
+        if (!_loopDestroyed) {
+            _loopDestroyed = YES;
+            shouldEndActivity = YES;
+        }
+    }
+    if (shouldEndActivity) {
+        nsremoteshell_activity_end();
+    }
     [self.associatedTimer invalidate];
     [self.associatedRunLoop removePort:self.associatedPort forMode:NSRunLoopCommonModes];
     CFRunLoopRef runLoop = [self.associatedRunLoop getCFRunLoop];

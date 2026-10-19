@@ -37,11 +37,23 @@ enum Mac {
     @MainActor static func activate(window: NSWindow? = nil) {
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        (window ?? mainWindow)?.makeKeyAndOrderFront(nil)
+        if let target = window ?? mainWindow {
+            if target.isMiniaturized { target.deminiaturize(nil) }
+            target.makeKeyAndOrderFront(nil)
+        }
     }
 
     @MainActor static var hasVisibleWindow: Bool {
-        ordinaryWindows.contains(where: \.isVisible)
+        hasVisibleWindow(excluding: nil)
+    }
+
+    @MainActor static func hasVisibleWindow(excluding closing: NSWindow?) -> Bool {
+        ordinaryWindows.contains { $0 !== closing && ($0.isVisible || $0.isMiniaturized) }
+    }
+
+    @MainActor static func isOrdinaryWindow(_ window: NSWindow) -> Bool {
+        window.styleMask.contains(.titled) && !window.isSheet && !(window is NSPanel)
+            && window.level == .normal && window.contentView != nil
     }
 
     /// With every window closed and a server in the menu bar, Tamio leaves
@@ -59,10 +71,7 @@ enum Mac {
 
     /// The app's own windows: not menu bar popovers, sheets or panels.
     @MainActor static var ordinaryWindows: [NSWindow] {
-        NSApp.windows.filter { window in
-            window.styleMask.contains(.titled) && !window.isSheet && !(window is NSPanel)
-                && window.level == .normal && window.contentView != nil
-        }
+        NSApp.windows.filter(isOrdinaryWindow)
     }
 
     @MainActor static var mainWindow: NSWindow? {

@@ -173,7 +173,7 @@ enum AgentTools {
             let machine = try server.machine(named: a["host"]?.string ?? "")
             var host = JSONValue.from(AgentHost(machine))
             if case var .object(object) = host {
-                object["status"] = server.environment?.metrics(for: machine.id) ?? .null
+                object["status"] = await server.environment?.metrics(for: machine.id) ?? .null
                 host = .object(object)
             }
             return host
@@ -181,7 +181,12 @@ enum AgentTools {
         case "get_metrics":
             let names = a["hosts"]?.strings ?? []
             let machines = names.isEmpty ? store.machineGroup.machines : try names.map(server.machine(named:))
-            return .object(Dictionary(machines.map { ($0.name, server.environment?.metrics(for: $0.id) ?? .null) }, uniquingKeysWith: { first, _ in first }))
+            server.environment?.prepareMetrics(for: machines.map(\.id))
+            var pairs: [(String, JSONValue)] = []
+            for machine in machines {
+                pairs.append((machine.name, await server.environment?.metrics(for: machine.id) ?? .null))
+            }
+            return .object(Dictionary(pairs, uniquingKeysWith: { first, _ in first }))
 
         case "export_ssh_config":
             let names = a["hosts"]?.strings ?? []

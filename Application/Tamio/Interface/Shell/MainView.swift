@@ -23,7 +23,10 @@ struct MainView: View {
     var body: some View {
         window
             // Open Tamio from the menu bar, with the window closed, opens it again.
-            .onAppear { MainWindow.openWindow = openWindow }
+            .onAppear {
+                MainWindow.openWindow = openWindow
+                AppDelegate.shared?.windowDidAppear()
+            }
     }
 
     private var window: some View {

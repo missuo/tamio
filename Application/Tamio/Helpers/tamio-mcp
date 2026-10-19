@@ -13,17 +13,20 @@ APP="$(cd "$HERE/../.." && pwd)"
 BUNDLE_ID="${TAMIO_BUNDLE_ID:-$(/usr/bin/defaults read "$APP/Contents/Info" CFBundleIdentifier 2>/dev/null || echo sb.moe.tamio)}"
 SOCKET="${TAMIO_SOCKET:-$HOME/Library/Application Support/$BUNDLE_ID/agent.sock}"
 
-if [ ! -S "$SOCKET" ]; then
+if ! /usr/bin/nc -U "$SOCKET" </dev/null >/dev/null 2>&1; then
     /usr/bin/open -g -a "$APP" 2>/dev/null || /usr/bin/open -g -b "$BUNDLE_ID" 2>/dev/null
+    LIVE=0
     for _ in $(seq 1 75); do
-        [ -S "$SOCKET" ] && break
+        if /usr/bin/nc -U "$SOCKET" </dev/null >/dev/null 2>&1; then
+            LIVE=1
+            break
+        fi
         sleep 0.2
     done
-fi
-
-if [ ! -S "$SOCKET" ]; then
-    echo "Tamio's MCP server is not running. Open Tamio and turn on Settings › MCP › MCP server." >&2
-    exit 1
+    if [ "$LIVE" -eq 0 ]; then
+        echo "Tamio's MCP server is not running. Open Tamio and turn on Settings › MCP › MCP server." >&2
+        exit 1
+    fi
 fi
 
 exec /usr/bin/nc -U "$SOCKET"

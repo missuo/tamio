@@ -93,8 +93,12 @@ final class AgentBridge: ObservableObject, AgentEnvironment {
         }
     }
 
-    func metrics(for machine: RDMachine.ID) -> JSONValue? {
-        guard let session = LiveStatusCenter.shared.session(for: machine), session.status.hasData else { return nil }
+    func prepareMetrics(for machines: [RDMachine.ID]) {
+        LiveStatusCenter.shared.lease(machines)
+    }
+
+    func metrics(for machine: RDMachine.ID) async -> JSONValue? {
+        guard let session = await LiveStatusCenter.shared.requestSession(for: machine), session.status.hasData else { return nil }
         let status = session.status
         let root = status.fileSystem.elements.first { $0.mountPoint == "/" }
         let physical = status.network.elements.filter { !NetworkFilter.isVirtual($0.device) }

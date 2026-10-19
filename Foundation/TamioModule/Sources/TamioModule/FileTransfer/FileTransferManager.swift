@@ -61,4 +61,14 @@ public class FileTransferManager: ObservableObject {
             sftp.destroyedSession = true
         }
     }
+
+    public func closeAll() {
+        guard !transfers.isEmpty else { return }
+        let open = transfers
+        transfers = []
+        for sftp in open {
+            sftp.processShutdown()
+            sftp.destroyedSession = true
+        }
+    }
 }

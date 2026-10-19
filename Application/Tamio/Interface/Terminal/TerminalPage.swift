@@ -97,6 +97,9 @@ struct TerminalPage: View {
         .onChange(of: isActive) { active in
             context.termInterface.setActive(active)
         }
+        .onDisappear {
+            context.termInterface.setActive(false)
+        }
     }
 
     @ViewBuilder var surface: some View {

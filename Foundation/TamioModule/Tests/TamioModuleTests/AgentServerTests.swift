@@ -191,4 +191,34 @@ final class AgentServerTests: XCTestCase {
         XCTAssertEqual(parsed.output, "hi\n")
         XCTAssertNil(AgentRunner.parse("no marker").exitCode)
     }
+
+    func testMetricsPrewarmsAndReadsFromEnvironment() async {
+        final class MockEnvironment: AgentEnvironment {
+            var prepared: [RDMachine.ID] = []
+            var requested: [RDMachine.ID] = []
+            func approve(_: AgentRequest) async -> Bool { false }
+            func prepareMetrics(for machines: [RDMachine.ID]) { prepared = machines }
+            func metrics(for machine: RDMachine.ID) async -> JSONValue? {
+                requested.append(machine)
+                return ["cpuPercent": .number(12.5)]
+            }
+            func isForwarding(_: RDPortForward.ID) -> Bool { false }
+            func startForward(_: RDPortForward.ID) {}
+            func stopForward(_: RDPortForward.ID) {}
+        }
+
+        let server = AgentServer()
+        let env = MockEnvironment()
+        server.environment = env
+        let request: JSONValue = [
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": ["name": "get_metrics", "arguments": ["hosts": ["agent-test-key", "agent-test-password"]]],
+        ]
+        let reply = await server.handle(request.encodedString(), client: AgentSession()) ?? ""
+        XCTAssertEqual(env.prepared, machines)
+        XCTAssertEqual(env.requested, machines)
+        XCTAssertTrue(reply.contains("12.5"))
+    }
 }

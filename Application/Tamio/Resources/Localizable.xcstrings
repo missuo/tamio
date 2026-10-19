@@ -5265,6 +5265,22 @@
         }
       }
     },
+    "Main Window": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Main Window"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主窗口"
+          }
+        }
+      }
+    },
     "Make a new key pair; add its public key to the server's ~/.ssh/authorized_keys": {
       "localizations": {
         "en": {

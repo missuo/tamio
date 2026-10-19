@@ -116,6 +116,10 @@ public class FileTransferContext: ObservableObject, Identifiable, Equatable {
         }
     }
 
+    deinit {
+        shell.destroyPermanently()
+    }
+
     public static func == (lhs: FileTransferContext, rhs: FileTransferContext) -> Bool {
         lhs.id == rhs.id
     }

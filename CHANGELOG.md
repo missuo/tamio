@@ -11,6 +11,17 @@ the user. To release, rename that heading to the version and date
 (`## [0.2.0] - 2026-11-02`), set `MARKETING_VERSION` to match, and tag
 `v0.2.0`.
 
+## [Unreleased]
+
+### Changed
+- **Closing the window keeps Tamio running in the background.** Clicking the
+  close button or pressing ⌘W closes the window without quitting the app, so
+  the MCP server, port forwards and open terminals stay connected and the
+  window opens again at once from the Dock, the menu bar or ⌘0. While the
+  window is closed, background status polling pauses (waking on demand when an
+  agent asks for metrics) and App Nap is allowed whenever no SSH session is
+  active. Quit (⌘Q) still quits the app.
+
 ## [0.2.6] - 2026-10-19
 
 ### Added
