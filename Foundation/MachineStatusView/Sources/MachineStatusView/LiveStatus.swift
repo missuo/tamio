@@ -83,9 +83,10 @@ public final class LiveStatusCenter: ObservableObject {
     }
 
     /// Starts temporary background sessions for `machineIDs` when the main
-    /// window is closed so multiple servers connect in parallel.
+    /// window is closed so multiple servers connect in parallel. With live
+    /// status turned off, an agent's request does not connect either.
     public func lease(_ machineIDs: [RDMachine.ID], ttl: TimeInterval = 60) {
-        guard !windowVisible || !isEnabled else { return }
+        guard isEnabled, !windowVisible else { return }
         let store = TamioStore.shared
         let expiry = Date().addingTimeInterval(ttl)
         var changed = false
@@ -142,7 +143,7 @@ public final class LiveStatusCenter: ObservableObject {
         let wanted: [RDMachine]
         if windowVisible, isEnabled {
             wanted = allFollowable
-        } else if !leasedUntil.isEmpty {
+        } else if isEnabled, !leasedUntil.isEmpty {
             wanted = allFollowable.filter { leasedUntil[$0.id] != nil }
         } else {
             wanted = []
