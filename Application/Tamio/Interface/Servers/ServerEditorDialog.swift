@@ -37,6 +37,7 @@ struct ServerDraft: Equatable {
     var comment = ""
     /// A command the connection goes through, as in ssh_config's ProxyCommand.
     var proxyCommand = ""
+    var shellIntegration = false
 }
 
 struct ServerEditorDialog: View {
@@ -299,6 +300,14 @@ struct ServerEditorDialog: View {
                             .disableAutocorrection(true)
                     }
                     HelpText("The connection goes through this command instead of directly to the address. %h is the address and %p the port. Leave empty to connect directly.")
+                    row("Shell integration") {
+                        Toggle("Shell integration", isOn: $draft.shellIntegration)
+                            .labelsHidden()
+                            .rxSwitchToggle()
+                            .tint(.rxAccent)
+                            .controlSize(.small)
+                    }
+                    HelpText("Files follows the terminal's folder. Each new terminal types a line that has bash, zsh or fish tell Tamio its folder at every prompt; nothing is changed on the server.")
                     if !isNew {
                         row("Last banner") {
                             RXValueField(banner, placeholder: "None", monospaced: true)
@@ -398,8 +407,9 @@ struct ServerEditorDialog: View {
         draft.startFolder = read.startsInHomeFolder ? "" : read.fileTransferLoginPath
         draft.startupSnippet = read.startupSnippet
         draft.proxyCommand = read.proxyCommand
+        draft.shellIntegration = read.shellIntegration
         banner = read.lastBanner
-        showsAdvanced = read.startupSnippet != nil || !read.comment.isEmpty || !read.startsInHomeFolder || !read.proxyCommand.isEmpty
+        showsAdvanced = read.startupSnippet != nil || !read.comment.isEmpty || !read.startsInHomeFolder || !read.proxyCommand.isEmpty || read.shellIntegration
         let identity = read.associatedIdentity.flatMap(UUID.init(uuidString:)).map { store.identityGroup[$0] }
         let user = read.loginUsername(with: identity)
         draft.username = user == RDMachine.defaultUsername && read.username.isEmpty ? "" : user
@@ -472,6 +482,7 @@ struct ServerEditorDialog: View {
         target.fileTransferLoginPath = draft.startFolder.trimmingCharacters(in: .whitespaces)
         target.startupSnippet = draft.startupSnippet
         target.proxyCommand = draft.proxyCommand
+        target.shellIntegration = draft.shellIntegration
 
         let previousPrivate = existingPrivateIdentity
         let identity = credentialsToUse()

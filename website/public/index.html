@@ -3,10 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e4f0f5">
+  <meta name="description" content="Tamio is a native Mac SSH client with a Ghostty terminal, SFTP, live monitoring and local MCP for your agents. Your servers. Your rules.">
   <title>Tamio — the SSH client your agents can use</title>
-  <meta name="description" content="Tamio is a native SSH client for the Mac: a Ghostty terminal, dual-pane SFTP, live status for every server, end-to-end encrypted iCloud sync, and an MCP server so Claude Code and Codex can work on your servers, with your approval.">
-  <meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">
   <link rel="canonical" href="https://tamio.sh/">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -55,211 +54,98 @@
     "sameAs": ["https://github.com/missuo/tamio"]
   }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=56e4c5c7cb">
-  <link rel="stylesheet" href="/demo.css?v=6edd55043f">
+  <link rel="stylesheet" href="/styles.css?v=7bdfbd7cb1">
+  <link rel="stylesheet" href="/garden.css?v=206457d2a3">
+  <link rel="stylesheet" href="/demo.css?v=ce7ca41609">
+  <script src="/main.js?v=078caed066" defer></script>
+  <script src="/garden.js?v=f8e772e513" defer></script>
+  <script src="/demo.js?v=9b064df0e7" defer></script>
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="/" aria-label="Tamio home">
-        <img src="/icon-256.png" alt="" width="28" height="28">
-        <span>Tamio</span>
-      </a>
-      <nav class="nav-links" aria-label="Main">
-        <a href="#agents">Agents</a>
-        <a href="#history">History</a>
-        <a href="#security">Security</a>
-        <a href="#features">Features</a>
-        <a href="https://github.com/missuo/tamio" class="hide-sm">GitHub</a>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M15 8V4H4v11h4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1-4-2-6-2m12 5v-4c0-1-.3-2-1-2.5 3-.3 6-1.5 6-6.5a5 5 0 0 0-1.5-3.5c.2-1 .2-2-.3-3.5 0 0-1.2-.4-4 1.5a14 14 0 0 0-7 0C4.5 1.6 3.3 2 3.3 2c-.5 1.5-.5 2.5-.3 3.5A5 5 0 0 0 1.5 9c0 5 3 6.2 6 6.5-.7.5-1 1.5-1 2.5v4" transform="translate(1.5 0) scale(.92)"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m5 6 6 6-6 6m9 0h6"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01M15 6.5h3M15 17.5h3"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V4h6l3 3h9v13H3z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6z"/><path d="m8 11 3 3 5-5"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="8" r="5"/><path d="m12 12 9 9m-4-4 3-3m-6 0 3-3"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M6 18a5 5 0 0 1-1-10 7 7 0 0 1 13-1 5.5 5.5 0 0 1 0 11z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 5v2"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M2 12h5l3-8 4 16 3-8h5"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 1 7M3 4v6h6m3-4v6l4 3"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m8 5 7 7-7 7"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M17.6 12.9c0-2.1 1.7-3.2 1.8-3.3-1-1.5-2.5-1.7-3.1-1.7-1.3-.1-2.6.8-3.3.8-.7 0-1.8-.8-2.9-.8-1.5 0-2.9.9-3.7 2.2-1.6 2.7-.4 6.7 1.1 8.9.7 1.1 1.6 2.2 2.8 2.2 1.1 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2-1.1 2.8-2.2.8-1.2 1.1-2.3 1.2-2.4-.1 0-2.7-1-2.7-3.7ZM15.3 6.4c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.8 1.4-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3Z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+  </svg>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a class="brand" href="/#main" aria-label="Tamio home"><img src="/icon-256.png" width="30" height="30" alt=""><span>Tamio</span></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Open navigation"><span></span><span></span></button>
+      <nav id="main-nav" aria-label="Main navigation">
+        <a href="/#playground">Overview</a><a href="/#agents">For agents</a><a href="/#history">History</a><a href="/#security">Security</a><a href="/#features">Features</a>
+        <a class="button button-outline nav-github" href="https://github.com/missuo/tamio" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true"><use href="#i-github"/></svg> GitHub</a>
+        <a class="button button-gold button-small" href="/download" target="_blank" rel="noopener noreferrer">Download <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </nav>
-      <a class="button button-small" href="https://github.com/missuo/tamio/releases/latest">Download</a>
     </div>
   </header>
-
-  <main>
-    <!-- Hero -->
-    <section class="hero">
-      <div class="glow" aria-hidden="true"></div>
-      <div class="wrap hero-inner">
-        <img class="hero-icon" src="/icon.png" alt="The Tamio app icon" width="132" height="132">
-        <p class="kana"><span lang="ja">ターミオ</span><span class="dot">·</span><span>Tāmio</span></p>
-        <h1>The SSH client<br>your agents can use.</h1>
-        <p class="lede">
-          A native Mac terminal, file manager and live monitor for every server — with an MCP server that lets
-          Claude&nbsp;Code, Codex and any agent work across your hosts. You approve every change, and every
-          change is written down.
-        </p>
-        <div class="cta">
-          <a class="button" href="https://github.com/missuo/tamio/releases/latest">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65l.05-.04ZM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.66 1.37-.58.67-1.09 1.75-.96 2.79 1.01.08 2.05-.52 2.68-1.27Z"/></svg>
-            Download for Mac
-          </a>
-          <a class="button button-ghost" href="https://github.com/missuo/tamio">View on GitHub</a>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-cloud cloud-one"></div><div class="hero-cloud cloud-two"></div><div class="hero-cloud cloud-three"></div>
+      <div class="hero-inner wide">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="tiny-square"></span> YOUR SERVERS. YOUR RULES.</div>
+          <h1 id="hero-title">The SSH client<br>your agents<br>can use<span class="gold-period">.</span></h1>
+          <p>A native Mac terminal, file manager and live monitor.<br class="desktop-break"> Built for you. Ready for your agents.</p>
+          <div class="hero-actions"><a class="button button-gold button-large" href="/download" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true"><use href="#i-apple"/></svg> Download for Mac <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="text-link" href="/#playground">Take a look <span>↘</span></a></div>
+          <div class="brew-line"><code><span>$</span> brew install --cask owo-network/brew/tamio</code><button class="icon-button copy-button" data-copy="brew install --cask owo-network/brew/tamio" aria-label="Copy Homebrew install command"><svg aria-hidden="true"><use href="#i-copy"/></svg></button></div>
+          <p class="platform-note">Free & open source <span>·</span> macOS 14+ <span>·</span> Apple silicon & Intel</p>
         </div>
-        <div class="brew">
-          <code id="brew">brew install --cask owo-network/brew/tamio</code>
-          <button class="copy" data-copy="brew" aria-label="Copy the Homebrew command">Copy</button>
-        </div>
-        <p class="fine">Free · macOS 14 or later · Apple silicon and Intel</p>
-      </div>
-
-      <!-- Tamio's window, drawn by demo.js to the app's measurements: click a card, switch tabs. -->
-      <div class="wrap">
-        <div class="demo-frame" data-demo="window"><div class="demo-scale"></div></div>
-      </div>
-    </section>
-
-    <!-- Agents -->
-    <section id="agents" class="section">
-      <div class="wrap">
-        <p class="eyebrow">01 — Agents</p>
-        <h2>Your servers, as tools for any agent.</h2>
-        <p class="section-lede">
-          Tamio runs an MCP server on your Mac. Claude Code, Codex and any MCP client can list your servers, read
-          their live load, run commands on one host or a hundred, and manage keys, snippets and port forwards —
-          signed in with Tamio's saved credentials, never their own.
-        </p>
-        <div class="grid grid-2">
-          <div class="cell">
-            <p class="cell-label">Set up in one line</p>
-            <div class="code">
-              <code id="setup">claude mcp add tamio -- /Applications/Tamio.app/Contents/Resources/tamio-mcp</code>
-              <button class="copy" data-copy="setup" aria-label="Copy the command">Copy</button>
+        <div class="hero-preview">
+          <div class="terminal-window">
+            <div class="window-bar dark-bar"><div class="traffic-lights"><i></i><i></i><i></i></div><span>tamio — agent session</span><svg aria-hidden="true"><use href="#i-terminal"/></svg></div>
+            <div class="agent-switch" role="tablist" aria-label="Preview agent"><button role="tab" id="agent-claude" aria-selected="true" aria-controls="hero-console" data-agent="Claude Code"><span class="claude-mark">✳</span> Claude Code</button><button role="tab" id="agent-codex" aria-selected="false" aria-controls="hero-console" data-agent="Codex" tabindex="-1"><span class="codex-mark">⌘</span> Codex</button></div>
+            <div class="terminal-body" id="hero-console" role="tabpanel" aria-labelledby="agent-claude" tabindex="0">
+              <p class="terminal-prompt"><span>❯</span> Check the health of my servers.</p>
+              <div id="terminal-output" aria-live="polite"></div>
             </div>
-            <p class="cell-text">Codex and other clients take the same command. Settings › MCP installs the Tamio skill, which teaches an agent the rules.</p>
-            <ul class="tools">
-              <li>list_hosts</li><li>get_metrics</li><li>run_command</li><li>run_snippet</li>
-              <li>add_host</li><li>add_identity</li><li>add_port_forward</li><li>get_activity</li><li>log_activity</li>
-            </ul>
+            <div class="terminal-bottom"><span><i class="status-dot"></i> Local MCP connection</span><button id="run-demo">Run demo <span>↵</span></button></div>
           </div>
-          <div class="cell">
-            <p class="cell-label">You approve first</p>
-            <div class="tw-alert-stage" data-demo="alert"></div>
-            <p class="cell-text">Every command and change waits for you. Allow it once, for an hour, or always — for an agent left to work while you are away. Revoke it any time.</p>
-          </div>
+          <div class="preview-caption"><svg aria-hidden="true"><use href="#i-shield"/></svg> Your agents do the work. You stay in control.</div>
+          <span class="demo-note">Interactive preview · sample servers</span>
         </div>
+      </div>
+      <div class="landscape"><img src="/server-garden.svg" alt="" aria-hidden="true" width="1440" height="220"></div>
+    </section>
+
+    <section class="playground section-green" id="playground" aria-labelledby="playground-title">
+      <div class="content">
+        <div class="section-heading centered"><span class="eyebrow">A LITTLE MORE THAN A TERMINAL</span><h2 id="playground-title">One home for every server.</h2><p>Open a shell, move a file, check a heartbeat. All in one native Mac app.</p></div>
+        <div class="demo-context"><span><i class="status-dot"></i> EXPLORE TAMIO</span><p>Sample servers · select a host, search, or switch views.</p></div>
+        <div class="demo-frame" data-demo="window"><div class="demo-scale"></div></div>
+        <noscript><p class="noscript-note">Enable JavaScript to explore the interactive app preview. Downloads and all product information remain available.</p></noscript>
+        <div class="under-demo"><span>MADE FOR YOUR WORKFLOW</span><div><svg aria-hidden="true"><use href="#i-terminal"/></svg> Ghostty terminal</div><div><svg aria-hidden="true"><use href="#i-folder"/></svg> Dual-pane SFTP</div><div><svg aria-hidden="true"><use href="#i-activity"/></svg> Live monitoring</div><div><svg aria-hidden="true"><use href="#i-cloud"/></svg> iCloud sync</div></div>
       </div>
     </section>
 
-    <!-- History -->
-    <section id="history" class="section">
-      <div class="wrap">
-        <p class="eyebrow">02 — History</p>
-        <h2>Sessions end. The history stays.</h2>
-        <p class="section-lede">
-          Unlike a terminal, Tamio writes down every operation an agent performs on every server: which agent, on
-          which Mac, what it ran and what came back. Switch agents, swap devices, change computers — the next agent
-          reads what the last one did, and picks up from there.
-        </p>
-        <div data-demo="history"></div>
-        <div class="grid grid-3">
-          <div class="cell">
-            <p class="cell-label">One entry per task</p>
-            <p class="cell-text">An agent names the goal of each step. Adding a repository, <code>apt update</code>, the install and its config become one entry — “Install nginx” — with every step and its result under it.</p>
-          </div>
-          <div class="cell">
-            <p class="cell-label">Read before you work</p>
-            <p class="cell-text">Agents call <code>get_activity</code> before touching a server, and <code>log_activity</code> for anything they change over their own SSH, so nothing happens off the record.</p>
-          </div>
-          <div class="cell">
-            <p class="cell-label">On every Mac</p>
-            <p class="cell-text">The history syncs through iCloud with your servers, end-to-end encrypted. Filter it by server in Settings, or open any server's Activity tab.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section class="agents-section section-green" id="agents" aria-labelledby="agents-title"><div class="content">
+      <div class="section-heading"><span class="eyebrow">01 / BUILT FOR AGENTS</span><h2 id="agents-title">A helpful agent.<br>A human in the loop.</h2><p>Give Claude Code, Codex or any MCP client a way to work<br class="desktop-break"> with your servers. Keep the final say.</p></div>
+      <div class="feature-row"><div class="feature-copy"><div class="section-number">01.1</div><h3>Your servers, now tools.</h3><p>Tamio runs an MCP server on your Mac. Agents can check live load, run commands and manage your hosts using your saved connections.</p><p>One command to connect. No credentials to hand over.</p><div class="setup-command"><code>claude mcp add tamio -- /Applications/Tamio.app/Contents/Resources/tamio-mcp</code><button class="icon-button copy-button" data-copy="claude mcp add tamio -- /Applications/Tamio.app/Contents/Resources/tamio-mcp" aria-label="Copy MCP setup command"><svg aria-hidden="true"><use href="#i-copy"/></svg></button></div><span class="small-note">Codex and other MCP clients use the same executable. Install the Tamio skill from Settings › MCP to teach your agent the rules.</span></div><div class="tools-visual"><div class="tool-apps"><span><b class="claude-mark">✳</b> Claude Code</span><span><b>⌘</b> Codex</span><span><b>↗</b> Any agent</span></div><div class="connection-lines"><i></i><i></i><i></i></div><div class="tamio-hub"><img src="/icon-256.png" alt="" width="37" height="37"><div><strong>Tamio MCP</strong><span>One local connection</span></div><span class="hub-local">LOCAL</span></div><div class="tool-grid"><span><i class="status-dot"></i> list_hosts</span><span><i class="status-dot"></i> get_metrics</span><span><i class="status-dot"></i> run_command</span><span><i class="status-dot"></i> run_snippet</span><span><i class="status-dot"></i> add_host</span><span><i class="status-dot"></i> add_identity</span><span><i class="status-dot"></i> add_port_forward</span><span><i class="status-dot"></i> get_activity</span><span><i class="status-dot"></i> log_activity</span></div><div class="tools-note"><svg aria-hidden="true"><use href="#i-lock"/></svg> Your credentials stay with Tamio.</div></div></div>
+      <div class="feature-row"><div class="feature-copy"><div class="section-number">01.2</div><h3>You approve. Then it happens.</h3><p>Every command and change waits for your permission. Allow it once, for an hour, or always. Revoke access whenever you need to.</p><a class="text-link" href="/#security">A closer look at security <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></div><div class="approval-preview"><div class="demo-caption">INTERACTIVE PERMISSION PREVIEW</div><div class="tw-alert-stage" data-demo="alert"></div></div></div>
+    </div></section>
 
-    <!-- Security -->
-    <section id="security" class="section">
-      <div class="wrap">
-        <p class="eyebrow">03 — Security</p>
-        <h2>Agents get the work, never the keys.</h2>
-        <div class="grid grid-3 security">
-          <div class="cell">
-            <p class="cell-label">Secrets only go in</p>
-            <p class="cell-text">No tool returns a password, a private key or a passphrase. An agent can add a key or have Tamio generate one, and gets back only the public half.</p>
-          </div>
-          <div class="cell">
-            <p class="cell-label">Only you can reach it</p>
-            <p class="cell-text">The MCP server listens on a Unix socket that only your user account can open. There is no network port.</p>
-          </div>
-          <div class="cell">
-            <p class="cell-label">Host keys checked</p>
-            <p class="cell-text">A server's key is trusted the first time and checked every time after. A server answering with another key is refused before any password is sent.</p>
-          </div>
-          <div class="cell">
-            <p class="cell-label">Encrypted on disk</p>
-            <p class="cell-text">Servers and identities are stored encrypted, under a key kept in your Keychain.</p>
-          </div>
-          <div class="cell">
-            <p class="cell-label">End-to-end encrypted sync</p>
-            <p class="cell-text">Everything is sealed on your Mac before it goes to iCloud, under a passphrase only your devices know. Apple cannot read it.</p>
-          </div>
-          <div class="cell">
-            <p class="cell-label">Open source</p>
-            <p class="cell-text">Every line is on GitHub under the MIT license. Releases are signed, notarized by Apple, and updates are verified before they install.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section class="history-section" id="history" aria-labelledby="history-title"><div class="content"><div class="feature-row history-row"><div class="feature-copy"><span class="eyebrow">02 / NOTHING LOST BETWEEN SESSIONS</span><h2 id="history-title">Sessions end.<br>The history stays.</h2><p>Every operation has a record: which agent, which Mac, what ran, and what came back.</p><p>Switch agents or devices. The next agent can read what the last one did and pick up right there. Agents use <code>get_activity</code> before starting, and <code>log_activity</code> to record work done over their own SSH.</p><div class="history-notes"><div><svg aria-hidden="true"><use href="#i-history"/></svg><span>One clear entry for every task</span></div><div><svg aria-hidden="true"><use href="#i-cloud"/></svg><span>Encrypted iCloud sync across your Macs</span></div></div></div><div class="history-preview"><div class="demo-caption">SAMPLE SERVER ACTIVITY</div><div data-demo="history"></div></div></div></div></section>
 
-    <!-- Features -->
-    <section id="features" class="section">
-      <div class="wrap">
-        <p class="eyebrow">04 — Everything else</p>
-        <h2>A complete SSH client, before any agent shows up.</h2>
-        <div class="grid grid-4 features">
-          <div class="cell"><p class="cell-label">Ghostty terminal</p><p class="cell-text">A fast, GPU-drawn terminal with Ghostty's themes and every one of its settings.</p></div>
-          <div class="cell"><p class="cell-label">Live status</p><p class="cell-text">CPU, memory, disk and network of every server, with processes and containers.</p></div>
-          <div class="cell"><p class="cell-label">Dual-pane SFTP</p><p class="cell-text">Drag files between your Mac and any server, or out to Finder. Folders go whole.</p></div>
-          <div class="cell"><p class="cell-label">Transfer queue</p><p class="cell-text">Progress, speed, time left, cancel and retry — and a notification when it's done.</p></div>
-          <div class="cell"><p class="cell-label">Identities</p><p class="cell-text">Paste a key, load one, or generate Ed25519. A private key is never shown again.</p></div>
-          <div class="cell"><p class="cell-label">Snippets</p><p class="cell-text">The commands you run often, one click away — for you and your agents.</p></div>
-          <div class="cell"><p class="cell-label">Port forwards</p><p class="cell-text">Local and remote tunnels through any server, started when you need them.</p></div>
-          <div class="cell"><p class="cell-label">iCloud sync</p><p class="cell-text">On by default, so nothing is lost with a Mac. Each kind of data has its own switch.</p></div>
-        </div>
-      </div>
-    </section>
+    <section class="security-section" id="security" aria-labelledby="security-title"><div class="content"><div class="security-intro"><div><span class="eyebrow">03 / TRUST IS BUILT IN</span><h2 id="security-title">Agents get the work.<br>Never the keys.</h2></div><p>Your connections belong to you.<br>Tamio keeps it that way, by design.</p></div><div class="security-grid"><article><svg aria-hidden="true"><use href="#i-key"/></svg><h3>Secrets only go in</h3><p>No tool returns passwords, private keys or passphrases. Agents only get the public half of a generated key.</p></article><article><svg aria-hidden="true"><use href="#i-lock"/></svg><h3>Local means local</h3><p>A Unix socket only your user account can open. No network port, no exposed MCP server.</p></article><article><svg aria-hidden="true"><use href="#i-shield"/></svg><h3>Host keys checked</h3><p>Trusted on first use, checked on every connection. Changed keys are refused before a password is sent.</p></article><article><svg aria-hidden="true"><use href="#i-server"/></svg><h3>Encrypted on disk</h3><p>Servers and identities stay encrypted under a key held in your Mac's Keychain.</p></article><article><svg aria-hidden="true"><use href="#i-cloud"/></svg><h3>Private across devices</h3><p>Data is encrypted on your Mac before it reaches iCloud, with a passphrase only your devices know.</p></article><article><svg aria-hidden="true"><use href="#i-github"/></svg><h3>Open to inspection</h3><p>MIT licensed. Apple-notarized releases. Verified updates. Read every line on GitHub.</p><a class="text-link" href="https://github.com/missuo/tamio" target="_blank" rel="noopener noreferrer">Explore the source <span>↗</span></a></article></div></div></section>
 
-    <!-- Download -->
-    <section class="section final">
-      <div class="glow glow-low" aria-hidden="true"></div>
-      <div class="wrap final-inner">
-        <img src="/icon.png" alt="" width="96" height="96">
-        <h2>Put your agents to work.</h2>
-        <p class="section-lede">Tamio is free, native, and updates itself.</p>
-        <div class="cta">
-          <a class="button" href="https://github.com/missuo/tamio/releases/latest">Download for Mac</a>
-          <a class="button button-ghost" href="https://github.com/missuo/tamio/releases">Release notes</a>
-        </div>
-      </div>
-    </section>
+    <section class="features-section section-green" id="features" aria-labelledby="features-title"><div class="content"><div class="section-heading"><span class="eyebrow">04 / A GREAT SSH CLIENT, TOO</span><h2 id="features-title">Even when you're flying solo.</h2><p>All the tools you reach for, with the care of a native Mac app.</p></div><div class="features-grid"><article><span class="feature-glyph">&gt;_</span><div><h3>Ghostty terminal</h3><p>A fast, GPU-drawn terminal with Ghostty's themes and settings.</p></div></article><article><span class="feature-glyph">↔</span><div><h3>Dual-pane SFTP</h3><p>Drag files and whole folders between your Mac, servers and Finder.</p></div></article><article><span class="feature-glyph">↗</span><div><h3>Transfer queue</h3><p>Progress, speed, cancel and retry. Get notified when the work is done.</p></div></article><article><span class="feature-glyph">⌁</span><div><h3>Live status</h3><p>CPU, memory, disk and network, with processes and containers.</p></div></article><article><span class="feature-glyph">⚿</span><div><h3>Identities</h3><p>Import or generate keys. Your private key is never shown again.</p></div></article><article><span class="feature-glyph">⌘</span><div><h3>Snippets</h3><p>Your frequent commands, one click away for you and your agents.</p></div></article><article><span class="feature-glyph">⇄</span><div><h3>Port forwards</h3><p>Local and remote tunnels through any server, whenever you need them.</p></div></article><article><span class="feature-glyph">☁</span><div><h3>iCloud sync</h3><p>Your setup follows you. Choose what syncs with individual controls.</p></div></article></div></div></section>
+
+    <section class="final-cta"><div class="content cta-inner"><div class="cta-icon"><img src="/icon-256.png" alt="" width="64" height="64"></div><span class="eyebrow">A GOOD DAY TO OPEN A NEW TERMINAL</span><h2>Put your agents to work.</h2><p>Free, native, and yours to explore.</p><a class="button button-gold button-large" href="/download" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true"><use href="#i-apple"/></svg> Download for Mac <svg aria-hidden="true"><use href="#i-arrow"/></svg></a><span class="cta-platform">macOS 14+ · Apple silicon & Intel</span><a class="release-link" href="https://github.com/missuo/tamio/releases" target="_blank" rel="noopener noreferrer">Read the release notes ↗</a></div><div class="cta-cloud hero-cloud"></div></section>
   </main>
-
-  <footer class="footer">
-    <div class="wrap footer-inner">
-      <div class="footer-brand">
-        <img src="/icon-256.png" alt="" width="22" height="22">
-        <span>Tamio</span>
-        <span class="kana-small" lang="ja">ターミオ</span>
-      </div>
-      <nav class="footer-links" aria-label="Footer">
-        <a href="https://github.com/missuo/tamio">GitHub</a>
-        <a href="https://github.com/missuo/tamio/releases">Releases</a>
-        <a href="https://github.com/missuo/tamio/blob/main/CHANGELOG.md">Changelog</a>
-        <a href="https://github.com/missuo/tamio/issues">Report a problem</a>
-      </nav>
-      <p class="footer-fine">
-        © <span id="year">2026</span> MOE AI LLC · MIT License · Based on
-        <a href="https://github.com/mizorewww/catussh">mizorewww/catussh</a> and
-        <a href="https://github.com/Lakr233/Rayon">Lakr233/Rayon</a>
-      </p>
-    </div>
-  </footer>
-  <script src="/main.js?v=c3981f1410" defer></script>
-  <script src="/demo.js?v=6c4e7453bf" defer></script>
+  <footer><div class="content"><div class="footer-main"><a class="brand" href="/#main"><img src="/icon-256.png" alt="" width="28" height="28"><span>Tamio</span><small>ターミオ</small></a><nav aria-label="Footer navigation"><a href="https://github.com/missuo/tamio" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="https://github.com/missuo/tamio/releases" target="_blank" rel="noopener noreferrer">Releases</a><a href="https://github.com/missuo/tamio/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">Changelog</a><a href="https://github.com/missuo/tamio/issues" target="_blank" rel="noopener noreferrer">Report a problem</a></nav></div><div class="footer-bottom"><span>© <span id="year">2026</span> MOE AI LLC · MIT License</span><span>Built on <a href="https://github.com/mizorewww/catussh" target="_blank" rel="noopener noreferrer">catussh</a> & <a href="https://github.com/Lakr233/Rayon" target="_blank" rel="noopener noreferrer">Rayon</a>. Made for the Mac.</span><a href="/#main" class="back-top">Back to top ↑</a></div></div></footer>
+  <div id="toast" role="status" class="toast"></div>
 </body>
 </html>

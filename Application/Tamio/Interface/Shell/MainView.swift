@@ -142,7 +142,7 @@ private struct SessionPages: View {
                     .sessionPage(active: route == .terminal(context.id))
             }
             ForEach(transfers.transfers) { context in
-                FileTransferPage(context: context)
+                FileTransferPage(context: context, active: route == .transfer(context.id))
                     .sessionPage(active: route == .transfer(context.id))
             }
             ForEach(monitors.sessions) { session in

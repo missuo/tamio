@@ -28,6 +28,37 @@ the user. To release, rename that heading to the version and date
   before confirmation. Dynamic Includes that cannot be inspected safely are
   rejected. Available in English and Simplified Chinese.
 
+## [0.2.5] - 2026-10-19
+
+### Added
+- **Settings sync between your Macs.** Light or dark, the terminal's whole
+  configuration (fonts, colours, cursor, keys) and font size, the session
+  switches, hidden files, the connection timeout, and live status with its
+  refresh now go through iCloud sync like your servers do, under the new
+  Settings switch in iCloud Sync. Each setting keeps its latest change, so
+  changing the font on one Mac and the theme on another keeps both. Whether
+  the MCP server runs, the agents allowed to act without asking, and update
+  checks stay with each Mac.
+- **Paste files to upload them.** Copy files or folders in Finder, then press
+  ⌘V in a server's pane in Files: they upload to the folder it shows, like a
+  drop. In the Mac's pane, ⌘V copies them there. The server's pane takes the
+  keyboard when Files opens; a click among the files gives it to a pane.
+- **Files follows the terminal's folder.** Turn on Shell integration in Edit
+  Server › Advanced, and each new terminal on that server reports its folder
+  at every prompt; switching to Files then opens the folder the terminal was
+  last in, and the pane's Actions menu has Go to Terminal's Folder. It works
+  with bash, zsh and fish, lasts only for the session and changes nothing on
+  the server. A server whose shell reports its folder by itself needs no
+  switch. Browsing elsewhere in Files stays put until the terminal moves.
+
+### Fixed
+- **Terminals open on JumpServer bastions.** A JumpServer (Koko) bastion
+  closed the session right after signing in, because Tamio sent the window
+  size before asking for a shell and the bastion never answered. The size now
+  follows the shell, so its asset menu appears. When a server refuses the
+  terminal or the shell, the terminal now says so instead of only Connection
+  Closed.
+
 ## [0.2.4] - 2026-10-18
 
 ### Added

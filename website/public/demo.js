@@ -7,7 +7,7 @@
 
   // Icons, drawn to SF Symbols' proportions.
   const icon = (d, size = 17, extra = "") =>
-    `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
+    `<svg aria-hidden="true" focusable="false" style="width:${size}px;height:${size}px" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
   const I = {
     home: icon('<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/>'),
     servers: icon('<rect x="3" y="4" width="18" height="7" rx="1.6"/><rect x="3" y="13" width="18" height="7" rx="1.6"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/>'),
@@ -15,11 +15,8 @@
     snippets: icon('<path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>'),
     forward: icon('<path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/>'),
     gear: icon('<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/>'),
-    sidebar: icon('<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9 4.5v15M5.5 8h1.5M5.5 11h1.5M5.5 14h1.5"/>', 19),
-    plus: icon('<path d="M12 5v14M5 12h14"/>', 16, 'stroke-width="2"'),
     search: icon('<circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/>', 15),
     terminal: icon('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m7 10 3 2-3 2M12 15h4"/>', 14),
-    more: icon('<circle cx="5" cy="12" r=".8" fill="currentColor"/><circle cx="12" cy="12" r=".8" fill="currentColor"/><circle cx="19" cy="12" r=".8" fill="currentColor"/>', 14, 'stroke-width="2.2"'),
     close: icon('<path d="m6 6 12 12M18 6 6 18"/>', 13, 'stroke-width="2"'),
     list: icon('<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>', 12, 'stroke-width="2.2"'),
     network: icon('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.5 5.2 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.2-3.5-8.5S9.6 5.9 12 3.5Z"/>', 11),
@@ -27,8 +24,8 @@
   };
   const logos = {
     // Simple Icons (CC0), drawn small.
-    ubuntu: '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm3.6 4.3a1.7 1.7 0 1 1 1.7 2.9 1.7 1.7 0 0 1-1.7-2.9ZM4.7 13.7a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4Zm.6 1.6a6.9 6.9 0 0 0 4.3 3.5 2.6 2.6 0 0 1 .6 2.6 9.5 9.5 0 0 1-6.6-5.3 2.6 2.6 0 0 1 1.7-.8Zm11.8 4.8a1.7 1.7 0 1 1-1.7-2.9 1.7 1.7 0 0 1 1.7 2.9Zm.6-2.6a2.6 2.6 0 0 0-2.6-.7 6.9 6.9 0 0 1-5.5.9 6.9 6.9 0 0 1-2.4-1.2 2.6 2.6 0 0 0 .1-2.7 6.9 6.9 0 0 1 0-4.4 2.6 2.6 0 0 0-.1-2.7 6.9 6.9 0 0 1 7.9-.3 2.6 2.6 0 0 0 2.6-.7 9.5 9.5 0 0 1 0 12Z"/></svg>',
-    debian: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14.5 21.2A9 9 0 1 1 20.6 9.5"/><path d="M12.6 16.6a4.6 4.6 0 1 1 4.5-5.7"/></svg>',
+    ubuntu: '<svg aria-hidden="true" focusable="false" class="tw-logo" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm3.6 4.3a1.7 1.7 0 1 1 1.7 2.9 1.7 1.7 0 0 1-1.7-2.9ZM4.7 13.7a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4Zm.6 1.6a6.9 6.9 0 0 0 4.3 3.5 2.6 2.6 0 0 1 .6 2.6 9.5 9.5 0 0 1-6.6-5.3 2.6 2.6 0 0 1 1.7-.8Zm11.8 4.8a1.7 1.7 0 1 1-1.7-2.9 1.7 1.7 0 0 1 1.7 2.9Zm.6-2.6a2.6 2.6 0 0 0-2.6-.7 6.9 6.9 0 0 1-5.5.9 6.9 6.9 0 0 1-2.4-1.2 2.6 2.6 0 0 0 .1-2.7 6.9 6.9 0 0 1 0-4.4 2.6 2.6 0 0 0-.1-2.7 6.9 6.9 0 0 1 7.9-.3 2.6 2.6 0 0 0 2.6-.7 9.5 9.5 0 0 1 0 12Z"/></svg>',
+    debian: '<svg aria-hidden="true" focusable="false" class="tw-logo" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14.5 21.2A9 9 0 1 1 20.6 9.5"/><path d="M12.6 16.6a4.6 4.6 0 1 1 4.5-5.7"/></svg>',
   };
 
   // The fleet: what a small team's servers read on an ordinary afternoon.
@@ -72,21 +69,30 @@
   function ring(value, cache = 0) {
     const used = Math.min(value, 100) / 100;
     const cached = Math.min(cache / 100, 1 - used);
-    return `<div class="tw-ring">
-      <svg viewBox="0 0 40 40"><circle class="track" cx="20" cy="20" r="18" fill="none" stroke-width="4"/>
+    return `<span class="tw-ring">
+      <svg aria-hidden="true" focusable="false" viewBox="0 0 40 40"><circle class="track" cx="20" cy="20" r="18" fill="none" stroke-width="4"/>
       <circle class="cache" cx="20" cy="20" r="18" fill="none" stroke-width="4" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - cached)}" transform="rotate(${used * 360} 20 20)"/>
       <circle class="fill" cx="20" cy="20" r="18" fill="none" stroke-width="4" stroke-linecap="round" stroke="${usage(value)}" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - used)}"/></svg>
-      <span>${pct(value)}%</span></div>`;
+      <span>${pct(value)}%</span></span>`;
   }
 
   // MARK: The window
 
-  function windowMarkup() {
+  const views = ["overview", "processes", "containers", "activity"];
+  let mountID = 0;
+
+  function tabsMarkup(id) {
+    return `<div class="tw-tabs" role="tablist" aria-label="Server details">${views.map((view) =>
+      `<button type="button" id="${id}-${view}" role="tab" data-tab="${view}" aria-selected="false" aria-controls="${id}-pane" tabindex="-1">${view[0].toUpperCase() + view.slice(1)}</button>`
+    ).join("")}</div>`;
+  }
+
+  function windowMarkup(id) {
     const side = (ic, title, badge = "", sel = false) =>
       `<div class="tw-row${sel ? " sel" : ""}"><span class="ic">${ic}</span>${title}${badge ? `<span class="badge">${badge}</span>` : ""}</div>`;
     return `
-      <aside class="tw-side">
-        <div class="tw-side-top"><span class="tw-lights"><i></i><i></i><i></i></span><span class="tw-side-toggle">${I.sidebar}</span></div>
+      <aside class="tw-side" aria-label="App sidebar preview">
+        <div class="tw-side-top"><span class="tw-lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="tw-preview-label">App preview</span></div>
         ${side(I.home, "Home", "", true)}
         <div class="tw-head">Manage</div>
         ${side(I.servers, "Servers", fleet.length)}
@@ -95,34 +101,36 @@
         ${side(I.forward, "Port Forward", 2)}
         <div class="tw-side-bottom">${side(I.gear, "Settings")}</div>
       </aside>
-      <section class="tw-main">
+      <section class="tw-main" aria-label="Sample server fleet">
         <div class="tw-toolbar">
-          <span class="tw-new" title="New Server">${I.plus}</span>
-          <span class="tw-search">${I.search}Search servers</span>
+          <span class="tw-demo-label">Sample servers · interactive demo</span>
+          <button type="button" class="tw-pause" aria-pressed="false">Pause readings</button>
+          <label class="tw-search">${I.search}<input type="search" placeholder="Search servers" aria-label="Search sample servers" autocomplete="off" spellcheck="false"></label>
         </div>
         <div class="tw-body">
-          <div class="tw-cards"></div>
-          <div class="tw-panel">
-            <div class="tw-panel-head"><b class="tw-panel-name"></b><button class="tw-close" aria-label="Close">${I.close}</button></div>
-            <div class="tw-tabs" role="tablist">
-              <button data-tab="overview" class="sel">Overview</button><button data-tab="processes">Processes</button><button data-tab="containers">Containers</button><button data-tab="activity">Activity</button>
-            </div>
-            <div class="tw-pane"></div>
-          </div>
+          <div class="tw-cards" role="group" aria-label="Choose a sample server"></div>
+          <section class="tw-panel" aria-label="Selected server">
+            <div class="tw-panel-head"><b class="tw-panel-name"></b><button type="button" class="tw-close" aria-label="Close server details">${I.close}</button></div>
+            ${tabsMarkup(id)}
+            <div class="tw-pane" id="${id}-pane" role="tabpanel" tabindex="0"></div>
+          </section>
         </div>
       </section>`;
   }
 
-  function card(s, selected) {
-    return `<div class="tw-card${selected ? " sel" : ""}" data-name="${s.name}">
-      <div class="tw-card-head"><span class="tw-dot"></span><span class="tw-name">${s.name.toUpperCase()}</span>
+  function cardContents(s) {
+    return `<span class="tw-card-head"><span class="tw-dot"></span><span class="tw-name">${s.name.toUpperCase()}</span>
         <span class="tw-os" title="${s.release}">${logos[s.os]}${s.name.length > 7 ? "" : s.release}</span>
-        <span class="tw-card-tools"><span>${I.terminal}</span><span>${I.more}</span></span></div>
-      <div class="tw-slots">
-        <div class="tw-slot">${ring(s.cpu)}<b>CPU</b></div>
-        <div class="tw-slot">${ring(s.mem, s.cache)}<b>MEM</b></div>
-        <div class="tw-slot">${ring(s.disk)}<b>DISK</b></div>
-      </div></div>`;
+        <span class="tw-card-arrow">${I.chevron}</span></span>
+      <span class="tw-slots">
+        <span class="tw-slot">${ring(s.cpu)}<b>CPU</b></span>
+        <span class="tw-slot">${ring(s.mem, s.cache)}<b>MEM</b></span>
+        <span class="tw-slot">${ring(s.disk)}<b>DISK</b></span>
+      </span>`;
+  }
+
+  function card(s) {
+    return `<button type="button" class="tw-card" data-name="${s.name}" aria-label="${s.name}, ${s.release}. Show server details" aria-pressed="false" title="${s.name} · ${s.release}">${cardContents(s)}</button>`;
   }
 
   const fact = (label, value, unit = "", color = "") =>
@@ -165,81 +173,146 @@
     const list = containers[s.name];
     if (!list) return `<div class="tw-box" style="align-items:center;text-align:center;padding:28px 12px"><b>No containers</b><span style="color:var(--tw-ink-2);font-size:12px">Docker isn't installed on this server.</span></div>`;
     return list.map((c) => `<div class="tw-container">
-      <div class="tw-container-head"><b>${c.name}</b><small>${c.status}</small><span style="color:var(--tw-ink-2)">${I.more}</span></div>
+      <div class="tw-container-head"><b>${c.name}</b><small>${c.status}</small></div>
       <div class="tw-container-row">${ring(c.cpu)}${fact("Mem", c.mem)}${fact("Block R / W", c.block)}${fact("Net ↓ / ↑", c.net)}</div></div>`).join("");
   }
 
-  function activityList(name) {
+  function activityList(name, openEntries) {
     const list = activity[name];
-    if (!list) return `<div class="tw-box" style="align-items:center;text-align:center;padding:28px 12px"><b>No agent activity</b><span style="color:var(--tw-ink-2);font-size:12px">What agents run or change here, through Tamio or reported by them, shows here.</span></div>`;
-    return list.map((e, i) => entry(e, i)).join("");
+    if (!list) return `<div class="tw-box tw-empty"><b>No agent activity</b><span>What agents run or change here, through Tamio or reported by them, shows here.</span></div>`;
+    return list.map((e, i) => {
+      const key = `${name}:${i}`;
+      const open = openEntries.has(key) ? openEntries.get(key) : Boolean(e.open);
+      return `<details class="tw-entry" data-entry="${key}"${open ? " open" : ""}>
+        <summary><span class="tw-entry-head"><span style="color:var(--tw-accent)">${e.steps.length > 1 ? I.list : I.terminal}</span><b>${e.title}</b><small>${e.when}</small></span>
+          <span class="tw-entry-meta">${e.meta}</span><span class="tw-more">${I.chevron}<span class="tw-entry-show">Show ${e.steps.length} ${e.steps.length === 1 ? "step" : "steps"}</span><span class="tw-entry-hide">Hide steps</span></span></summary>
+        ${e.steps.map(([cmd, out], n) => `<div class="tw-step"><p>${n + 1}. Run on 1 server · ${out}</p><pre>$ ${cmd}</pre></div>`).join("")}
+      </details>`;
+    }).join("");
   }
 
-  function entry(e, index) {
-    const many = e.steps.length > 1;
-    const body = e.open && many
-      ? e.steps.map(([cmd, out], n) => `<div class="tw-step"><p>${n + 1}. Run on 1 server · ${out}</p><pre>$ ${cmd}</pre></div>`).join("")
-      : many
-        ? `<div class="tw-more">${I.chevron}Show ${e.steps.length} steps</div>`
-        : `<pre>$ ${e.steps[0][0]}</pre>`;
-    return `<div class="tw-entry" data-entry="${index}">
-      <div class="tw-entry-head"><span style="color:var(--tw-accent)">${many ? I.list : I.terminal}</span><b>${e.title}</b><small>${e.when}</small></div>
-      <div class="tw-entry-meta">${e.meta}</div>${body}</div>`;
+  function panelContents(s, tab, openEntries) {
+    return tab === "overview" ? overview(s) : tab === "processes" ? processList(s) : tab === "containers" ? containerList(s) : activityList(s.name, openEntries);
+  }
+
+  function syncTabs(root, id, tab) {
+    root.querySelectorAll('[role="tab"]').forEach((button) => {
+      const current = button.dataset.tab === tab;
+      button.classList.toggle("sel", current);
+      button.setAttribute("aria-selected", String(current));
+      button.tabIndex = current ? 0 : -1;
+    });
+    root.querySelector('[role="tabpanel"]').setAttribute("aria-labelledby", `${id}-${tab}`);
+  }
+
+  function bindTabs(root, select) {
+    const tablist = root.querySelector('[role="tablist"]');
+    tablist.addEventListener("click", (event) => {
+      const button = event.target.closest('[role="tab"]');
+      if (button) select(button.dataset.tab);
+    });
+    tablist.addEventListener("keydown", (event) => {
+      const buttons = Array.from(tablist.querySelectorAll('[role="tab"]'));
+      const index = buttons.indexOf(event.target);
+      if (index < 0 || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1
+        : (index + (event.key === "ArrowRight" ? 1 : -1) + buttons.length) % buttons.length;
+      select(buttons[next].dataset.tab);
+      buttons[next].focus();
+    });
+  }
+
+  function trackEntries(pane, openEntries) {
+    pane.addEventListener("toggle", (event) => {
+      if (event.target.matches(".tw-entry")) openEntries.set(event.target.dataset.entry, event.target.open);
+    }, true);
   }
 
   function mountWindow(frame) {
     const scale = frame.querySelector(".demo-scale");
+    if (!scale) return;
+    const id = `tamio-window-${++mountID}`;
     const tw = document.createElement("div");
     tw.className = "tw tw-theme";
-    tw.setAttribute("role", "img");
-    tw.setAttribute("aria-label", "Tamio's Home: live CPU, memory and disk for six servers, and the panel of the selected one");
-    tw.innerHTML = windowMarkup();
+    tw.setAttribute("role", "group");
+    tw.setAttribute("aria-label", "Interactive Tamio preview with six sample servers");
+    tw.innerHTML = windowMarkup(id);
     scale.appendChild(tw);
 
     const cards = tw.querySelector(".tw-cards");
     const pane = tw.querySelector(".tw-pane");
+    const search = tw.querySelector(".tw-search input");
+    const pause = tw.querySelector(".tw-pause");
+    const openEntries = new Map();
     let selected = "web-01";
     let tab = "overview";
+    let paused = false;
+    let onscreen = true;
+    cards.innerHTML = fleet.map(card).join("") + '<p class="tw-no-results" role="status" hidden>No sample servers match your search.</p>';
 
+    // Keep each button mounted so a reading never takes keyboard focus away.
     const drawCards = () => {
       cards.style.setProperty("--cols", selected ? 2 : 3);
-      cards.innerHTML = fleet.map((s) => card(s, s.name === selected)).join("");
+      const query = search.value.trim().toLowerCase();
+      let shown = 0;
+      fleet.forEach((s) => {
+        const button = cards.querySelector(`[data-name="${s.name}"]`);
+        button.classList.toggle("sel", s.name === selected);
+        button.setAttribute("aria-pressed", String(s.name === selected));
+        button.hidden = !`${s.name} ${s.release} ${s.ip}`.toLowerCase().includes(query);
+        button.innerHTML = cardContents(s);
+        if (!button.hidden) shown++;
+      });
+      cards.querySelector(".tw-no-results").hidden = shown > 0;
     };
     const drawPanel = () => {
       tw.classList.toggle("closed", !selected);
       if (!selected) return;
       const s = fleet.find((f) => f.name === selected);
       tw.querySelector(".tw-panel-name").textContent = s.name.toUpperCase();
-      tw.querySelectorAll(".tw-tabs button").forEach((b) => b.classList.toggle("sel", b.dataset.tab === tab));
-      pane.innerHTML = tab === "overview" ? overview(s) : tab === "processes" ? processList(s) : tab === "containers" ? containerList(s) : activityList(s.name);
+      syncTabs(tw, id, tab);
+      const scroll = pane.scrollTop;
+      pane.innerHTML = panelContents(s, tab, openEntries);
+      pane.scrollTop = scroll;
     };
     const draw = () => { drawCards(); drawPanel(); };
 
     cards.addEventListener("click", (event) => {
-      const target = event.target.closest(".tw-card");
-      if (!target || target.dataset.name === selected) return;
-      selected = target.dataset.name;
+      const button = event.target.closest(".tw-card");
+      if (!button || button.dataset.name === selected) return;
+      selected = button.dataset.name;
+      pane.scrollTop = 0;
       draw();
     });
-    tw.querySelector(".tw-close").addEventListener("click", () => { selected = null; draw(); });
-    tw.querySelector(".tw-tabs").addEventListener("click", (event) => {
-      const button = event.target.closest("button");
-      if (!button) return;
-      tab = button.dataset.tab;
+    tw.querySelector(".tw-close").addEventListener("click", () => {
+      const previous = selected;
+      selected = null;
+      draw();
+      const button = cards.querySelector(`[data-name="${previous}"]`);
+      (button && !button.hidden ? button : search).focus();
+    });
+    bindTabs(tw, (view) => {
+      if (tab === view) return;
+      tab = view;
+      pane.scrollTop = 0;
       drawPanel();
     });
-    pane.addEventListener("click", (event) => {
-      const target = event.target.closest(".tw-entry");
-      if (!target) return;
-      const e = activity[selected][Number(target.dataset.entry)];
-      e.open = !e.open;
-      drawPanel();
+    trackEntries(pane, openEntries);
+    search.addEventListener("input", drawCards);
+    pause.addEventListener("click", () => {
+      paused = !paused;
+      pause.setAttribute("aria-pressed", String(paused));
+      pause.textContent = paused ? "Resume readings" : "Pause readings";
     });
 
-    // Live readings, every two seconds as the app reads them.
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([entry]) => { onscreen = entry.isIntersecting; }).observe(frame);
+    }
+    // Match the native reading interval, but do no work for hidden previews.
     setInterval(() => {
-      if (reduce || document.hidden) return;
+      if (paused || reduce.matches || document.hidden || !onscreen || !frame.isConnected || !frame.getClientRects().length) return;
       for (const s of fleet) {
         s.cpu = Math.min(96, Math.max(2, s.cpu + (Math.random() - 0.5) * 9));
         s.mem = Math.min(95, Math.max(20, s.mem + (Math.random() - 0.5) * 1.2));
@@ -251,13 +324,19 @@
       if (tab === "overview" || tab === "processes") drawPanel();
     }, 2000);
 
-    // The window is drawn at the app's size and scaled to the page.
+    // Desktop keeps the app's measurements; small screens use a readable layout.
     const fit = () => {
+      if (window.matchMedia("(max-width: 680px)").matches) {
+        scale.style.transform = "none";
+        frame.style.height = "auto";
+        return;
+      }
       const k = Math.min(1, frame.clientWidth / 1180);
       scale.style.transform = `scale(${k})`;
       frame.style.height = `${720 * k}px`;
     };
     new ResizeObserver(fit).observe(frame);
+    window.addEventListener("resize", fit);
     draw();
     fit();
   }
@@ -267,6 +346,8 @@
   function mountAlert(stage) {
     const alert = document.createElement("div");
     alert.className = "tw-alert tw-theme";
+    alert.setAttribute("role", "group");
+    alert.setAttribute("aria-label", "Sample agent approval request");
     alert.innerHTML = `
       <img src="/icon-256.png" alt="">
       <h4>claude-code wants to: Run on 2 servers</h4>
@@ -274,47 +355,68 @@
       <p><code>uptime &amp;&amp; df -h /</code></p>
       <p>Servers: web-01, web-02</p>
       <div class="tw-alert-buttons">
-        <button class="default" data-answer="Allowed once: it runs, and is written down on both servers.">Allow</button>
-        <button data-answer="claude-code may go on without asking for an hour.">Allow for 1 Hour</button>
-        <button data-answer="claude-code is always allowed. Revoke it in Settings › MCP.">Always Allow</button>
-        <button data-answer="Denied: the agent is told, and nothing runs.">Deny</button>
+        <button type="button" class="default" aria-pressed="false" data-answer="Allowed once. In Tamio, this runs and is recorded on both servers.">Allow</button>
+        <button type="button" aria-pressed="false" data-answer="Allowed for one hour. In Tamio, this agent can continue without asking during that hour.">Allow for 1 Hour</button>
+        <button type="button" aria-pressed="false" data-answer="Always allowed. In Tamio, you can revoke this permission in Settings › MCP.">Always Allow</button>
+        <button type="button" aria-pressed="false" data-answer="Denied. In Tamio, the agent is told and nothing runs.">Deny</button>
       </div>`;
     const result = document.createElement("p");
     result.className = "tw-alert-result";
-    result.textContent = "Try a button.";
-    stage.append(alert, result);
+    result.setAttribute("role", "status");
+    result.setAttribute("aria-live", "polite");
+    result.setAttribute("aria-atomic", "true");
+    const initial = "Sample request. Choose a response to see what happens.";
+    result.textContent = initial;
+    const reset = document.createElement("button");
+    reset.type = "button";
+    reset.className = "tw-alert-reset";
+    reset.textContent = "Reset demo";
+    reset.hidden = true;
+    stage.append(alert, result, reset);
     alert.addEventListener("click", (event) => {
-      const button = event.target.closest("button");
-      if (button) result.textContent = button.dataset.answer;
+      const button = event.target.closest("button[data-answer]");
+      if (!button) return;
+      alert.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+      result.textContent = button.dataset.answer;
+      reset.hidden = false;
+    });
+    reset.addEventListener("click", () => {
+      alert.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+      result.textContent = initial;
+      reset.hidden = true;
+      alert.querySelector("button").focus();
     });
   }
 
   // MARK: A server's Activity
 
   function mountHistory(host) {
+    const id = `tamio-history-${++mountID}`;
     const panel = document.createElement("div");
     panel.className = "tw-history tw-theme";
+    panel.setAttribute("role", "group");
+    panel.setAttribute("aria-label", "Sample web-01 server details");
+    panel.innerHTML = `
+      <div class="tw-panel-head"><b>WEB-01</b><span class="tw-history-label">Sample server</span></div>
+      ${tabsMarkup(id)}<div class="tw-pane" id="${id}-pane" role="tabpanel" tabindex="0"></div>`;
+    const pane = panel.querySelector(".tw-pane");
+    const openEntries = new Map();
+    let tab = "activity";
     const draw = () => {
-      panel.innerHTML = `
-        <div class="tw-panel-head"><b>WEB-01</b><span class="tw-close">${I.close}</span></div>
-        <div class="tw-tabs"><button>Overview</button><button>Processes</button><button>Containers</button><button class="sel">Activity</button></div>
-        <div class="tw-pane">${activityList("web-01")}</div>`;
+      syncTabs(panel, id, tab);
+      pane.innerHTML = panelContents(fleet[0], tab, openEntries);
     };
-    panel.addEventListener("click", (event) => {
-      const target = event.target.closest(".tw-entry");
-      if (!target) return;
-      const e = activity["web-01"][Number(target.dataset.entry)];
-      e.open = !e.open;
+    bindTabs(panel, (view) => {
+      if (tab === view) return;
+      tab = view;
       draw();
     });
+    trackEntries(pane, openEntries);
     draw();
     host.appendChild(panel);
   }
 
-  const frame = document.querySelector("[data-demo=window]");
-  if (frame) mountWindow(frame);
-  const stage = document.querySelector("[data-demo=alert]");
-  if (stage) mountAlert(stage);
-  const history = document.querySelector("[data-demo=history]");
-  if (history) mountHistory(history);
+  document.querySelectorAll("[data-demo=window]").forEach(mountWindow);
+  document.querySelectorAll("[data-demo=alert]").forEach(mountAlert);
+  document.querySelectorAll("[data-demo=history]").forEach(mountHistory);
 })();

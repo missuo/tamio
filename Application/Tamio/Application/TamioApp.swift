@@ -24,6 +24,7 @@ struct TamioApp: App {
         // Before the store: it reads the master key as it loads.
         Mac.installLegacyKeyStore()
         _ = TamioStore.shared
+        CloudSync.shared.preferences = SyncedSettings.all
         CloudSync.shared.start()
         // Every server card shows live status without opening a monitor.
         LiveStatusCenter.shared.start()

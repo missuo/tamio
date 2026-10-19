@@ -4,6 +4,9 @@
   "description": "tamio.sh, served by Cloudflare Workers",
   "scripts": {
     "dev": "wrangler dev",
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "stamp": "bash stamp.sh",
     "deploy": "bash stamp.sh && wrangler deploy"
   },
   "devDependencies": {

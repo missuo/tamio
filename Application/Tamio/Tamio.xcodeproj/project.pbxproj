@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0D996008869B53B9E095749C /* PageScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DDE29F5CD9A23175CCFBCF3 /* PageScaffold.swift */; };
+		11B537FA4478F90533B25DD9 /* SyncedSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EE5D514035098C28958260 /* SyncedSettings.swift */; };
 		13B1EBCB526576E408152CE0 /* TamioModule in Frameworks */ = {isa = PBXBuildFile; productRef = A3E56E2E2CB7C5ABCE3270FA /* TamioModule */; };
 		14821D2BEB0AF7EE8F14421A /* OpenSSHConfigResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55A715F31337168A65B48A07 /* OpenSSHConfigResolver.swift */; };
 		166F9481B1DF44851EF93F99 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8ECF6EE811C426DAFDCEFA1A /* Sparkle.framework */; };
@@ -86,6 +87,7 @@
 		08B70567623556C8B0B16B25 /* PortForwardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortForwardView.swift; sourceTree = "<group>"; };
 		0F3921042144F0D341016173 /* SnippetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetsView.swift; sourceTree = "<group>"; };
 		18038823C6B06193E1A8D86A /* DoubleConfirm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubleConfirm.swift; sourceTree = "<group>"; };
+		19EE5D514035098C28958260 /* SyncedSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncedSettings.swift; sourceTree = "<group>"; };
 		29183565D571B1DD9EFBC65E /* UpdateCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCenter.swift; sourceTree = "<group>"; };
 		2AD8E54833D616102BA84271 /* SnippetEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetEditorSheet.swift; sourceTree = "<group>"; };
 		2AFB73E4F5A4E0275611622A /* PortForwardBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortForwardBackend.swift; sourceTree = "<group>"; };
@@ -382,6 +384,7 @@
 			children = (
 				5BF8E05669BAD48CA9ADC146 /* Assets.xcassets */,
 				8D6160F6465AF5B5EFF497B1 /* Bench.swift */,
+				19EE5D514035098C28958260 /* SyncedSettings.swift */,
 				89D30D618CFFED4A6386D0E1 /* TamioApp.swift */,
 			);
 			path = Application;
@@ -575,6 +578,7 @@
 				F1CD9381398E9A71678A3A7E /* StatusCard.swift in Sources */,
 				F1711314D089AB7A5A4E9E09 /* StatusItem+Loop.swift in Sources */,
 				489AF44AD472CC65ACB57634 /* StatusItem.swift in Sources */,
+				11B537FA4478F90533B25DD9 /* SyncedSettings.swift in Sources */,
 				EACDC3F0CDA599CFD2B1BE38 /* TamioApp.swift in Sources */,
 				75E3C140B9C2A211EA3C9842 /* TerminalManager+Context.swift in Sources */,
 				71658A0D61BE1808D86BAA58 /* TerminalManager.swift in Sources */,
@@ -697,7 +701,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.4;
+				MARKETING_VERSION = 0.2.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -757,7 +761,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.4;
+				MARKETING_VERSION = 0.2.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

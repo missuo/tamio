@@ -20,7 +20,7 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    MARKETING_VERSION: "0.2.4"
+    MARKETING_VERSION: "0.2.5"
     # The build number is the version: Sparkle orders updates by it.
     CURRENT_PROJECT_VERSION: $(MARKETING_VERSION)
     DEVELOPMENT_TEAM: NCFNX3LJ83

@@ -46,6 +46,11 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
 
     @Published public var navigationSubtitle: String = ""
 
+    /// The folder the shell last reported, when it reports one.
+    @Published public private(set) var workingDirectory: String?
+    /// Main thread only, like the writes to the surface.
+    private var directoryReader = WorkingDirectoryReader()
+
     private var title: String = "" {
         didSet {
             onMainThread {
@@ -264,6 +269,9 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
 
         let startupSnippet = remoteType == .machine ? machine.startupSnippet : nil
         let initialCommand = initialCommand
+        // First, so a snippet that opens another shell (a container's) does
+        // not take it.
+        let hook = remoteType == .machine && machine.shellIntegration ? ShellIntegration.hook : ""
         shell.begin(withTerminalType: "xterm") { [weak self] in
             debugPrint("channel open")
             // The server's startup snippet, then the command the terminal was
@@ -271,7 +279,7 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
             // had typed them.
             onMainThread {
                 let snippet = startupSnippet.map { TamioStore.shared.snippetGroup[$0].code } ?? ""
-                for code in [snippet, initialCommand ?? ""] where !code.isEmpty {
+                for code in [hook, snippet, initialCommand ?? ""] where !code.isEmpty {
                     let typed = code.replacingOccurrences(of: "\r\n", with: "\r").replacingOccurrences(of: "\n", with: "\r")
                     self?.insertBuffer(typed.hasSuffix("\r") ? typed : typed + "\r")
                 }
@@ -290,6 +298,7 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
             // blocking the shell IO thread on the UI run loop.
             onMainThread {
                 self?.surface.write(output)
+                self?.readDirectory(in: output)
             }
         } withContinuationHandler: { [weak self] in
             self?.continueDecision ?? false
@@ -297,6 +306,14 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
 
         // leave loop
         debugPrint("\(self) \(#function) defer \(machine.id)")
+    }
+
+    private func readDirectory(in output: String) {
+        guard let path = directoryReader.read(output), path != workingDirectory else { return }
+        workingDirectory = path
+        guard remoteType == .machine else { return }
+        let machine = machine.id
+        MainActor.assumeIsolated { TerminalDirectories.shared.report(path, for: machine) }
     }
 
     public func processShutdown(exitFromShell: Bool = false) {
