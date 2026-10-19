@@ -15,6 +15,11 @@ struct SyncInput: Sendable {
     var snippets: [RDSnippet] = []
     var portForwards: [RDPortForward] = []
     var knownHosts: [KnownHostEntry] = []
+    var preferences: [PreferenceItem] = []
+    /// The keys of the preferences this device has, synced or not. One it
+    /// lacks (from a later version, or another kind of device) is kept as it
+    /// was stored rather than taken for deleted here.
+    var preferenceKeys: Set<String> = []
     var activity: [AgentActivity] = []
     /// When this device's activity log was last cleared.
     var activityClearedAt: Date?
@@ -29,6 +34,7 @@ struct SyncInput: Sendable {
     var syncsSnippets = true
     var syncsPortForwards = true
     var syncsKnownHosts = true
+    var syncsPreferences = true
     var syncsActivity = true
     /// Seal under a new key from `passphrase`, whatever is stored. What is
     /// stored is merged first if `key`, the one in use until now, still opens
@@ -54,6 +60,7 @@ enum SyncOutcome: Sendable {
         var snippets: [SyncChange<RDSnippet>] = []
         var portForwards: [SyncChange<RDPortForward>] = []
         var knownHosts: [SyncChange<KnownHostEntry>] = []
+        var preferences: [SyncChange<PreferenceItem>] = []
         /// Activity of other devices to add to this one's log.
         var activity: [AgentActivity] = []
         var state: SyncState
@@ -136,6 +143,12 @@ enum SyncSession {
         merge(input.syncsSnippets, input.snippets, \.snippets, \.snippets, \.snippets)
         merge(input.syncsPortForwards, input.portForwards, \.portForwards, \.portForwards, \.portForwards)
         merge(input.syncsKnownHosts, input.knownHosts, \.knownHosts, \.knownHosts, \.knownHosts)
+        let foreign = document.preferences.values.compactMap(\.value).filter { !input.preferenceKeys.contains($0.key) }
+        merge(input.syncsPreferences, input.preferences + foreign, \.preferences, \.preferences, \.preferences)
+        done.preferences.removeAll { change in
+            if case let .put(item) = change { return !input.preferenceKeys.contains(item.key) }
+            return false
+        }
         if input.syncsActivity {
             let combined = SyncActivity.combine(
                 local: input.activity, remote: document.activity, clearedAt: input.activityClearedAt

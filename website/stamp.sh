@@ -1,12 +1,4 @@
 #!/bin/bash
-# Stamps each stylesheet and script link in public/*.html with its file's
-# hash (?v=…), so a change reaches visitors at once. Run before deploying.
+# Node keeps asset stamping identical on macOS, Linux, and in CI.
 set -euo pipefail
-cd "$(dirname "$0")/public"
-for asset in styles.css demo.css main.js demo.js; do
-    hash=$(shasum -a 256 "$asset" | cut -c1-10)
-    for page in *.html; do
-        sed -E -i '' "s#/${asset}(\\?v=[0-9a-f]+)?\"#/${asset}?v=${hash}\"#g" "$page"
-    done
-done
-grep -ho '/[a-z]*\.\(css\|js\)?v=[0-9a-f]*' *.html | sort -u
+node "$(dirname "$0")/scripts/stamp.mjs" "$@"

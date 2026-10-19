@@ -17,11 +17,18 @@ import UserNotifications
 
 struct FileTransferPage: View {
     @ObservedObject var context: FileTransferContext
+    /// False while another page is shown in its place.
+    var active = true
     @StateObject private var left: PaneModel
     @StateObject private var right: PaneModel
+    @ObservedObject private var directories = TerminalDirectories.shared
+    /// The terminal's report Files last went to: a folder the terminal has
+    /// not left since is not gone to again, so browsing elsewhere stays put.
+    @State private var followed: Int?
 
-    init(context: FileTransferContext) {
+    init(context: FileTransferContext, active: Bool = true) {
         self.context = context
+        self.active = active
         _left = StateObject(wrappedValue: PaneModel(browser: LocalBrowser()))
         _right = StateObject(wrappedValue: PaneModel(browser: RemoteBrowser(machine: context.machine)))
     }
@@ -40,6 +47,31 @@ struct FileTransferPage: View {
         // The toolbar carries the Terminal · Files · Monitor switcher.
         .pageToolbar(leading: { EmptyView() }, trailing: { EmptyView() })
         .serverToolSwitcher(machine: context.machine.id, current: .files)
+        .onAppear { arrive() }
+        .onChange(of: active) { _, shown in
+            if shown { arrive() }
+        }
+        .onChange(of: directories.latest[context.machine.id]) {
+            if active { follow() }
+        }
+    }
+
+    /// The server's pane takes the keyboard, so ⌘V lands there and not in a
+    /// terminal kept behind this page, and goes to the terminal's folder.
+    private func arrive() {
+        guard active else { return }
+        serverPane?.focusRequest += 1
+        follow()
+    }
+
+    private func follow() {
+        guard let report = directories.latest[context.machine.id], report.serial != followed else { return }
+        followed = report.serial
+        serverPane?.browser?.open(report.path)
+    }
+
+    private var serverPane: PaneModel? {
+        [right, left].first { $0.browser?.machine?.id == context.machine.id }
     }
 }
 
@@ -56,6 +88,8 @@ final class PaneModel: ObservableObject {
     @Published var ascending = true
     /// Drag hovering the pane (not a folder in it).
     @Published var dropTargeted = false
+    /// Counts the times the page asked this pane to take the keyboard.
+    @Published var focusRequest = 0
 
     enum SortColumn { case name, modified, size, kind }
 
@@ -219,6 +253,9 @@ private struct BrowserPane: View {
     @State private var hoveredFolder: String?
     @AppStorage(FilesPreference.showsHiddenKey) private var showsHidden = false
     @State private var problem: String?
+    /// Holds the keyboard for ⌘V.
+    @FocusState private var focused: Bool
+    @ObservedObject private var directories = TerminalDirectories.shared
 
     enum Prompt: Identifiable {
         case newFolder
@@ -244,6 +281,15 @@ private struct BrowserPane: View {
             Hairline()
             list
         }
+        .focusable()
+        .focusEffectDisabled()
+        .focused($focused)
+        // Files copied in Finder (or anywhere) arrive as if dropped here.
+        .onPasteCommand(of: [.fileURL]) { providers in
+            _ = receive(providers, into: browser.path)
+        }
+        .onAppear { if model.focusRequest > 0 { focused = true } }
+        .onChange(of: model.focusRequest) { focused = true }
         .onReceive(NotificationCenter.default.publisher(for: .transferFinished)) { note in
             guard let job = note.object as? TransferJob else { return }
             let machine = job.direction == .download ? nil : job.to
@@ -297,6 +343,10 @@ private struct BrowserPane: View {
             }
             Divider()
             Button("Go to Folder…") { ask(String(localized: "Go to folder"), value: browser.path) { browser.open($0) } }
+            if let machine = browser.machine, let folder = directories.latest[machine.id]?.path {
+                Button("Go to Terminal's Folder") { browser.open(folder) }
+                    .help(folder)
+            }
             Button("Refresh") { browser.reload() }
             Toggle("Show Hidden Files", isOn: $showsHidden)
             Button("Copy Path") { Dialogs.sendPasteboard(str: browser.path) }
@@ -445,6 +495,9 @@ private struct BrowserPane: View {
             .padding(.bottom, RX.Space.s6)
         }
         .background(model.dropTargeted ? Color.rxAccentFill : Color.clear)
+        // A click among the files gives the pane the keyboard, for ⌘V; the
+        // filter field keeps its own.
+        .simultaneousGesture(TapGesture().onEnded { focused = true })
         .onDrop(of: Self.dropTypes, isTargeted: $model.dropTargeted) { providers in
             receive(providers, into: browser.path)
         }

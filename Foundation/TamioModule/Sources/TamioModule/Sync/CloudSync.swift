@@ -2,8 +2,8 @@
 //  CloudSync.swift
 //  TamioModule
 //
-//  Keeps the servers, identities, snippets, port forwards and known hosts of
-//  this device and of the user's other devices the same, and their agent
+//  Keeps the servers, identities, snippets, port forwards, known hosts and
+//  settings of this device and of the user's other devices the same, and their agent
 //  activity together, through iCloud, sealed under a passphrase only the
 //  devices know. It is on unless the user turns it off, so what agents did on
 //  each server is not lost with a Mac: the passphrase is the one another
@@ -62,6 +62,17 @@ public final class CloudSync: ObservableObject {
     @Published public var syncsPortForwards: Bool { didSet { kindChanged(syncsPortForwards, oldValue, Key.portForwards) { $0.portForwards = [:] } } }
     @Published public var syncsKnownHosts: Bool { didSet { kindChanged(syncsKnownHosts, oldValue, Key.knownHosts) { $0.knownHosts = [:] } } }
     @Published public var syncsActivity: Bool { didSet { kindChanged(syncsActivity, oldValue, Key.activity) { _ in } } }
+    @Published public var syncsSettings: Bool { didSet { kindChanged(syncsSettings, oldValue, Key.settings) { $0.preferences = [:] } } }
+
+    /// The preferences in Settings that sync, handed over by the app before
+    /// `start`.
+    public var preferences: [SyncedPreference] = [] {
+        didSet { preferenceValues = readPreferences() }
+    }
+
+    /// What `preferences` read last, to tell a change to one of them from
+    /// the many other changes to the defaults.
+    private var preferenceValues: [PreferenceItem] = []
 
     /// A kind turned on or off: what this device knew of it is forgotten, so
     /// turned on again it starts from what is stored.
@@ -92,6 +103,7 @@ public final class CloudSync: ObservableObject {
         static let portForwards = "sb.moe.tamio.sync.portForwards"
         static let knownHosts = "sb.moe.tamio.sync.knownHosts"
         static let activity = "sb.moe.tamio.sync.activity"
+        static let settings = "sb.moe.tamio.sync.settings"
         /// Turned off here by the user: the passphrase shared in iCloud
         /// Keychain does not turn it on again.
         static let optedOut = "sb.moe.tamio.sync.optedOut"
@@ -128,6 +140,7 @@ public final class CloudSync: ObservableObject {
         defaults.register(defaults: [
             Key.servers: true, Key.identities: true, Key.snippets: true,
             Key.portForwards: true, Key.knownHosts: true, Key.activity: true,
+            Key.settings: true,
         ])
         isOn = defaults.bool(forKey: Key.on)
         syncsServers = defaults.bool(forKey: Key.servers)
@@ -136,6 +149,7 @@ public final class CloudSync: ObservableObject {
         syncsPortForwards = defaults.bool(forKey: Key.portForwards)
         syncsKnownHosts = defaults.bool(forKey: Key.knownHosts)
         syncsActivity = defaults.bool(forKey: Key.activity)
+        syncsSettings = defaults.bool(forKey: Key.settings)
         #if DEBUG
             if ProcessInfo.processInfo.environment["TAMIO_SYNC_LOCAL"] != nil {
                 transport = LocalTransport()
@@ -171,7 +185,15 @@ public final class CloudSync: ObservableObject {
             store.$snippetGroup.dropFirst().map { _ in () }.eraseToAnyPublisher(),
             store.$portForwardGroup.dropFirst().map { _ in () }.eraseToAnyPublisher(),
             NotificationCenter.default.publisher(for: KnownHosts.didChange).map { _ in () }.eraseToAnyPublisher(),
-            AgentServer.shared.log.$entries.dropFirst().map { _ in () }.eraseToAnyPublisher()
+            AgentServer.shared.log.$entries.dropFirst().map { _ in () }.eraseToAnyPublisher(),
+            // Every preference ends up in the defaults, whoever keeps it.
+            NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+                .receive(on: DispatchQueue.main)
+                .filter { [weak self] _ in
+                    MainActor.assumeIsolated { self?.preferencesChanged() ?? false }
+                }
+                .map { _ in () }
+                .eraseToAnyPublisher()
         )
         .share()
         changes
@@ -392,6 +414,8 @@ public final class CloudSync: ObservableObject {
         input.snippets = store.snippetGroup.snippets
         input.portForwards = store.portForwardGroup.forwards
         input.knownHosts = KnownHosts.shared.syncEntries()
+        input.preferences = readPreferences()
+        input.preferenceKeys = Set(preferences.map(\.key))
         input.activity = AgentServer.shared.log.entries
         input.activityClearedAt = AgentServer.shared.log.clearedAt
         input.syncsMachines = syncsServers
@@ -399,6 +423,7 @@ public final class CloudSync: ObservableObject {
         input.syncsSnippets = syncsSnippets
         input.syncsPortForwards = syncsPortForwards
         input.syncsKnownHosts = syncsKnownHosts
+        input.syncsPreferences = syncsSettings
         input.syncsActivity = syncsActivity
         input.replacesRemote = replacesNext
         replacesNext = false
@@ -422,6 +447,20 @@ public final class CloudSync: ObservableObject {
                 sync()
             }
         }
+    }
+
+    private func readPreferences() -> [PreferenceItem] {
+        preferences.compactMap { preference in
+            preference.read().map { PreferenceItem(key: preference.key, value: $0) }
+        }
+    }
+
+    /// True when a synced preference changed since it was last read.
+    private func preferencesChanged() -> Bool {
+        let values = readPreferences()
+        guard values != preferenceValues else { return false }
+        preferenceValues = values
+        return true
     }
 
     private func finish(_ outcome: SyncOutcome) {
@@ -492,6 +531,15 @@ public final class CloudSync: ObservableObject {
                 }
                 KnownHosts.shared.applySynced(put: put, remove: removed)
             }
+            for change in done.preferences {
+                // A preference reset elsewhere keeps its value here: a
+                // device with no value has nothing better to offer.
+                guard case let .put(item) = change,
+                      let preference = preferences.first(where: { $0.key == item.key })
+                else { continue }
+                preference.write(item.value)
+            }
+            if !done.preferences.isEmpty { preferenceValues = readPreferences() }
             // Another device's activity is added, not recorded: it is not
             // sent on as this device's own.
             for entry in done.activity { AgentServer.shared.log.merge(entry) }

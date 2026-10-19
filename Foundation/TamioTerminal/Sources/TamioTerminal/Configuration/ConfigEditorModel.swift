@@ -73,6 +73,9 @@ final class ConfigEditorModel: ObservableObject {
     var onApplied: ((Double?) -> Void)?
     private var pendingSave: Task<Void, Never>?
     private let defaults: UserDefaults
+    /// What was saved could not be read: the empty configuration in its
+    /// place is not one the user chose.
+    private(set) var unreadable = false
     private struct Storage: Codable { let version: Int; let document: ConfigDocument }
     private static let snapshotKey = "sb.moe.tamio.ghosttyConfiguration.v1"
     private static let storageKey = "sb.moe.tamio.ghosttyConfiguration"
@@ -87,7 +90,10 @@ final class ConfigEditorModel: ObservableObject {
                 guard storage.version == 1 else { throw ConfigError.message("Unsupported configuration storage version") }
                 document = storage.document
             } else if let source = defaults.string(forKey: Self.storageKey) { try document.merge(source) }
-        } catch { issue = "Saved configuration could not be read: \(error.localizedDescription). The original is retained until you explicitly save." }
+        } catch {
+            issue = "Saved configuration could not be read: \(error.localizedDescription). The original is retained until you explicitly save."
+            unreadable = true
+        }
         self.document = document
         saved = document
         message = issue
@@ -139,10 +145,43 @@ final class ConfigEditorModel: ObservableObject {
             defaults.set(try JSONEncoder().encode(Storage(version: 1, document: document)), forKey: Self.snapshotKey)
             saved = document
             message = ""
+            unreadable = false
             return true
         } catch { message = error.localizedDescription; return false }
     }
     static func storedDocument() -> ConfigDocument { ConfigEditorModel().document }
+
+    /// Puts in place the configuration another device saved. Undo does not
+    /// reach back across it: the change was not made here.
+    func adoptSynced(_ next: ConfigDocument) {
+        pendingSave?.cancel()
+        undoStack.removeAll()
+        redoStack.removeAll()
+        document = next
+        _ = save()
+    }
+}
+
+/// The terminal's configuration as iCloud sync carries it.
+@MainActor
+public enum TerminalConfigurationSync {
+    /// The saved configuration; nil when what was saved could not be read,
+    /// so an empty one is not sent over the other devices' own.
+    public static var value: Data? {
+        let model = ConfigEditorModel.shared
+        guard !model.unreadable else { return nil }
+        let encoder = JSONEncoder()
+        // The same configuration is the same bytes on every device.
+        encoder.outputFormatting = [.sortedKeys]
+        return try? encoder.encode(model.saved)
+    }
+
+    public static func adopt(_ data: Data) {
+        guard let document = try? JSONDecoder().decode(ConfigDocument.self, from: data),
+              document != ConfigEditorModel.shared.saved
+        else { return }
+        ConfigEditorModel.shared.adoptSynced(document)
+    }
 }
 
 /// Shared by existing and future SSH surfaces. Updating this controller preserves the backend and scrollback.

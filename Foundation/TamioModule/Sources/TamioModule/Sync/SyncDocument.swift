@@ -23,6 +23,8 @@ struct SyncDocument: Codable, Sendable {
     var snippets: [String: Entry<RDSnippet>] = [:]
     var portForwards: [String: Entry<RDPortForward>] = [:]
     var knownHosts: [String: Entry<KnownHostEntry>] = [:]
+    /// Settings, by the id made from each one's key.
+    var preferences: [String: Entry<PreferenceItem>] = [:]
     /// The latest agent activity of every device, oldest first.
     var activity: [AgentActivity] = []
 }
@@ -37,6 +39,7 @@ extension SyncDocument {
         snippets = try container.decodeIfPresent([String: Entry<RDSnippet>].self, forKey: .snippets) ?? [:]
         portForwards = try container.decodeIfPresent([String: Entry<RDPortForward>].self, forKey: .portForwards) ?? [:]
         knownHosts = try container.decodeIfPresent([String: Entry<KnownHostEntry>].self, forKey: .knownHosts) ?? [:]
+        preferences = try container.decodeIfPresent([String: Entry<PreferenceItem>].self, forKey: .preferences) ?? [:]
         activity = try container.decodeIfPresent([AgentActivity].self, forKey: .activity) ?? []
     }
 }
@@ -55,6 +58,7 @@ struct SyncState: Codable, Sendable, Equatable {
     var snippets: [String: Stamp] = [:]
     var portForwards: [String: Stamp] = [:]
     var knownHosts: [String: Stamp] = [:]
+    var preferences: [String: Stamp] = [:]
 }
 
 extension SyncState {
@@ -65,6 +69,7 @@ extension SyncState {
         snippets = try container.decodeIfPresent([String: Stamp].self, forKey: .snippets) ?? [:]
         portForwards = try container.decodeIfPresent([String: Stamp].self, forKey: .portForwards) ?? [:]
         knownHosts = try container.decodeIfPresent([String: Stamp].self, forKey: .knownHosts) ?? [:]
+        preferences = try container.decodeIfPresent([String: Stamp].self, forKey: .preferences) ?? [:]
     }
 }
 

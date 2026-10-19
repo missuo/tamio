@@ -118,6 +118,13 @@ public struct RDMachine: Codable, Identifiable, Equatable, Sendable {
         }
     }
 
+    /// The terminal has the shell report its folder, so Files can follow
+    /// it: see `ShellIntegration`. Off unless the user turns it on.
+    public var shellIntegration: Bool {
+        get { attachment["shell.integration"] == "1" }
+        set { attachment["shell.integration"] = newValue ? "1" : nil }
+    }
+
     // convince
 
     public func isQualifiedForSearch(text: String) -> Bool {

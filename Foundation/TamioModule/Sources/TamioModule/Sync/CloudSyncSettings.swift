@@ -81,6 +81,11 @@ public struct CloudSyncSettings: View {
                     isOn: $sync.syncsKnownHosts
                 )
                 SwitchRow(
+                    "Settings",
+                    description: "Appearance, the terminal's configuration, sessions, hidden files, the connection timeout and live status.",
+                    isOn: $sync.syncsSettings
+                )
+                SwitchRow(
                     "Agent activity",
                     description: "What agents did on each server, so agents on other devices know.",
                     isOn: $sync.syncsActivity

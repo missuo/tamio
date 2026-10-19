@@ -839,6 +839,19 @@ continue; \
     }
 }
 
+/// Records libssh2's error when it gave one, `fallback` otherwise: a request
+/// that timed out leaves an error with no message, which would tell the user
+/// nothing.
+- (void)unsafeSetLastErrorWithDefault:(NSString*)fallback {
+    @synchronized (self) {
+        self.lastError = NULL;
+    }
+    [self unsafeReadLastError];
+    @synchronized (self) {
+        if (self.lastError.length == 0) { self.lastError = fallback; }
+    }
+}
+
 - (void)unsafeFileTransferCloseFor:(LIBSSH2_SFTP*)sftp {
     if (!sftp) return;
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceNow:[self.operationTimeout intValue]];
@@ -1122,13 +1135,12 @@ continue; \
         }
         if (!requestedPty) {
             NSRLog(@"failed to request pty");
+            [self unsafeSetLastErrorWithDefault:@"The server did not grant a terminal (pty) for this session."];
             [channelObject unsafeDisconnectAndPrepareForRelease];
             DISPATCH_SEMAPHORE_CHECK_SIGNLE(completionSemaphore);
             return;
         }
     } while (0);
-    
-    [channelObject unsafeChannelTerminalSizeUpdate];
     
     do {
         BOOL channelStartupCompleted = NO;
@@ -1144,11 +1156,18 @@ continue; \
             break;
         }
         if (!channelStartupCompleted) {
+            NSRLog(@"failed to start shell");
+            [self unsafeSetLastErrorWithDefault:@"The server did not start a shell for this session."];
             [channelObject unsafeDisconnectAndPrepareForRelease];
             DISPATCH_SEMAPHORE_CHECK_SIGNLE(completionSemaphore);
             return;
         }
     } while (0);
+    
+    // The real size goes out only once the shell is up: some servers, such as
+    // JumpServer's Koko bastion, never answer a shell request that follows a
+    // window-change, so the session would time out before it starts.
+    [channelObject unsafeChannelTerminalSizeUpdate];
     
     if (completionSemaphore) {
         [channelObject onTermination:^{

@@ -1,0 +1,175 @@
+/* The SVG remains still as an image. Motion starts only after garden.js mounts it. */
+.landscape .garden-scene {
+  display:block;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  pointer-events:none;
+  stroke:none;
+  stroke-width:1;
+  stroke-linecap:butt;
+  stroke-linejoin:miter
+}
+
+.garden-scene .garden-cloud {
+  animation:garden-cloud 36s linear infinite alternate;
+  shape-rendering:auto
+}
+.garden-scene .cloud-drift-two { animation-duration:48s; animation-delay:-19s }
+.garden-scene .cloud-drift-three { animation-duration:42s; animation-delay:-28s }
+.garden-scene .bird-flight { animation:garden-birds 32s linear infinite; animation-delay:-8s }
+.garden-scene .bird { --wing-delay:0s; --wing-duration:2.8s; shape-rendering:auto }
+.garden-scene .bird-two { --wing-delay:-.8s; --wing-duration:3.2s }
+.garden-scene .bird-three { --wing-delay:-1.6s; --wing-duration:3s }
+.garden-scene .bird-wing {
+  transform-origin:0 0;
+  animation-duration:var(--wing-duration);
+  animation-timing-function:ease-in-out;
+  animation-iteration-count:infinite;
+  animation-delay:var(--wing-delay)
+}
+.garden-scene .bird-wing-left { animation-name:garden-wing-left }
+.garden-scene .bird-wing-right { animation-name:garden-wing-right }
+.garden-scene .server-light { animation:garden-light 3.6s steps(1,end) infinite }
+.garden-scene .light-late { animation-duration:4.8s; animation-delay:-1.8s }
+.garden-scene .antenna-signal { animation:garden-signal 5s steps(1,end) infinite }
+.garden-scene .garden-flag { animation:garden-flag 1.8s steps(3,end) infinite; transform-origin:0 0 }
+.garden-scene .flag-late { animation-delay:-.8s }
+.garden-scene .chimney-smoke { animation:garden-smoke 6s steps(12,end) infinite }
+.garden-scene .smoke-late { animation-delay:-3s }
+.garden-scene .terminal-cursor { animation:garden-light 2.4s steps(1,end) infinite }
+.garden-scene .data-packet { animation:garden-packet 18s linear infinite }
+.garden-scene .packet-two { animation-delay:-6s }
+.garden-scene .packet-three { animation-delay:-12s }
+.garden-scene .village-walker { animation:garden-walk 30s linear infinite; animation-delay:-6s }
+.garden-scene .walk-leg { animation:garden-step .8s steps(2,end) infinite }
+.garden-scene .leg-back { animation-delay:-.4s }
+.garden-scene .walk-arm { animation:garden-step .8s steps(2,end) infinite reverse }
+.garden-scene .delivery-robot { animation:garden-delivery 26s linear infinite; animation-delay:-9s }
+.garden-scene .watering-arm { animation:garden-watering 3s steps(3,end) infinite }
+.garden-scene .water-drops { animation:garden-water 1.5s steps(4,end) infinite }
+.garden-scene .pond-ripple { animation:garden-ripple 4s steps(4,end) infinite alternate }
+.garden-scene .ripple-late { animation-delay:-2s; animation-direction:alternate-reverse }
+.garden-scene .pond-duck { animation:garden-duck 12s steps(16,end) infinite alternate }
+.garden-scene .garden-cat { animation:garden-cat 12s steps(1,end) infinite }
+.garden-scene .cat-tail { animation:garden-tail 2.4s steps(2,end) infinite }
+.garden-scene .butterfly-flight { animation:garden-butterfly 14s steps(28,end) infinite }
+.garden-scene .butterfly-wings { animation:garden-wings .6s steps(2,end) infinite }
+
+/* Pausing the source elements also pauses the sprites referenced with <use>. */
+.landscape.is-paused .garden-scene * { animation-play-state:paused!important }
+
+@keyframes garden-cloud {
+  from { transform:translateX(-24px) }
+  to { transform:translateX(56px) }
+}
+@keyframes garden-birds {
+  0% { transform:translate(-180px,8px); opacity:0 }
+  8%,85% { opacity:1 }
+  50% { transform:translate(120px,-4px) }
+  100% { transform:translate(420px,4px); opacity:0 }
+}
+@keyframes garden-wings {
+  0%,100% { transform:scaleY(1) }
+  50% { transform:scaleY(.3) }
+}
+@keyframes garden-wing-left {
+  0%,47%,100% { transform:rotate(0deg) }
+  7%,27% { transform:rotate(18deg) }
+  17%,37% { transform:rotate(-24deg) }
+}
+@keyframes garden-wing-right {
+  0%,47%,100% { transform:rotate(0deg) }
+  7%,27% { transform:rotate(-18deg) }
+  17%,37% { transform:rotate(24deg) }
+}
+@keyframes garden-light {
+  0%,70%,100% { opacity:1 }
+  35% { opacity:.35 }
+}
+@keyframes garden-signal {
+  0%,100% { opacity:.15 }
+  30% { opacity:.7 }
+  60% { opacity:.35 }
+}
+@keyframes garden-flag {
+  0%,100% { transform:scale(1,1) }
+  50% { transform:scale(.9,.8) }
+}
+@keyframes garden-smoke {
+  0% { transform:translate(0,0); opacity:0 }
+  15% { opacity:.7 }
+  65% { opacity:.4 }
+  100% { transform:translate(16px,-30px); opacity:0 }
+}
+@keyframes garden-packet {
+  0% { transform:translate(220px,164px); opacity:0 }
+  2% { opacity:1 }
+  15% { transform:translate(372px,164px) }
+  16% { transform:translate(372px,172px) }
+  37% { transform:translate(592px,172px) }
+  38% { transform:translate(592px,164px) }
+  61% { transform:translate(832px,164px) }
+  62% { transform:translate(832px,172px) }
+  84% { transform:translate(1060px,172px) }
+  85% { transform:translate(1060px,164px) }
+  98% { opacity:1 }
+  100% { transform:translate(1220px,164px); opacity:0 }
+}
+@keyframes garden-walk {
+  0% { transform:translateX(400px) scaleX(1) }
+  49% { transform:translateX(474px) scaleX(1) }
+  50% { transform:translateX(474px) scaleX(-1) }
+  99% { transform:translateX(400px) scaleX(-1) }
+  100% { transform:translateX(400px) scaleX(1) }
+}
+@keyframes garden-step {
+  0%,100% { transform:translateX(-2px) }
+  50% { transform:translateX(2px) }
+}
+@keyframes garden-delivery {
+  0%,10% { transform:translateX(812px) }
+  45%,60% { transform:translateX(986px) }
+  95%,100% { transform:translateX(812px) }
+}
+@keyframes garden-watering {
+  0%,100% { transform:translateY(0) }
+  50% { transform:translateY(2px) }
+}
+@keyframes garden-water {
+  from { transform:translate(0,0); opacity:.85 }
+  to { transform:translate(2px,8px); opacity:0 }
+}
+@keyframes garden-ripple {
+  from { transform:translateX(-3px); opacity:.5 }
+  to { transform:translateX(3px); opacity:1 }
+}
+@keyframes garden-duck {
+  0% { transform:translate(-8px,0) }
+  50% { transform:translate(0,1px) }
+  100% { transform:translate(8px,0) }
+}
+@keyframes garden-cat {
+  0%,90%,100% { transform:translateY(0) }
+  94% { transform:translateY(-2px) }
+}
+@keyframes garden-tail {
+  0%,100% { transform:translateY(0) }
+  50% { transform:translateY(-2px) }
+}
+@keyframes garden-butterfly {
+  0%,100% { transform:translate(549px,146px) }
+  25% { transform:translate(565px,134px) }
+  50% { transform:translate(587px,140px) }
+  75% { transform:translate(563px,153px) }
+}
+
+@media(max-width:680px) {
+  .landscape .garden-scene {
+    max-width:none;
+    width:1113px;
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%)
+  }
+}

@@ -1,0 +1,262 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 220" preserveAspectRatio="xMidYMax slice" fill="none" role="img" aria-labelledby="garden-title" shape-rendering="crispEdges">
+  <title id="garden-title">A little server village with gardeners, a delivery robot, and a duck pond</title>
+  <defs>
+    <pattern id="meadow-grain" width="46" height="28" patternUnits="userSpaceOnUse">
+      <path d="M6 4h2v2H6zM30 18h4v2h-4zM16 24h2v2h-2z" fill="#b5c996"/>
+      <path d="M12 12h4v2h-4zM40 6h2v2h-2z" fill="#eef2d4"/>
+    </pattern>
+    <pattern id="roof-tiles" width="12" height="8" patternUnits="userSpaceOnUse">
+      <path d="M0 7h12M6 0v7" stroke="#88a084" stroke-width="1"/>
+    </pattern>
+    <g id="garden-cloud" fill="#f7fbf9">
+      <path d="M0 10h8V6h10V0h14v4h8v4h12v4h8v6H0z"/>
+      <path d="M4 18h52v2H4z" fill="#d7e7e8"/>
+    </g>
+    <g id="distant-pine" fill="#b3c69c">
+      <path d="M8 0h4v6h4v6h4v6H0v-6h4V6h4z"/>
+      <path d="M9 18h3v6H9z" fill="#a6bc92"/>
+    </g>
+    <g id="pine">
+      <path d="M20 0h12v8h8v12h8v12h8v12H0V32h8V20h8V8h4z" fill="#739279"/>
+      <path d="M20 8h8v12h8v12h8v8H8v-8h8V20h4z" fill="#829c7b"/>
+      <path d="M24 4h4v12h-4zM12 24h8v8h-8zM36 32h8v8h-8z" fill="#9ab082"/>
+      <path d="M24 40h8v28h-8z" fill="#6c7960"/>
+      <path d="M24 44h4v20h-4z" fill="#9c9b74"/>
+      <path d="M16 64h24v4H16z" fill="#b3c393"/>
+      <path d="M18 30h6v2h-6zM30 22h4v2h-4zM8 38h6v2H8zM34 36h8v2h-8zM22 16h2v6h-2z" fill="#b4c294"/>
+      <path d="M12 42h8v2h-8zM34 28h4v2h-4zM28 54h2v6h-2z" fill="#57775e"/>
+    </g>
+    <g id="oak">
+      <path d="M20 0h28v4h12v8h8v28h-8v8H48v4H12v-8H4v-8H0V16h8V8h12z" fill="#74926d"/>
+      <path d="M20 4h24v4h12v12h8v12h-8v8H36v4H16v-8H8V20h8V12h4z" fill="#8da67b"/>
+      <path d="M20 8h20v4H20zM12 20h12v4H12zM40 16h12v4H40zM28 32h12v4H28z" fill="#a6b88a"/>
+      <path d="M32 40h8v32h-8zM24 40h8v8h-8zM40 36h8v8h-8z" fill="#7f8264"/>
+      <path d="M32 48h4v20h-4z" fill="#a5a17c"/>
+      <path d="M24 68h24v4H24z" fill="#b4c494"/>
+      <path d="M16 14h6v2h-6zM30 6h4v2h-4zM44 24h10v2H44zM16 30h4v2h-4zM30 20h6v2h-6zM42 38h6v2h-6z" fill="#bacb96"/>
+      <path d="M10 34h6v2h-6zM52 32h6v2h-6zM26 44h4v2h-4zM36 52h2v8h-2z" fill="#5f805f"/>
+    </g>
+    <g id="small-tree">
+      <path d="M8 0h20v4h8v8h4v16h-8v8H8v-8H0V12h4V4h4z" fill="#8aa47b"/>
+      <path d="M8 8h20v4h4v12H12v-4H4v-8h4z" fill="#a1b68a"/>
+      <path d="M16 28h8v24h-8z" fill="#85906e"/>
+      <path d="M12 48h16v4H12z" fill="#bac99b"/>
+    </g>
+    <g id="server">
+      <path d="M4 0h48v4h4v68H0V4h4z" fill="#3e6458"/>
+      <path d="M4 4h44v60H4z" fill="#f4f1d9"/>
+      <path d="M48 4h4v60h-4z" fill="#c4ceb0"/>
+      <path d="M8 8h36v12H8zM8 24h36v12H8zM8 40h36v12H8z" fill="#57756a"/>
+      <path class="server-light" d="M12 12h4v4h-4zM12 44h4v4h-4z" fill="#d7dc8e"/>
+      <path class="server-light light-late" d="M12 28h4v4h-4z" fill="#d7dc8e"/>
+      <path d="M32 12h8v4h-8zM32 28h8v4h-8zM32 44h8v4h-8z" fill="#9aafa0"/>
+      <path d="M8 56h36v4H8z" fill="#d5dcc2"/>
+      <path d="M4 64h48v4H4z" fill="#294f46"/>
+      <path d="M4 72h48v4H4z" fill="#9fb48b"/>
+      <path d="M20 12h2v1h-2zM24 12h2v1h-2zM20 15h6v1h-6zM20 28h6v1h-6zM20 31h6v1h-6zM20 44h6v1h-6zM20 47h6v1h-6z" fill="#314f48"/>
+      <path d="M6 6h2v2H6zM44 6h2v2h-2zM6 60h2v2H6zM44 60h2v2h-2z" fill="#a7b69b"/>
+      <path d="M50 10h2v12h-2zM50 26h2v12h-2zM50 42h2v12h-2z" fill="#738d76"/>
+    </g>
+    <g id="person">
+      <path d="M4 0h8v4H4z" fill="#516657"/>
+      <path d="M4 4h8v8H4z" fill="#e3c6a1"/>
+      <path d="M0 12h16v12H0z" fill="#bfaa58"/>
+      <path d="M0 16h4v8H0zM12 16h4v8h-4z" fill="#d6bb92"/>
+      <path d="M4 24h4v12H4zM12 24h4v12h-4z" fill="#4a685c"/>
+      <path d="M0 36h8v4H0zM12 36h8v4h-8z" fill="#36594d"/>
+    </g>
+    <g id="flower">
+      <path d="M4 4h4v12H4zM8 8h4v4H8z" fill="#94ab78"/>
+      <path d="M4 0h4v4H4zM0 4h4v4H0zM8 4h4v4H8zM4 8h4v4H4z" fill="#f5f1d6"/>
+      <path d="M4 4h4v4H4z" fill="#cfb95f"/>
+    </g>
+    <g id="grass" fill="#a5bb88">
+      <path d="M0 0h4v4h4V0h4v8H0z"/>
+    </g>
+    <g id="shrub">
+      <path d="M4 4h8V0h12v4h8v4h4v12H0V8h4z" fill="#a1b784"/>
+      <path d="M8 4h12v4H8zM24 8h8v4h-8z" fill="#b5c896"/>
+    </g>
+    <g id="traveler">
+      <path d="M-3 0h7v2h2v5H-3z" fill="#ddbc92"/>
+      <path d="M-4-2h8v2h2v2H-4zM-4 2h2v3h-2z" fill="#4d6557"/>
+      <path d="M-4 7h9v11h-9z" fill="#668e88"/>
+      <path d="M-4 8h2v8h-2z" fill="#96b2a1"/>
+      <path d="M-7 8h3v9h-3z" fill="#c8a760"/>
+      <g class="walk-arm"><path d="M3 9h3v8H3z" fill="#e1c49f"/></g>
+      <g class="walk-leg"><path d="M-3 18h3v7h-3z" fill="#4b685a"/><path d="M-3 24h5v2h-5z" fill="#345649"/></g>
+      <g class="walk-leg leg-back"><path d="M2 18h3v7H2z" fill="#5a7866"/><path d="M2 24h5v2H2z" fill="#345649"/></g>
+    </g>
+  </defs>
+
+  <g class="garden-cloud cloud-drift-one"><use href="#garden-cloud" x="172" y="40"/></g>
+  <g class="garden-cloud cloud-drift-two"><use href="#garden-cloud" x="810" y="24" transform="scale(.8 1)"/></g>
+  <g class="garden-cloud cloud-drift-three"><use href="#garden-cloud" x="1190" y="38"/></g>
+  <g class="bird-flight" fill="#809e94">
+    <!-- Small tapered wings keep the flock in the distance as it glides. -->
+    <g class="bird" transform="translate(410 63)">
+      <path class="bird-wing bird-wing-left" d="M0 0Q-2-2.5-5.5-1.7Q-2.8-1.1-.2.7Z"/>
+      <path class="bird-wing bird-wing-right" d="M0 0Q2-2.5 5.5-1.7Q2.8-1.1.2.7Z"/>
+      <path d="M-.6-.1h1.2v1.5H-.6z"/>
+    </g>
+    <g class="bird bird-two" transform="translate(430 68) scale(.82)">
+      <path class="bird-wing bird-wing-left" d="M0 0Q-2-2.5-5.5-1.7Q-2.8-1.1-.2.7Z"/>
+      <path class="bird-wing bird-wing-right" d="M0 0Q2-2.5 5.5-1.7Q2.8-1.1.2.7Z"/>
+      <path d="M-.6-.1h1.2v1.5H-.6z"/>
+    </g>
+    <g class="bird bird-three" transform="translate(449 60) scale(.9)">
+      <path class="bird-wing bird-wing-left" d="M0 0Q-2-2.5-5.5-1.7Q-2.8-1.1-.2.7Z"/>
+      <path class="bird-wing bird-wing-right" d="M0 0Q2-2.5 5.5-1.7Q2.8-1.1.2.7Z"/>
+      <path d="M-.6-.1h1.2v1.5H-.6z"/>
+    </g>
+  </g>
+
+  <!-- Distant low hills. -->
+  <path d="M0 120h64v-8h48v-8h80v-8h80v8h72v8h56v8h48v8h64v-8h64v-8h80v-8h96v8h64v8h64v-8h48v-8h64v-8h104v8h88v8h72v8h72v8h64v-8h48v-8h64v108H0z" fill="#e5edcf"/>
+  <path d="M0 144h80v-8h72v-8h96v8h80v8h64v8h64v8h80v-8h64v-8h80v-8h104v8h80v8h80v8h72v-8h56v-8h72v-8h88v8h72v8h64v8h80v-8h64v-8h64v76H0z" fill="#dce8be"/>
+  <g opacity=".7"><use href="#distant-pine" x="156" y="105"/><use href="#distant-pine" x="180" y="109"/><use href="#distant-pine" x="558" y="117"/><use href="#distant-pine" x="582" y="111"/><use href="#distant-pine" x="932" y="104"/><use href="#distant-pine" x="952" y="110"/><use href="#distant-pine" x="1168" y="113"/></g>
+  <path d="M0 174h1440v46H0z" fill="url(#meadow-grain)" opacity=".55"/>
+  <path d="M204 178h316v4h160v-4h292v-4h180v6H978v4H674v4H514v-4H204z" fill="#ccd8af"/>
+  <path d="M206 178h310v4h162v-4h292v-4h182" stroke="#edf0d6" stroke-width="2"/>
+
+  <!-- Small woodland at each edge keeps the center light. -->
+  <use href="#pine" x="-18" y="88"/>
+  <use href="#oak" x="54" y="82"/>
+  <use href="#small-tree" x="142" y="112"/>
+  <use href="#pine" x="192" y="94"/>
+  <use href="#pine" x="1192" y="78"/>
+  <use href="#oak" x="1264" y="88"/>
+  <use href="#pine" x="1368" y="92"/>
+
+  <!-- A quiet cable route runs between the server plots. -->
+  <path d="M220 168h152v8h220v-8h240v8h228v-8h160" stroke="#9bad85" stroke-width="4"/>
+  <path d="M220 164h152v8h220v-8h240v8h228v-8h160" stroke="#eaf0d4" stroke-width="4"/>
+  <path d="M248 164v12m36-12v12m36-12v12m88-4v12m36-12v12m36-12v12m36-12v12m36-12v12m88-20v12m36-12v12m36-12v12m36-12v12m36-12v12m88-4v12m36-12v12m36-12v12m36-12v12m36-12v12m88-20v12m36-12v12m36-12v12" stroke="#b3c196" stroke-width="4"/>
+  <g fill="#e0bd5b"><rect class="data-packet" transform="translate(390 172)" x="-3" y="-2" width="6" height="4"/><rect class="data-packet packet-two" transform="translate(690 164)" x="-3" y="-2" width="6" height="4"/><rect class="data-packet packet-three" transform="translate(998 172)" x="-3" y="-2" width="6" height="4"/></g>
+
+  <!-- Server grove, with soft stepped foundations. -->
+  <path d="M272 160h108v4h12v8H260v-8h12z" fill="#b8c99b"/>
+  <use href="#server" x="284" y="88"/>
+  <path d="M348 112h28v4h4v44h-36v-44h4z" fill="#719080"/>
+  <path d="M348 116h24v12h-24zM348 132h24v12h-24zM348 148h24v8h-24z" fill="#dce4c8"/>
+  <path class="server-light light-late" d="M352 120h4v4h-4zM352 136h4v4h-4z" fill="#d3b85a"/>
+  <path d="M300 80h4v8h-4zM304 76h8v4h-8zM312 80h4v8h-4z" fill="#78937c"/>
+  <path d="M308 72h4v4h-4z" fill="#c8b45f"/>
+  <g class="antenna-signal" stroke="#94ab8a" stroke-width="2"><path d="M300 70v-4h20v4M296 66v-4h28v4"/></g>
+  <path d="M338 134h4v22h-4zM334 152h4v4h-4zM360 160v8h20" stroke="#607f6a" stroke-width="2"/>
+  <path d="M286 166h10v4h-10zM304 166h22v4h-22zM330 166h8v4h-8z" fill="#dce3c2"/>
+
+  <!-- Solar awning and a workbench beside the western server plot. -->
+  <path d="M230 122h42v4h-42zM234 126h2v32h-2zM264 126h2v32h-2z" fill="#6d8873"/>
+  <path d="M236 108h34v4h-2v4h-2v4h-36v-4h2v-4h4z" fill="#466c62"/>
+  <path d="M238 110h28v2h-28zM234 116h28v2h-28z" fill="#88b3a5"/>
+  <path d="M244 110v10m10-10v10" stroke="#a9c8b4" stroke-width="1"/>
+  <path d="M240 146h20v4h-20zM242 150h2v8h-2zM256 150h2v8h-2z" fill="#9c9366"/>
+  <path d="M246 136h10v8h-10z" fill="#496e60"/><path d="M248 138h6v4h-6z" fill="#d7e2b6"/>
+
+  <!-- Center station. -->
+  <path d="M656 164h132v4h12v8H644v-8h12z" fill="#b6c99a"/>
+  <use href="#server" x="684" y="84"/>
+  <path d="M748 108h32v4h4v48h-40v-48h4z" fill="#4d7262"/>
+  <path d="M748 112h28v16h-28zM748 132h28v16h-28z" fill="#ececd2"/>
+  <path class="server-light light-late" d="M752 116h4v4h-4zM752 136h4v4h-4z" fill="#c4b350"/>
+  <path d="M764 116h8v4h-8zM764 136h8v4h-8z" fill="#90a48c"/>
+  <path d="M748 152h28v4h-28z" fill="#c5d2af"/>
+  <path d="M708 68h4v16h-4z" fill="#607e69"/>
+  <g transform="translate(712 68)"><g class="garden-flag"><path d="M0 0h20v12H0z" fill="#d2bb5c"/><path d="M12 4h8v8h-8z" fill="#e3d182"/><path d="M0 0h20v2H0z" fill="#edda89"/></g></g>
+  <path d="M668 124h4v40h-4z" fill="#778a6d"/>
+  <path d="M660 120h20v8h-20z" fill="#f0edd2"/>
+  <path d="M664 124h12v4h-12z" fill="#b3b98f"/>
+  <path d="M688 164h18v4h-18zM714 164h8v4h-8zM730 164h28v4h-28zM766 164h8v4h-8z" fill="#dbe3c1"/>
+  <path d="M742 138v22h-6M784 142h4v20h-4" stroke="#789475" stroke-width="2"/>
+  <path d="M698 58h8v2h-8zM700 56h4v6h-4z" fill="#f0edcc"/>
+
+  <!-- Parcels wait by the path for the little delivery robot. -->
+  <path d="M790 160h12v12h-12zM802 164h10v8h-10z" fill="#ba9d65"/>
+  <path d="M792 160h8v8h-8zM804 164h6v6h-6z" fill="#d6be85"/>
+  <path d="M795 160h2v5h-2zM807 164h1v4h-1z" fill="#eee2b2"/>
+
+  <!-- A tiny terminal cottage. -->
+  <path d="M1016 164h116v4h12v8h-140v-8h12z" fill="#b6c799"/>
+  <path d="M1020 108h100v52h-100z" fill="#f0edd4"/>
+  <path d="M1012 108v-8h12v-8h16v-8h60v8h16v8h12v8z" fill="#547b65"/>
+  <path d="M1024 100h20v-8h48v8h20v4h-88z" fill="#6c8a70"/>
+  <path d="M1024 100h20v-8h48v8h20v4h-88z" fill="url(#roof-tiles)"/>
+  <path d="M1096 76h8v20h-8z" fill="#436b59"/>
+  <path d="M1092 72h16v4h-16z" fill="#6f8c70"/>
+  <g transform="translate(1100 70)" fill="#fbfcf1"><path class="chimney-smoke" d="M-3-6h8v-4h6v-7H3v3h-6z"/><path class="chimney-smoke smoke-late" d="M-3-6h8v-4h6v-7H3v3h-6z"/></g>
+  <path d="M1020 108h100v4h-100z" fill="#b5c5a2"/>
+  <path d="M1060 120h28v40h-28z" fill="#4e7161"/>
+  <path d="M1064 124h20v28h-20z" fill="#32584e"/>
+  <path d="M1068 128h4v4h4v4h-4v4h-4v-4h4v-4h-4zM1076 140h4v4h-4z" fill="#cfdaaa"/>
+  <path d="M1080 148h4v4h-4z" fill="#d9c574"/>
+  <path class="terminal-cursor" d="M1076 140h4v2h-4z" fill="#f4e6a9"/>
+  <path d="M1028 120h20v20h-20zM1096 120h16v20h-16z" fill="#8aa89a"/>
+  <path d="M1036 120h4v20h-4zM1028 128h20v4h-20zM1100 120h4v20h-4zM1096 128h16v4h-16z" fill="#d3dcc1"/>
+  <path d="M1024 140h28v4h-28zM1092 140h24v4h-24z" fill="#c0cbaa"/>
+  <path d="M1027 144h22v5h-22zM1095 144h19v5h-19z" fill="#ae9567"/>
+  <path d="M1030 140h3v5h-3zM1038 138h3v7h-3zM1100 140h3v5h-3zM1108 138h3v7h-3z" fill="#7a986d"/>
+  <path d="M1029 138h5v3h-5zM1037 136h5v3h-5zM1099 138h5v3h-5zM1107 136h5v3h-5z" fill="#d5b476"/>
+  <path d="M1022 114h4v3h-4zM1114 152h4v3h-4zM1048 151h6v2h-6zM1026 154h6v2h-6z" fill="#d4d8b6"/>
+  <path d="M1056 160h36v4h-36zM1052 164h44v4h-44z" fill="#c8d3b2"/>
+  <path d="M1128 124h4v40h-4z" fill="#7f9271"/>
+  <g transform="translate(1132 124)"><g class="garden-flag flag-late"><path d="M0 0h20v12H0z" fill="#d2bb5c"/><path d="M12 4h8v8h-8z" fill="#e4d181"/></g></g>
+  <path d="M1144 151h17v9h-17zM1151 160h3v12h-3z" fill="#678975"/>
+  <path d="M1146 153h12v5h-12z" fill="#d7dfba"/><path d="M1149 155h6v1h-6z" fill="#7a9278"/>
+
+  <!-- Garden life. -->
+  <use href="#small-tree" x="438" y="104"/>
+  <use href="#oak" x="846" y="94"/>
+  <use href="#shrub" x="234" y="148"/>
+  <use href="#shrub" x="390" y="152"/>
+  <use href="#shrub" x="804" y="152"/>
+  <use href="#shrub" x="1172" y="152"/>
+  <g transform="translate(490 148) scale(.75)"><use href="#person"/><g class="watering-arm"><path d="M16 16h12v4H16zM24 20h4v8h-4z" fill="#77947a"/><path d="M28 16h8v4h-8zM32 20h4v8h-4z" fill="#c2cfab"/></g></g>
+  <g transform="translate(516 164)" fill="#8cb8ad"><path class="water-drops" d="M0 0h2v3H0zM4 4h2v3H4zM2 8h2v3H2z"/></g>
+  <g transform="translate(948 149) scale(.75)">
+    <path d="M4 0h8v4H4z" fill="#577166"/>
+    <path d="M4 4h8v8H4z" fill="#e0c29b"/>
+    <path d="M0 12h16v16H0z" fill="#829c91"/>
+    <path d="M0 16h4v8H0zM12 16h4v8h-4z" fill="#ddc19c"/>
+    <path d="M4 28h4v8H4zM12 28h4v8h-4z" fill="#59765f"/>
+    <path d="M0 36h8v4H0zM12 36h8v4h-8z" fill="#456751"/>
+    <path d="M12 16h12v4H12zM20 12h4v4h-4z" fill="#dcbf96"/>
+  </g>
+  <g class="village-walker" transform="translate(430 0)"><path d="M-8 180h19v2H-8z" fill="#a9bf92"/><g transform="translate(0 154)"><use href="#traveler"/></g></g>
+  <g class="delivery-robot" transform="translate(826 0)"><path d="M-12 183h25v2h-25z" fill="#b3c497"/><path d="M-9 166h18v13H-9z" fill="#4e7567"/><path d="M-7 164h14v11H-7z" fill="#f1ebcf"/><path d="M-4 167h8v4h-8z" fill="#41685c"/><path class="server-light" d="M-2 168h1v1h-1zM1 168h1v1H1z" fill="#e3d16c"/><path d="M-6 160h12v4H-6z" fill="#d7ba75"/><path d="M-1 160h2v4h-2z" fill="#f3e7b9"/><path d="M-8 178h5v4h-5zM3 178h5v4H3z" fill="#395b50"/></g>
+
+  <!-- A small pond, flat stones, and the last foreground details. -->
+  <path d="M554 188h12v-4h48v4h16v4h8v12h-12v4h-64v-4h-12v-12h4z" fill="#b0c9b0"/>
+  <path d="M566 188h44v4h16v8h-12v4h-44v-4h-12v-8h8z" fill="#9cbdad"/>
+  <g class="pond-ripple"><path d="M574 192h24v2h-24zM602 200h12v2h-12z" fill="#d3e1c4"/></g>
+  <g class="pond-ripple ripple-late"><path d="M562 198h13v2h-13zM608 194h10v2h-10z" fill="#c5dac1"/></g>
+  <g class="pond-duck"><path d="M590 196h12v2h-12z" fill="#86ad9e"/><path d="M590 190h10v5h-10zM597 186h6v7h-6zM588 188h3v5h-3z" fill="#f5f0d6"/><path d="M603 189h3v2h-3z" fill="#c4a04f"/><path d="M601 187h1v1h-1z" fill="#436a5b"/><path d="M592 191h5v2h-5z" fill="#d6debf"/></g>
+  <path d="M550 184h8v4h-8zM630 192h8v4h-8zM562 208h12v4h-12z" fill="#b8c79b"/>
+  <path d="M572 176h4v16h-4zM580 180h4v12h-4z" fill="#889f72"/>
+  <path d="M568 172h8v8h-8z" fill="#b9ac6c"/>
+  <path d="M1048 180h44v4h-44zM1032 188h44v4h-44zM1016 196h44v4h-44zM1000 204h44v4h-44z" fill="#c6d3aa"/>
+  <path d="M116 184h20v4h-20zM120 180h12v4h-12zM422 194h16v4h-16zM426 190h8v4h-8zM792 196h20v4h-20zM796 192h12v4h-12zM1260 184h16v4h-16zM1264 180h8v4h-8z" fill="#bac9a1"/>
+  <g transform="translate(884 185)"><path d="M0 0h28v3H0zM0 6h28v3H0zM3 9h3v7H3zM22 9h3v7h-3z" fill="#8b956b"/><path d="M1 1h26v1H1zM1 7h26v1H1z" fill="#bec294"/></g>
+  <g class="garden-cat"><path d="M724 198h20v2h-20z" fill="#b0c396"/><path d="M728 188h13v8h-13zM738 184h7v10h-7zM738 182h2v3h-2zM743 182h2v3h-2z" fill="#b4905d"/><path d="M730 190h7v3h-7zM741 189h4v4h-4z" fill="#dfc68a"/><path d="M744 186h1v1h-1z" fill="#3c5e50"/><path class="cat-tail" d="M728 192h-4v-8h2v6h2z" fill="#b4905d"/><path d="M729 196h3v3h-3zM739 196h3v3h-3z" fill="#907a53"/></g>
+  <g class="butterfly-flight" transform="translate(549 146)"><path d="M0 0h2v6H0z" fill="#8b8557"/><g class="butterfly-wings"><path d="M-4-2h4v6h-4zM2-2h4v6H2z" fill="#dfbb63"/><path d="M-3 4h3v3h-3zM2 4h3v3H2z" fill="#f0d68b"/></g></g>
+  <use href="#flower" x="96" y="174"/>
+  <use href="#flower" x="172" y="182"/>
+  <use href="#flower" x="404" y="174"/>
+  <use href="#flower" x="648" y="182"/>
+  <use href="#flower" x="820" y="180"/>
+  <use href="#flower" x="1160" y="182"/>
+  <use href="#flower" x="1332" y="180"/>
+  <use href="#grass" x="28" y="182"/>
+  <use href="#grass" x="208" y="196"/>
+  <use href="#grass" x="264" y="184"/>
+  <use href="#grass" x="352" y="204"/>
+  <use href="#grass" x="464" y="188"/>
+  <use href="#grass" x="680" y="200"/>
+  <use href="#grass" x="760" y="184"/>
+  <use href="#grass" x="900" y="196"/>
+  <use href="#grass" x="980" y="184"/>
+  <use href="#grass" x="1128" y="204"/>
+  <use href="#grass" x="1220" y="192"/>
+  <use href="#grass" x="1300" y="208"/>
+  <use href="#grass" x="1404" y="184"/>
+</svg>

@@ -2,54 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <!-- The link preview image (og.png): render with og/render.sh. It uses the
-       site's own drawn window (demo.css, demo.js), in dark. -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/demo.css">
+  <meta name="viewport" content="width=1200, initial-scale=1">
+  <title>Tamio — The SSH client your agents can use</title>
+  <!-- Local, code-drawn artwork for the link preview. Render with og/render.sh. -->
   <style>
+    * { box-sizing: border-box; }
     html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
     body {
-      position: relative; background: #07090e; color: #eef1f7;
-      font-family: Inter, -apple-system, sans-serif; -webkit-font-smoothing: antialiased;
+      position: relative; background: #e4f0f5; color: #282d26;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
-    .bg { position: absolute; inset: 0; background:
-      radial-gradient(38% 55% at 18% 30%, rgba(43, 137, 253, 0.42), transparent 70%),
-      radial-gradient(45% 60% at 82% 85%, rgba(133, 131, 255, 0.30), transparent 70%),
-      radial-gradient(30% 40% at 70% 10%, rgba(94, 166, 255, 0.16), transparent 70%); }
-    .grid { position: absolute; inset: 0; background-image:
-      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-      background-size: 40px 40px;
-      -webkit-mask-image: radial-gradient(80% 90% at 40% 50%, #000 20%, transparent 80%); }
-    .left { position: absolute; left: 72px; top: 0; bottom: 0; width: 500px; display: flex; flex-direction: column; justify-content: center; }
-    .brand { display: flex; align-items: center; gap: 18px; }
-    .brand img { width: 84px; height: 84px; filter: drop-shadow(0 12px 30px rgba(43, 137, 253, 0.55)); }
-    .brand b { display: block; font-size: 34px; font-weight: 700; letter-spacing: -0.02em; }
-    .brand span { font: 500 16px/1 'Noto Sans JP', sans-serif; letter-spacing: 0.22em; color: #8f9ab0; }
-    h1 { margin: 34px 0 0; font-size: 58px; line-height: 1.02; font-weight: 800; letter-spacing: -0.045em;
-      background: linear-gradient(180deg, #ffffff 30%, #b7c9ff); -webkit-background-clip: text; color: transparent; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
-    .chips span { font: 500 15px/1 'JetBrains Mono', monospace; padding: 9px 12px; border-radius: 9px;
-      color: #cfd8ea; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); }
-    .chips span.hot { color: #fff; background: rgba(43, 137, 253, 0.25); border-color: rgba(94, 166, 255, 0.55); }
-    .url { margin-top: 30px; font: 500 20px 'JetBrains Mono', monospace; color: #5ea6ff; }
-
-    /* The window fills the right side, a little turned, its right edge off the card. */
-    .stage { position: absolute; left: 580px; top: 58px; perspective: 2200px; }
-    .tilt { transform: rotateY(-9deg) rotateX(3deg); transform-style: preserve-3d; transform-origin: left center; }
-    .win { width: 1180px; height: 720px; transform: scale(0.72); transform-origin: top left; }
-    .win .tw { box-shadow: 0 50px 120px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.10); }
+    .cloud { position: absolute; height: 12px; background: #f5f9f8; }
+    .cloud::before { content: ""; position: absolute; left: 16px; right: 16px; top: -12px; height: 12px; background: inherit; }
+    .cloud-one { width: 104px; right: 99px; top: 74px; }
+    .cloud-two { width: 72px; left: 542px; top: 156px; }
+    .landscape { position: absolute; left: 0; bottom: 0; width: 1200px; height: 183px; }
+    .brand { position: absolute; left: 64px; top: 48px; display: flex; align-items: center; gap: 13px; }
+    .brand img { width: 42px; height: 42px; }
+    .brand strong { font-size: 27px; font-weight: 600; letter-spacing: -1px; }
+    .brand span { margin-left: 3px; color: #68715f; font-size: 16px; }
+    .copy { position: absolute; left: 64px; top: 133px; }
+    .eyebrow { color: #64745e; font-size: 11px; font-weight: 600; letter-spacing: 2.2px; }
+    .eyebrow::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 10px; background: #bc9842; vertical-align: 1px; }
+    h1 { margin: 20px 0 0; font-size: 62px; font-weight: 500; line-height: 1.04; letter-spacing: -3.1px; }
+    h1 span { color: #bc9842; }
+    .description { margin: 22px 0 0; color: #68715f; font-size: 18px; line-height: 1.5; }
+    .tag { display: inline-block; margin-top: 24px; padding: 12px 18px; background: #ffda69; border: 1px solid #d5b651; border-radius: 7px; font-size: 15px; font-weight: 600; }
+    .url { margin-left: 18px; color: #536652; font-size: 15px; }
+    .terminal { position: absolute; left: 629px; top: 139px; width: 507px; height: 302px; overflow: hidden; border: 1px solid #34473b; border-radius: 10px; background: #26382e; box-shadow: 0 14px 0 #aec3b333; color: #edf2dd; }
+    .bar { height: 43px; padding: 0 16px; display: flex; align-items: center; gap: 7px; background: #32463a; border-bottom: 1px solid #465747; }
+    .bar i { width: 9px; height: 9px; border-radius: 50%; background: #a0b09a; }
+    .bar i:first-child { background: #dba285; }
+    .bar i:nth-child(2) { background: #dec781; }
+    .bar i:nth-child(3) { background: #91b58c; }
+    .bar span { margin-left: 30px; color: #c1cbb9; font: 11px "SFMono-Regular", Consolas, monospace; }
+    .terminal-body { padding: 22px 25px; font: 13px/1.6 "SFMono-Regular", Consolas, monospace; }
+    .prompt { margin: 0 0 23px; color: #edf2dd; }
+    .prompt b { margin-right: 8px; color: #ffda69; font-weight: 400; }
+    .tool { margin: 0 0 13px; color: #a9bd9f; font-size: 11px; }
+    .row { display: flex; align-items: center; gap: 12px; margin: 8px 0; color: #d7e2ca; }
+    .row i { width: 6px; height: 6px; background: #a5cc8c; border-radius: 50%; }
+    .row span { margin-left: auto; color: #9cba8f; font-size: 11px; }
+    .terminal-foot { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; padding: 0 23px; display: flex; align-items: center; justify-content: space-between; background: #2b4033; border-top: 1px solid #465747; color: #acbea2; font: 10px "SFMono-Regular", Consolas, monospace; }
+    .terminal-foot span:last-child { color: #edcf70; }
+    .caption { position: absolute; top: 460px; left: 629px; width: 507px; text-align: center; color: #64745e; font-size: 13px; }
   </style>
 </head>
 <body>
-  <div class="bg"></div><div class="grid"></div>
-  <section class="left">
-    <div class="brand"><img src="/icon.png" alt=""><div><b>Tamio</b><span>ターミオ</span></div></div>
-    <h1>The SSH client<br>your agents<br>can use.</h1>
-    <div class="chips"><span>SSH</span><span>SFTP</span><span>Live status</span><span class="hot">MCP for agents</span></div>
-    <div class="url">tamio.sh</div>
+  <div class="cloud cloud-one" aria-hidden="true"></div><div class="cloud cloud-two" aria-hidden="true"></div>
+  <img class="landscape" src="/server-garden.svg" alt="">
+  <div class="brand"><img src="/icon-256.png" alt=""><strong>Tamio</strong><span>ターミオ</span></div>
+  <section class="copy">
+    <div class="eyebrow">YOUR SERVERS. YOUR RULES.</div>
+    <h1>The SSH client<br>your agents<br>can use<span>.</span></h1>
+    <p class="description">A native Mac terminal, file manager and live monitor.<br>Built for you. Ready for your agents.</p>
+    <span class="tag">Free &amp; open source</span><span class="url">tamio.sh ↗</span>
   </section>
-  <div class="stage"><div class="tilt"><div class="win"><div data-demo="window"><div class="demo-scale"></div></div></div></div></div>
-  <script src="/demo.js"></script>
+  <div class="terminal" aria-label="Illustrated Tamio agent session with three healthy sample servers">
+    <div class="bar"><i></i><i></i><i></i><span>tamio — agent session</span></div>
+    <div class="terminal-body">
+      <p class="prompt"><b>❯</b>Check the health of my servers.</p>
+      <p class="tool">tamio.get_metrics · 3 hosts</p>
+      <div class="row"><i></i>web-01<span>healthy · 12% CPU</span></div>
+      <div class="row"><i></i>web-02<span>healthy · 8% CPU</span></div>
+      <div class="row"><i></i>db-01<span>healthy · 19% CPU</span></div>
+    </div>
+    <div class="terminal-foot"><span>● Local MCP connection</span><span>You're in control.</span></div>
+  </div>
+  <p class="caption">SSH · SFTP · Live status · MCP for agents</p>
 </body>
 </html>
