@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0D996008869B53B9E095749C /* PageScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DDE29F5CD9A23175CCFBCF3 /* PageScaffold.swift */; };
 		13B1EBCB526576E408152CE0 /* TamioModule in Frameworks */ = {isa = PBXBuildFile; productRef = A3E56E2E2CB7C5ABCE3270FA /* TamioModule */; };
+		14821D2BEB0AF7EE8F14421A /* OpenSSHConfigResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55A715F31337168A65B48A07 /* OpenSSHConfigResolver.swift */; };
 		166F9481B1DF44851EF93F99 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8ECF6EE811C426DAFDCEFA1A /* Sparkle.framework */; };
 		16E0D2F6EA1736735F60C2E7 /* ServerInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9197839CE7A1F24BC409928 /* ServerInspector.swift */; };
 		1712F0346228EAD47B28C9F8 /* Mac.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864CDE934ED78C564FA994CA /* Mac.swift */; };
@@ -36,6 +37,7 @@
 		8A07521B9F79187B9B9B0F83 /* IdentitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70FA3DE75DF8292D67006F07 /* IdentitiesView.swift */; };
 		8ED6DCE83F8FD7FBA2CED5C8 /* AgentSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D77332CA29BD257A4BA5AD0 /* AgentSettings.swift */; };
 		9F47B627FDC40959A351D89B /* DoubleConfirm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18038823C6B06193E1A8D86A /* DoubleConfirm.swift */; };
+		A1376A08C03541305FE6BA99 /* SSHConfigImportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFCBE66686362A4C966742A /* SSHConfigImportSheet.swift */; };
 		A97740C2E4CAAC7E3E21C4DB /* PortForwardBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFB73E4F5A4E0275611622A /* PortForwardBackend.swift */; };
 		ADF9F497480AAECF8EFA2978 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 0536A2AD7F379DA9E4410736 /* LICENSE */; };
 		B2DEED12A1C4505ABEED8FF8 /* BatchSnippetExecContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 615A9FAD4A0F752FBD542810 /* BatchSnippetExecContext.swift */; };
@@ -98,6 +100,7 @@
 		4556288987001E1EA703A8E5 /* TerminalSnippetPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSnippetPanel.swift; sourceTree = "<group>"; };
 		478253D7DC3B55196BDD73C9 /* ServerEditorDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerEditorDialog.swift; sourceTree = "<group>"; };
 		4C56344885B90F40F06D9F4A /* Dialogs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dialogs.swift; sourceTree = "<group>"; };
+		55A715F31337168A65B48A07 /* OpenSSHConfigResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSSHConfigResolver.swift; sourceTree = "<group>"; };
 		5AE055DD91FA890DB5DDB079 /* EULA */ = {isa = PBXFileReference; path = EULA; sourceTree = "<group>"; };
 		5BF8E05669BAD48CA9ADC146 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		61330E5384D161665EEA7851 /* StatusCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusCard.swift; sourceTree = "<group>"; };
@@ -105,6 +108,7 @@
 		655C0A15AF2F03284F556BC5 /* MacUpdates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacUpdates.swift; sourceTree = "<group>"; };
 		679A47FAE8BD5AB800A76194 /* Tamio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tamio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DB86E586C8CCFF7474F9F75 /* MenubarTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarTool.swift; sourceTree = "<group>"; };
+		6EFCBE66686362A4C966742A /* SSHConfigImportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHConfigImportSheet.swift; sourceTree = "<group>"; };
 		70FA3DE75DF8292D67006F07 /* IdentitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentitiesView.swift; sourceTree = "<group>"; };
 		73A13CE60279936C7F4C1052 /* StatusItem+Loop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StatusItem+Loop.swift"; sourceTree = "<group>"; };
 		75878EF1BDD335D8738E8C39 /* ServerActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerActions.swift; sourceTree = "<group>"; };
@@ -206,6 +210,7 @@
 				864CDE934ED78C564FA994CA /* Mac.swift */,
 				2FECAE3A90867AFF08FC69C1 /* MacStatusItem.swift */,
 				655C0A15AF2F03284F556BC5 /* MacUpdates.swift */,
+				55A715F31337168A65B48A07 /* OpenSSHConfigResolver.swift */,
 			);
 			path = Mac;
 			sourceTree = "<group>";
@@ -406,6 +411,7 @@
 				75878EF1BDD335D8738E8C39 /* ServerActions.swift */,
 				478253D7DC3B55196BDD73C9 /* ServerEditorDialog.swift */,
 				BD5F05A6A10CA869F43251F4 /* ServersView.swift */,
+				6EFCBE66686362A4C966742A /* SSHConfigImportSheet.swift */,
 			);
 			path = Servers;
 			sourceTree = "<group>";
@@ -551,11 +557,13 @@
 				6847782BF8AA67783B857696 /* MainView.swift in Sources */,
 				6AC16DD7B59C49A3DE4CAF35 /* MenubarTool.swift in Sources */,
 				B347AFC662FEA41D342D2394 /* MonitorPage.swift in Sources */,
+				14821D2BEB0AF7EE8F14421A /* OpenSSHConfigResolver.swift in Sources */,
 				0D996008869B53B9E095749C /* PageScaffold.swift in Sources */,
 				CF37E0D0838256CCF710E5CA /* PickerSheets.swift in Sources */,
 				A97740C2E4CAAC7E3E21C4DB /* PortForwardBackend.swift in Sources */,
 				742B1D1D68A0C95C3886F494 /* PortForwardView.swift in Sources */,
 				E6B055B6F5DC499B463F136E /* PresentError.swift in Sources */,
+				A1376A08C03541305FE6BA99 /* SSHConfigImportSheet.swift in Sources */,
 				D228D67549129E4CB2A357B6 /* ServerActions.swift in Sources */,
 				EB87D94F557DAFC57811CD08 /* ServerEditorDialog.swift in Sources */,
 				16E0D2F6EA1736735F60C2E7 /* ServerInspector.swift in Sources */,

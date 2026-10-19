@@ -17,6 +17,7 @@ struct ServersView: View {
 
     @State private var searchText = ""
     @State private var selection: RDMachine.ID?
+    @State private var importsSSHConfig = false
 
     var filtered: [RDMachine] {
         let machines = store.machineGroup.machines
@@ -38,6 +39,10 @@ struct ServersView: View {
             }
         ) {
         } trailing: {
+            Button { importsSSHConfig = true } label: {
+                Label("Import…", systemImage: "square.and.arrow.down")
+            }
+            .help(String(localized: "Import from SSH Config"))
             RedactionMenu()
             Button { router.openTerminals() } label: {
                 Label("Open Terminals…", systemImage: "rectangle.stack.badge.plus")
@@ -67,6 +72,9 @@ struct ServersView: View {
             } else {
                 ServersTable(machines: sorted, selection: $selection)
             }
+        }
+        .sheet(isPresented: $importsSSHConfig) {
+            SSHConfigImportSheet().environmentObject(store)
         }
         .background {
             // ⌘⌫ deletes the selected row.

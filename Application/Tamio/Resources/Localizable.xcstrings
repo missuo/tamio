@@ -1,6 +1,1718 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "A Host alias at %@:%lld cannot safely be imported.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Host alias at %@:%lld cannot safely be imported."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法安全导入 %1$@:%2$lld 处的 Host 别名。"
+          }
+        }
+      }
+    },
+    "A matching server was added during review. Review the import again.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A matching server was added during review. Review the import again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查期间新增了匹配的服务器。请重新检查导入内容。"
+          }
+        }
+      }
+    },
+    "A saved server changed during review. Review the import again.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A saved server changed during review. Review the import again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查期间已有服务器发生变化。请重新检查导入内容。"
+          }
+        }
+      }
+    },
+    "A saved server matches this alias but was not imported from this source. Updating it requires explicit permission.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A saved server matches this alias but was not imported from this source. Updating it requires explicit permission."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已有服务器与此别名匹配，但并非从此来源导入。更新前需要明确授权。"
+          }
+        }
+      }
+    },
+    "An Include at %@:%lld uses expansion that cannot be inspected safely.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An Include at %@:%lld uses expansion that cannot be inspected safely."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@:%2$lld 处的 Include 使用了无法安全检查的展开规则。"
+          }
+        }
+      }
+    },
+    "An SSH Include pattern matches too many files.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An SSH Include pattern matches too many files."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH Include 模式匹配了过多文件。"
+          }
+        }
+      }
+    },
+    "An identity path contains expansion tokens Tamio cannot resolve. Choose its private key explicitly.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An identity path contains expansion tokens Tamio cannot resolve. Choose its private key explicitly."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "某个身份文件路径含有 Tamio 无法解析的展开标记。请明确选择对应私钥。"
+          }
+        }
+      }
+    },
+    "Cannot safely inspect SSH configuration syntax at %@:%lld.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot safely inspect SSH configuration syntax at %@:%lld."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法安全检查 %1$@:%2$lld 处的 SSH 配置语法。"
+          }
+        }
+      }
+    },
+    "Could not create the private SSH configuration snapshot.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not create the private SSH configuration snapshot."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法创建私有 SSH 配置快照。"
+          }
+        }
+      }
+    },
+    "Could not inspect Include directory %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not inspect Include directory %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法检查 Include 目录 %@。"
+          }
+        }
+      }
+    },
+    "Could not inspect SSH Include path %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not inspect SSH Include path %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法检查 SSH Include 路径 %@。"
+          }
+        }
+      }
+    },
+    "Could not read SSH configuration file %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not read SSH configuration file %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法读取 SSH 配置文件 %@。"
+          }
+        }
+      }
+    },
+    "Could not read the OpenSSH configuration result.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not read the OpenSSH configuration result."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法读取 OpenSSH 配置解析结果。"
+          }
+        }
+      }
+    },
+    "Could not start the system OpenSSH configuration resolver.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not start the system OpenSSH configuration resolver."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法启动系统 OpenSSH 配置解析器。"
+          }
+        }
+      }
+    },
+    "Importing OpenSSH private keys is available on macOS.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importing OpenSSH private keys is available on macOS."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 私钥导入仅适用于 macOS。"
+          }
+        }
+      }
+    },
+    "Match conditions can depend on this Mac, its network, and the time of import. Review the resolved settings.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Match conditions can depend on this Mac, its network, and the time of import. Review the resolved settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Match 条件可能依赖于当前 Mac、网络和导入时间。请检查解析后的设置。"
+          }
+        }
+      }
+    },
+    "Match exec can run local commands while OpenSSH resolves this configuration. Resolve only if you trust every included file.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Match exec can run local commands while OpenSSH resolves this configuration. Resolve only if you trust every included file."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 解析此配置时，Match exec 可执行本地命令。仅在信任所有包含文件时继续解析。"
+          }
+        }
+      }
+    },
+    "Match rules are resolved only for this import. Tamio does not reevaluate them when connecting.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Match rules are resolved only for this import. Tamio does not reevaluate them when connecting."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Match 规则仅在此次导入时解析。Tamio 不会在连接时重新求值。"
+          }
+        }
+      }
+    },
+    "No credential is selected. You may explicitly save this server as a draft and choose credentials before connecting.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No credential is selected. You may explicitly save this server as a draft and choose credentials before connecting."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未选择凭据。可以明确将此服务器保存为待配置项，并在连接前选择凭据。"
+          }
+        }
+      }
+    },
+    "OpenSSH could not resolve this host. Check the configuration for invalid or unsupported settings.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH could not resolve this host. Check the configuration for invalid or unsupported settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 无法解析此主机。请检查配置中无效或不支持的设置。"
+          }
+        }
+      }
+    },
+    "OpenSSH did not resolve a valid host, port and user.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH did not resolve a valid host, port and user."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 未解析出有效的主机、端口和用户。"
+          }
+        }
+      }
+    },
+    "OpenSSH did not return a usable host, username, and port.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH did not return a usable host, username, and port."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 未返回可用的主机、用户名和端口。"
+          }
+        }
+      }
+    },
+    "OpenSSH lists multiple identity files. Choose one credential explicitly; Tamio does not try this list in order.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH lists multiple identity files. Choose one credential explicitly; Tamio does not try this list in order."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 列出了多个身份文件。请明确选择一个凭据；Tamio 不会依次尝试此列表。"
+          }
+        }
+      }
+    },
+    "OpenSSH local and remote commands are not imported.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH local and remote commands are not imported."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不会导入 OpenSSH 本地和远程命令。"
+          }
+        }
+      }
+    },
+    "OpenSSH port, X11 and tunnel forwarding settings are not imported.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH port, X11 and tunnel forwarding settings are not imported."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不会导入 OpenSSH 端口、X11 和隧道转发设置。"
+          }
+        }
+      }
+    },
+    "OpenSSH produced too much output while resolving this host.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH produced too much output while resolving this host."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 解析此主机时产生的输出过多。"
+          }
+        }
+      }
+    },
+    "OpenSSH returned a configuration that is not UTF-8 text.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH returned a configuration that is not UTF-8 text."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 返回的配置不是 UTF-8 文本。"
+          }
+        }
+      }
+    },
+    "OpenSSH returned an invalid configuration result.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH returned an invalid configuration result."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 返回了无效的配置解析结果。"
+          }
+        }
+      }
+    },
+    "OpenSSH took too long to resolve this host. Any resolution commands were stopped.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH took too long to resolve this host. Any resolution commands were stopped."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 解析此主机超时。相关解析命令已停止。"
+          }
+        }
+      }
+    },
+    "Private-key validation was cancelled or timed out.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private-key validation was cancelled or timed out."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "私钥验证已取消或超时。"
+          }
+        }
+      }
+    },
+    "Proxy commands that pass file descriptors are not supported.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proxy commands that pass file descriptors are not supported."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不支持传递文件描述符的代理命令。"
+          }
+        }
+      }
+    },
+    "Resolving the SSH configuration exceeded the 60-second time limit.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resolving the SSH configuration exceeded the 60-second time limit."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 配置解析超过了 60 秒时限。"
+          }
+        }
+      }
+    },
+    "Review and acknowledge this host's warnings before importing.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review and acknowledge this host's warnings before importing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在导入前检查并确认此主机的警告。"
+          }
+        }
+      }
+    },
+    "SSH certificates and hardware-backed security keys are not supported by Tamio's connection engine.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH certificates and hardware-backed security keys are not supported by Tamio's connection engine."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamio 连接引擎不支持 SSH 证书和硬件安全密钥。"
+          }
+        }
+      }
+    },
+    "SSH configuration file %@ is larger than 1 MB.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH configuration file %@ is larger than 1 MB."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 配置文件 %@ 超过 1 MB。"
+          }
+        }
+      }
+    },
+    "SSH configuration file %@ is not valid UTF-8 text.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH configuration file %@ is not valid UTF-8 text."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 配置文件 %@ 不是有效的 UTF-8 文本。"
+          }
+        }
+      }
+    },
+    "SSH configuration path %@ is not a regular file.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH configuration path %@ is not a regular file."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 配置路径 %@ 不是普通文件。"
+          }
+        }
+      }
+    },
+    "Saving without credentials requires explicit acknowledgement.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving without credentials requires explicit acknowledgement."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存无凭据的主机需要明确确认。"
+          }
+        }
+      }
+    },
+    "Scan the SSH configuration again before resolving it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan the SSH configuration again before resolving it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在解析前重新扫描 SSH 配置。"
+          }
+        }
+      }
+    },
+    "Several saved servers match this host. Resolve the duplicates before importing.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Several saved servers match this host. Resolve the duplicates before importing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "多台已有服务器与此主机匹配。请在导入前解决重复项。"
+          }
+        }
+      }
+    },
+    "Tamio does not use the OpenSSH agent, keychain integration or agent forwarding. Choose a stored credential or explicitly import a key.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamio does not use the OpenSSH agent, keychain integration or agent forwarding. Choose a stored credential or explicitly import a key."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamio 不使用 OpenSSH 代理、钥匙串集成或代理转发。请选择已有凭据或明确导入密钥。"
+          }
+        }
+      }
+    },
+    "Tamio uses its own connection and host-trust policy; these OpenSSH settings are not imported: %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamio uses its own connection and host-trust policy; these OpenSSH settings are not imported: %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamio 使用独立的连接和主机信任策略；不会导入以下 OpenSSH 设置：%@。"
+          }
+        }
+      }
+    },
+    "The SSH Include patterns inspect too many directory entries.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SSH Include patterns inspect too many directory entries."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH Include 模式检查的目录项过多。"
+          }
+        }
+      }
+    },
+    "The SSH configuration contains an Include cycle at %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SSH configuration contains an Include cycle at %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 配置在 %@ 处存在 Include 循环。"
+          }
+        }
+      }
+    },
+    "The SSH configuration contains more than 512 server aliases.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SSH configuration contains more than 512 server aliases."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 配置包含超过 512 个服务器别名。"
+          }
+        }
+      }
+    },
+    "The SSH configuration exceeds the 4 MB import limit or the 1 MB per-file limit.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SSH configuration exceeds the 4 MB import limit or the 1 MB per-file limit."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 配置超过 4 MB 总导入限制或单文件 1 MB 限制。"
+          }
+        }
+      }
+    },
+    "The SSH configuration includes too many files or too many nested Includes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SSH configuration includes too many files or too many nested Includes."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 配置包含过多文件或 Include 嵌套层级过深。"
+          }
+        }
+      }
+    },
+    "The import selection is invalid. Review the configuration again.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The import selection is invalid. Review the configuration again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入选择无效。请重新检查配置。"
+          }
+        }
+      }
+    },
+    "The key file is too large or is not UTF-8 text.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key file is too large or is not UTF-8 text."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密钥文件过大或不是 UTF-8 文本。"
+          }
+        }
+      }
+    },
+    "The key must be a regular file smaller than 1 MB.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key must be a regular file smaller than 1 MB."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密钥必须是小于 1 MB 的普通文件。"
+          }
+        }
+      }
+    },
+    "The private key could not be opened. Check its format and passphrase.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The private key could not be opened. Check its format and passphrase."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法打开私钥。请检查格式和口令。"
+          }
+        }
+      }
+    },
+    "The private key could not be validated.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The private key could not be validated."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法验证私钥。"
+          }
+        }
+      }
+    },
+    "The proxy command cannot be represented safely.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy command cannot be represented safely."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法安全转换此代理命令。"
+          }
+        }
+      }
+    },
+    "The proxy jump cannot be represented safely.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy jump cannot be represented safely."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法安全转换此跳板机配置。"
+          }
+        }
+      }
+    },
+    "The proxy jump has an unsupported host, user or port.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy jump has an unsupported host, user or port."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳板机配置包含不支持的主机、用户或端口。"
+          }
+        }
+      }
+    },
+    "The resolved SSH configuration exceeds the 8 MB output limit.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The resolved SSH configuration exceeds the 8 MB output limit."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解析后的 SSH 配置超过 8 MB 输出限制。"
+          }
+        }
+      }
+    },
+    "The selected file is not a supported private key.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The selected file is not a supported private key."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所选文件不是支持的私钥。"
+          }
+        }
+      }
+    },
+    "The selected identity is no longer available or has no credentials.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The selected identity is no longer available or has no credentials."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所选身份已不可用或没有凭据。"
+          }
+        }
+      }
+    },
+    "The selected key file could not be read.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The selected key file could not be read."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法读取所选密钥文件。"
+          }
+        }
+      }
+    },
+    "The temporary folder cannot safely hold an SSH configuration snapshot.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The temporary folder cannot safely hold an SSH configuration snapshot."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "临时文件夹无法安全存放 SSH 配置快照。"
+          }
+        }
+      }
+    },
+    "These identity files are missing on this Mac: %@. Choose another credential or save a draft.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These identity files are missing on this Mac: %@. Choose another credential or save a draft."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 Mac 上缺少以下身份文件：%@。请选择其他凭据或保存为待配置项。"
+          }
+        }
+      }
+    },
+    "This SSH configuration can execute local commands. Explicit trust is required before resolving it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This SSH configuration can execute local commands. Explicit trust is required before resolving it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 SSH 配置可执行本地命令。解析前需要明确授权信任。"
+          }
+        }
+      }
+    },
+    "This configuration requires trust and may run local commands. Resolved settings are a snapshot, not live OpenSSH rules.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This configuration requires trust and may run local commands. Resolved settings are a snapshot, not live OpenSSH rules."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此配置需要信任，且可能运行本地命令。解析结果是快照，不是实时 OpenSSH 规则。"
+          }
+        }
+      }
+    },
+    "This private key uses an algorithm Tamio does not support.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This private key uses an algorithm Tamio does not support."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此私钥使用 Tamio 不支持的算法。"
+          }
+        }
+      }
+    },
+    "This proxy command uses tokens Tamio does not support. Only %h, %p and %% are supported.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This proxy command uses tokens Tamio does not support. Only %h, %p and %% are supported."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此代理命令使用了 Tamio 不支持的标记。仅支持 %h、%p 和 %%。"
+          }
+        }
+      }
+    },
+    "This proxy runs a local command when connecting. It depends on local OpenSSH configuration, programs and keys; jump-host trust is managed separately from Tamio.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This proxy runs a local command when connecting. It depends on local OpenSSH configuration, programs and keys; jump-host trust is managed separately from Tamio."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此代理在连接时运行本地命令。它依赖本机 OpenSSH 配置、程序和密钥；跳板机信任由 OpenSSH 管理，与 Tamio 分开。"
+          }
+        }
+      }
+    },
+    "Two selected hosts would update the same saved server. Choose only one.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two selected hosts would update the same saved server. Choose only one."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "两台所选主机将更新同一台已有服务器。请只选择其中一台。"
+          }
+        }
+      }
+    },
+    "Updating a saved server requires explicit permission.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating a saved server requires explicit permission."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新已有服务器需要明确授权。"
+          }
+        }
+      }
+    },
+    "Import…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入…"
+          }
+        }
+      }
+    },
+    "Import from SSH Config": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from SSH Config"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从 SSH 配置导入"
+          }
+        }
+      }
+    },
+    "Discover existing OpenSSH hosts and choose what to import.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discover existing OpenSSH hosts and choose what to import."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发现已有的 OpenSSH 主机，并选择要导入的配置。"
+          }
+        }
+      }
+    },
+    "Use ~/.ssh/config": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use ~/.ssh/config"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 ~/.ssh/config"
+          }
+        }
+      }
+    },
+    "Choose another config file…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose another config file…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择其他配置文件…"
+          }
+        }
+      }
+    },
+    "Choose an OpenSSH configuration file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an OpenSSH configuration file"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择 OpenSSH 配置文件"
+          }
+        }
+      }
+    },
+    "No changes until confirmed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No changes until confirmed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认前不会保存任何更改"
+          }
+        }
+      }
+    },
+    "Import Selected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Selected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入所选主机"
+          }
+        }
+      }
+    },
+    "Select importable hosts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select importable hosts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择可导入的主机"
+          }
+        }
+      }
+    },
+    "Deselect all": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deselect all"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消全选"
+          }
+        }
+      }
+    },
+    "Review configuration trust…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review configuration trust…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查配置可信性…"
+          }
+        }
+      }
+    },
+    "Trust this SSH configuration?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trust this SSH configuration?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "信任此 SSH 配置？"
+          }
+        }
+      }
+    },
+    "Trust and Resolve": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trust and Resolve"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "信任并解析"
+          }
+        }
+      }
+    },
+    "OpenSSH may execute local commands from Match exec or read files that could not be inspected. Continue only if you trust this configuration and every included file. No SSH connection is opened during resolution.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH may execute local commands from Match exec or read files that could not be inspected. Continue only if you trust this configuration and every included file. No SSH connection is opened during resolution."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH 可能执行 Match exec 中的本地命令，或读取无法检查的文件。只有信任此配置及其所有包含文件时才应继续。解析期间不会建立 SSH 连接。"
+          }
+        }
+      }
+    },
+    "The original configuration is never modified. This is a one-time import, not background synchronization.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The original configuration is never modified. This is a one-time import, not background synchronization."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不会修改原始配置。这是一次性导入，不会在后台同步。"
+          }
+        }
+      }
+    },
+    "OpenSSH known_hosts is not imported. Tamio keeps its own host-key verification and records a key on first connection; insecure OpenSSH trust settings are not copied.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenSSH known_hosts is not imported. Tamio keeps its own host-key verification and records a key on first connection; insecure OpenSSH trust settings are not copied."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不会导入 OpenSSH known_hosts。Tamio 保留独立的主机密钥验证，并在首次连接时记录密钥；不会复制不安全的 OpenSSH 信任设置。"
+          }
+        }
+      }
+    },
+    "Private keys are copied only when you explicitly choose Import this private key. If Identities iCloud Sync is enabled, imported keys join Tamio’s end-to-end encrypted sync.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private keys are copied only when you explicitly choose Import this private key. If Identities iCloud Sync is enabled, imported keys join Tamio’s end-to-end encrypted sync."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只有明确选择“将此私钥导入 Tamio”后才会复制私钥。如果已启用身份凭据 iCloud 同步，导入的密钥也会加入 Tamio 的端到端加密同步。"
+          }
+        }
+      }
+    },
+    "Ready": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "就绪"
+          }
+        }
+      }
+    },
+    "Needs credentials": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs credentials"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要凭据"
+          }
+        }
+      }
+    },
+    "Needs review": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs review"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要检查"
+          }
+        }
+      }
+    },
+    "Already exists": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already exists"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已存在"
+          }
+        }
+      }
+    },
+    "Unsupported": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不支持"
+          }
+        }
+      }
+    },
+    "Replace this existing server’s connection settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace this existing server’s connection settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "替换此已有服务器的连接设置"
+          }
+        }
+      }
+    },
+    "I reviewed the warnings and credential choice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I reviewed the warnings and credential choice"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我已检查警告和凭据选择"
+          }
+        }
+      }
+    },
+    "Effective OpenSSH settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effective OpenSSH settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生效的 OpenSSH 设置"
+          }
+        }
+      }
+    },
+    "Configure credentials later": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configure credentials later"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍后配置凭据"
+          }
+        }
+      }
+    },
+    "Import this private key into Tamio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import this private key into Tamio"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将此私钥导入 Tamio"
+          }
+        }
+      }
+    },
+    "Key passphrase (only if encrypted)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key passphrase (only if encrypted)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密钥口令（仅加密密钥需要）"
+          }
+        }
+      }
+    },
+    "A passphrase you enter is saved with this identity. It is never read from Keychain automatically.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A passphrase you enter is saved with this identity. It is never read from Keychain automatically."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入的口令将与此身份凭据一起保存。不会自动从钥匙串读取口令。"
+          }
+        }
+      }
+    },
+    "This server will be saved without credentials. Configure an identity before connecting.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This server will be saved without credentials. Configure an identity before connecting."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此服务器将保存为未配置凭据的状态。请在连接前配置身份凭据。"
+          }
+        }
+      }
+    },
+    "No concrete Host aliases found. Wildcard-only blocks provide defaults, not servers.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No concrete Host aliases found. Wildcard-only blocks provide defaults, not servers."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到具体的 Host 别名。只有通配符的配置块提供默认设置，不会创建服务器。"
+          }
+        }
+      }
+    },
+    "Saved servers or identities changed. Preview again before importing.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved servers or identities changed. Preview again before importing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已保存的服务器或身份凭据发生变化。请重新预览后再导入。"
+          }
+        }
+      }
+    },
+    "Import is unavailable while Tamio’s encryption key is locked. Unlock the keychain and reopen Tamio.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import is unavailable while Tamio’s encryption key is locked. Unlock the keychain and reopen Tamio."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamio 加密密钥被锁定时无法导入。请解锁钥匙串并重新打开 Tamio。"
+          }
+        }
+      }
+    },
+    "Created %lld servers and updated %lld servers.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Created %lld servers and updated %lld servers."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已创建 %1$lld 台服务器，更新 %2$lld 台服务器。"
+          }
+        }
+      }
+    },
+    "%lld hosts found · %lld selected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld hosts found · %lld selected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找到 %1$lld 台主机 · 已选择 %2$lld 台"
+          }
+        }
+      }
+    },
+    "Existing: %@ — %@@%@:%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Existing: %@ — %@@%@:%@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已有：%1$@ — %2$@@%3$@:%4$@"
+          }
+        }
+      }
+    },
+    "Previous proxy: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous proxy: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原代理：%@"
+          }
+        }
+      }
+    },
+    "Imported proxy: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imported proxy: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入的代理：%@"
+          }
+        }
+      }
+    },
+    "Import key: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import key: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入密钥：%@"
+          }
+        }
+      }
+    },
     "": {
       "localizations": {
         "en": {

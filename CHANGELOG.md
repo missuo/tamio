@@ -13,6 +13,21 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+### Added
+- **Import servers from OpenSSH configuration.** Servers › Import previews
+  concrete Host aliases with their effective address, user, port, credentials,
+  source location and compatibility warnings. Includes and defaults are
+  resolved by the Mac's OpenSSH using a frozen, inspected configuration;
+  Match exec requires explicit trust, and resolution has cancellation, time
+  and output limits. Private keys are copied only with permission, shared
+  keys are reused, and existing servers are skipped unless explicitly updated.
+  ProxyCommand and supported single- or multi-hop ProxyJump connections are
+  preserved, with a warning about local configuration and key dependencies.
+  The source files and OpenSSH known_hosts are never modified or imported;
+  unsupported authentication, forwarding and trust policies are disclosed
+  before confirmation. Dynamic Includes that cannot be inspected safely are
+  rejected. Available in English and Simplified Chinese.
+
 ## [0.2.4] - 2026-10-18
 
 ### Added
