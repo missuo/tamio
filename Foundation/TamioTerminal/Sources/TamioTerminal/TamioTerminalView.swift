@@ -71,15 +71,27 @@ public struct TamioTerminalView {
     }
 }
 
+extension TamioTerminalView: View {
+    public var body: some View {
+        TerminalSurfaceHost(session: session)
+            .overlay(alignment: .top) { RemoteClipboardNoticeBar(notice: session.clipboardNotice) }
+    }
+}
+
+/// The platform view itself, under the notices `TamioTerminalView` lays over it.
+private struct TerminalSurfaceHost {
+    let session: TamioTerminalSession
+}
+
 #if os(macOS)
-    extension TamioTerminalView: NSViewRepresentable {
-        public func makeNSView(context _: Context) -> AppTerminalView { session.platformView() }
-        public func updateNSView(_: AppTerminalView, context _: Context) {}
+    extension TerminalSurfaceHost: NSViewRepresentable {
+        func makeNSView(context _: Context) -> AppTerminalView { session.platformView() }
+        func updateNSView(_: AppTerminalView, context _: Context) {}
     }
 #else
-    extension TamioTerminalView: UIViewRepresentable {
-        public func makeUIView(context _: Context) -> UITerminalView { session.platformView() }
-        public func updateUIView(_: UITerminalView, context _: Context) {}
+    extension TerminalSurfaceHost: UIViewRepresentable {
+        func makeUIView(context _: Context) -> UITerminalView { session.platformView() }
+        func updateUIView(_: UITerminalView, context _: Context) {}
     }
 #endif
 
@@ -90,6 +102,7 @@ final class TamioTerminalSession: @unchecked Sendable {
     let backend: InMemoryTerminalSession
     let output: TerminalOutputBuffer
     let localShell: Bool
+    let clipboardNotice = RemoteClipboardNotice()
     @MainActor private var presentation: TerminalPresentation?
 
     init(localShell: Bool = false) {
@@ -144,16 +157,21 @@ private final class TerminalPresentation: NSObject, TerminalSurfaceTitleDelegate
     let view: PlatformTerminalView
     private let callbacks: TerminalCallbacks
     private let output: TerminalOutputBuffer
+    private let clipboardNotice: RemoteClipboardNotice
     private var initialFontPreferenceApplied = false
     private var didAttach = false
 
     // SSH workers may release the last session reference. Ghostty's coordinator
     // requires main-actor teardown, including destruction of this view's fields.
-    isolated deinit { NotificationCenter.default.removeObserver(self) }
+    isolated deinit {
+        NotificationCenter.default.removeObserver(self)
+        clipboardNotice.cancel()
+    }
 
     init(session: TamioTerminalSession) {
         callbacks = session.callbacks
         output = session.output
+        clipboardNotice = session.clipboardNotice
         view = PlatformTerminalView(frame: .zero)
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(configurationDidApply), name: TamioTerminalConfiguration.didApply, object: nil)
@@ -213,8 +231,20 @@ private final class TerminalPresentation: NSObject, TerminalSurfaceTitleDelegate
     func terminalDidClose(processAlive _: Bool) { callbacks.receiveClose() }
 
     func terminalDidRequestClipboardConfirmation(_ request: TerminalClipboardConfirmationRequest) {
-        // A remote program never gets to read or replace the clipboard (OSC 52).
-        guard request.kind == .paste else {
+        switch request.kind {
+        case .paste:
+            break
+        case .osc52Write:
+            // A program copying (OSC 52) replaces what the user copied, so it
+            // waits for the setting or for Allow Once on the notice.
+            if RemoteClipboardPreference.allowsWrite {
+                request.respond(allow: true)
+            } else {
+                clipboardNotice.hold(request)
+            }
+            return
+        case .osc52Read:
+            // Never: the clipboard may hold a password copied a moment ago.
             request.respond(allow: false)
             return
         }

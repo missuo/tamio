@@ -64,7 +64,9 @@ public struct GhosttyConfigurationView: View {
         onApplied: ((Double?) -> Void)? = nil
     ) {
         model = .shared
-        self.hostSections = Dictionary(hostSections.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        // The package's own rows join the app's; the app's win on a clash.
+        self.hostSections = Dictionary((hostSections + [RemoteClipboardSettings.section]).map { ($0.id, $0) },
+                                       uniquingKeysWith: { first, _ in first })
         externalNavigation = navigation
         _ownNavigation = State(initialValue: navigation ?? ConfigNavigation(hostSections.isEmpty ? "text" : "general"))
         self.embedded = embedded

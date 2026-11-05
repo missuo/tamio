@@ -13,6 +13,17 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+### Added
+- **Tamio tells you when it blocks a program's copy to the clipboard.** A
+  program in the terminal, such as tmux or Neovim on a server, can ask to copy
+  text with OSC 52. Tamio blocks this, and used to do it silently, so the
+  program said "Copied" while the clipboard kept what it had. A notice at the
+  top of the terminal now says the copy was blocked, without showing the
+  text, and **Allow Once** lets the latest copy through. Closing the notice
+  keeps it away for 30 seconds. **Let programs copy to the clipboard**, under
+  Settings › Mouse & Clipboard, allows every copy; it is off unless you turn
+  it on. Programs still can never read the clipboard.
+
 ## [0.2.18] - 2026-11-05
 
 ### Changed

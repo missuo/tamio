@@ -10,6 +10,8 @@ final class NativeTerminalTests: XCTestCase {
     func testUserClipboardActionsWorkButRemoteClipboardWriteIsDenied() async throws {
         let saved = TestPasteboard.save()
         defer { TestPasteboard.restore(saved) }
+        let preference = RemoteClipboardPreferenceOverride(false)
+        defer { preference.restore() }
         let terminal = TamioTerminalView()
         let native = terminal.session.platformView()
         let window = TestHost(native)
@@ -36,6 +38,9 @@ final class NativeTerminalTests: XCTestCase {
             XCTAssertTrue(terminal.session.backend.waitForPendingOutput())
             try await Task.sleep(for: .milliseconds(100))
             XCTAssertEqual(TestPasteboard.string, "Tamio paste 中文")
+            XCTAssertTrue(terminal.session.clipboardNotice.shown, "The blocked copy is shown, not dropped silently")
+            terminal.session.clipboardNotice.close()
+            XCTAssertEqual(TestPasteboard.string, "Tamio paste 中文")
         #else
             // Reading the pasteboard's contents on iOS waits on the paste-consent
             // prompt, which a test cannot answer; the change count and the
@@ -54,6 +59,50 @@ final class NativeTerminalTests: XCTestCase {
             XCTAssertEqual(UIPasteboard.general.changeCount, afterCopy, "A remote program cannot write the pasteboard")
         #endif
     }
+
+    #if os(macOS)
+        /// Allow Once lets the copy that is waiting through, and only that one;
+        /// with the setting on, copies go through without asking.
+        @MainActor
+        func testRemoteClipboardWriteAllowedOnceOrBySetting() async throws {
+            let saved = TestPasteboard.save()
+            defer { TestPasteboard.restore(saved) }
+            let preference = RemoteClipboardPreferenceOverride(false)
+            defer { preference.restore() }
+            let terminal = TamioTerminalView()
+            let window = TestHost(terminal.session.platformView())
+            defer { window.close() }
+            try await Task.sleep(for: .milliseconds(100))
+            let notice = terminal.session.clipboardNotice
+
+            func remoteCopy(_ text: String) async throws {
+                terminal.write("\u{1B}]52;c;\(Data(text.utf8).base64EncodedString())\u{07}")
+                XCTAssertTrue(terminal.session.backend.waitForPendingOutput())
+                try await Task.sleep(for: .milliseconds(100))
+            }
+
+            TestPasteboard.string = "local"
+            try await remoteCopy("first")
+            try await remoteCopy("second")
+            XCTAssertEqual(TestPasteboard.string, "local")
+            XCTAssertTrue(notice.shown)
+            notice.allowOnce()
+            XCTAssertEqual(TestPasteboard.string, "second", "Allow Once copies the latest request")
+            XCTAssertFalse(notice.shown)
+
+            try await remoteCopy("third")
+            XCTAssertEqual(TestPasteboard.string, "second", "Allowing once does not allow the next")
+            notice.close()
+            try await remoteCopy("during quiet")
+            XCTAssertFalse(notice.shown, "Closing the notice keeps it away for a while")
+            XCTAssertEqual(TestPasteboard.string, "second")
+
+            UserDefaults.standard.set(true, forKey: RemoteClipboardPreference.allowsWriteKey)
+            try await remoteCopy("allowed")
+            XCTAssertEqual(TestPasteboard.string, "allowed")
+            XCTAssertFalse(notice.shown)
+        }
+    #endif
 
     @MainActor
     func testRealSurfaceInputOutputResizeFontAndWindowTransfer() async throws {
@@ -139,4 +188,18 @@ private final class SessionOwner: @unchecked Sendable {
     private var value: TamioTerminalSession? = .init()
     var session: TamioTerminalSession? { lock.withLock { value } }
     func releaseSession() { lock.withLock { value = nil } }
+}
+
+/// Sets the OSC 52 preference for a test and puts the user's back after.
+private struct RemoteClipboardPreferenceOverride {
+    let saved: Any?
+
+    init(_ value: Bool) {
+        saved = UserDefaults.standard.object(forKey: RemoteClipboardPreference.allowsWriteKey)
+        UserDefaults.standard.set(value, forKey: RemoteClipboardPreference.allowsWriteKey)
+    }
+
+    func restore() {
+        UserDefaults.standard.set(saved, forKey: RemoteClipboardPreference.allowsWriteKey)
+    }
 }

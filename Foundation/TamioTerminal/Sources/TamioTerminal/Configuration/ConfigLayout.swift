@@ -147,6 +147,8 @@ struct ConfigLayout {
                 "copy-on-select", "clipboard-trim-trailing-spaces", "selection-clear-on-copy",
                 "selection-clear-on-typing", "clipboard-paste-protection", "clipboard-paste-bracketed-safe",
             ]),
+            // Tamio's own: OSC 52, which Tamio answers instead of Ghostty.
+            Group("programs", "Programs", [.host("input.programs")]),
             Group("mouse", "Mouse", keys: ["mouse-scroll-multiplier", "mouse-shift-capture", "cursor-click-to-move", "link-url"]),
         ]),
         Category(id: "keyboard", title: "Keyboard", icon: "keyboard", section: .terminal, groups: [

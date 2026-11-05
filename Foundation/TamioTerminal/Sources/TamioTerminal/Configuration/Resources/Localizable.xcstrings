@@ -2667,6 +2667,23 @@
         }
       }
     },
+    "group.programs.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "程序"
+          }
+        }
+      }
+    },
     "group.recent.title": {
       "extractionState": "manual",
       "localizations": {
@@ -7797,6 +7814,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "垂直边距"
+          }
+        }
+      }
+    },
+    "terminal.clipboard.allow_once": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Once"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许这一次"
+          }
+        }
+      }
+    },
+    "terminal.clipboard.blocked": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blocked a program from copying to the clipboard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已阻止程序写入剪贴板"
+          }
+        }
+      }
+    },
+    "terminal.clipboard.close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "terminal.clipboard.help": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A program asked to copy text with OSC 52. Settings › Mouse & Clipboard can allow it every time."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有程序通过 OSC 52 请求复制文本。可在“设置 › 鼠标与剪贴板”中始终允许。"
+          }
+        }
+      }
+    },
+    "terminal.clipboard.setting.description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programs in the terminal, such as tmux and Neovim on a server, can put text on the clipboard with OSC 52. When this is off, each copy is blocked and Tamio offers to allow it once. Programs can never read the clipboard."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终端中的程序（例如服务器上的 tmux 和 Neovim）可以通过 OSC 52 把文本放到剪贴板。关闭时，每次复制都会被阻止，Tamio 会提供“允许这一次”。程序永远无法读取剪贴板。"
+          }
+        }
+      }
+    },
+    "terminal.clipboard.setting.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let programs copy to the clipboard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许程序写入剪贴板"
           }
         }
       }
