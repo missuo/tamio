@@ -13,6 +13,11 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+### Changed
+- **Copy Address copies only the host.** It used to add the port
+  (`host:22`), which had to be trimmed off before pasting the address into
+  anything else. Copy Command still includes the port when it isn't 22.
+
 ### Fixed
 - **Programs on the server use all 256 colours.** Tamio told the server its
   terminal was a plain `xterm`, which has 8 colours, so shells such as zsh

@@ -224,7 +224,7 @@ enum ServerActions {
 
     static func copyAddress(_ machine: RDMachine.ID) {
         let read = TamioStore.shared.machineGroup[machine]
-        UIBridge.sendPasteboard(str: "\(read.remoteAddress):\(read.remotePort)")
+        UIBridge.sendPasteboard(str: read.remoteAddress)
     }
 
     static func copyCommand(_ machine: RDMachine.ID) {
