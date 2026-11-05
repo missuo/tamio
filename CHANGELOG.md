@@ -13,6 +13,8 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+## [0.2.18] - 2026-11-05
+
 ### Changed
 - **Copy Address copies only the host.** It used to add the port
   (`host:22`), which had to be trimmed off before pasting the address into
@@ -23,6 +25,9 @@ the user. To release, rename that heading to the version and date
   terminal was a plain `xterm`, which has 8 colours, so shells such as zsh
   left out the rest: zsh-autosuggestions' grey suggestion looked just like
   the typed text. It now asks for `xterm-256color`.
+- **Country flags keep their full width beside long server names.** On a
+  card, in the server list and in the inspector, a long name squeezed the
+  flag down to a thin sliver; the flag now stays whole.
 
 ## [0.2.17] - 2026-10-23
 
