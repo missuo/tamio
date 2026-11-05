@@ -218,7 +218,7 @@ private struct ServerRow<Context: View>: View {
             // The group follows the name, so every name starts at the
             // same edge.
             HStack(spacing: 6) {
-                if let flag = read.countryFlag { Text(flag).font(.system(size: 13)) }
+                if let flag = read.countryFlag { Text(flag).font(.system(size: 13)).fixedSize() }
                 RedactableText(read.name, redacted: store.machineRedacted == .all)
                     .font(.rxBody)
                     .foregroundStyle(.rxInk)

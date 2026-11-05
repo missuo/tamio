@@ -35,7 +35,7 @@ public struct ServerInspector: View {
         VStack(alignment: .leading, spacing: 0) {
             // The server's name on a row of its own, whole; the tabs under it.
             HStack(alignment: .firstTextBaseline, spacing: RX.Space.s2) {
-                if let flag = read.countryFlag { Text(flag) }
+                if let flag = read.countryFlag { Text(flag).fixedSize() }
                 RedactableText(read.name.uppercased(), redacted: store.machineRedacted == .all)
                     .font(.system(size: 13, weight: .bold))
                     .fixedSize(horizontal: false, vertical: true)

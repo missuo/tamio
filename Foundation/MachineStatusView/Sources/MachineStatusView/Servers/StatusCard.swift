@@ -86,6 +86,9 @@ public struct StatusCard<More: View, Context: View>: View {
             if let flag = read.countryFlag {
                 Text(flag)
                     .font(.system(size: 15))
+                    // Fixed: without it, the title's layoutPriority(1) squeezes
+                    // the emoji down to a sliver on long names.
+                    .fixedSize()
                     .accessibilityHidden(true)
             }
             RedactableText(read.name.uppercased(), redacted: store.machineRedacted == .all)
