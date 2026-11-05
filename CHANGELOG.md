@@ -13,6 +13,12 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+### Fixed
+- **Programs on the server use all 256 colours.** Tamio told the server its
+  terminal was a plain `xterm`, which has 8 colours, so shells such as zsh
+  left out the rest: zsh-autosuggestions' grey suggestion looked just like
+  the typed text. It now asks for `xterm-256color`.
+
 ## [0.2.17] - 2026-10-23
 
 ### Fixed

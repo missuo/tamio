@@ -354,7 +354,9 @@ open class TerminalContext: ObservableObject, Identifiable, Equatable {
         // First, so a snippet that opens another shell (a container's) does
         // not take it.
         let hook = remoteType == .machine && machine.shellIntegration ? ShellIntegration.hook : ""
-        shell.begin(withTerminalType: "xterm") { [weak self] in
+        // Plain xterm's terminfo has 8 colours, and zsh drops any past them:
+        // zsh-autosuggestions' grey (colour 8) would show as plain text.
+        shell.begin(withTerminalType: "xterm-256color") { [weak self] in
             debugPrint("channel open")
             // Connected again: a later drop gets its own attempts.
             self?.reconnectAttempt = 0
