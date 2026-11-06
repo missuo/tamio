@@ -60,7 +60,7 @@ struct SnippetEditorSheet: View {
                                         .frame(height: 28)
                                         .background(
                                             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                                .fill(symbol == item ? Color.rxAccent : Color.clear)
+                                                .fill(symbol == item ? Color.rxAccentSolid : Color.clear)
                                         )
                                         .contentShape(Rectangle())
                                 }

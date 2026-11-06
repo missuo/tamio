@@ -263,7 +263,7 @@ struct ToolbarAction: View {
                 .padding(.leading, 9)
                 .padding(.trailing, 11)
                 .frame(height: 24)
-                .background(Capsule().fill(Color.rxAccent.opacity(isEnabled ? 1 : 0.4)))
+                .background(Capsule().fill(Color.rxAccentSolid.opacity(isEnabled ? 1 : 0.4)))
                 .contentShape(Capsule())
                 .fixedSize()
             }

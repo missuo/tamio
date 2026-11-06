@@ -32,83 +32,11 @@ struct HomeView: View {
             // The groups at the toolbar's leading edge, on the row of New and
             // search, lined up with the cards.
             .rxPlainToolbar {
-                ToolbarItem(placement: .navigation) { LeadingGroupSwitcher() }
+                ToolbarItem(placement: .navigation) {
+                    // Lined up with the cards, which start the page's margin in.
+                    AlignedWithContent(margin: RX.Space.s4) { HomeGroupSwitcher() }
+                }
             }
-    }
-}
-
-/// The group switcher, lined up with the cards' leading edge: the toolbar
-/// places it after the sidebar button, which with the sidebar open is over
-/// the sidebar, so it is moved along to where the cards start, and back to
-/// the button as the sidebar hides. The toolbar item keeps one width (the
-/// switcher and the room it moves in) and only what is drawn in it moves, so
-/// the toolbar is not laid out again at every frame of the slide.
-private struct LeadingGroupSwitcher: View {
-    @ObservedObject private var router = AppRouter.shared
-    /// The item's leading edge in the window, where the toolbar put it. Kept
-    /// from the last time Home was shown: the toolbar puts it in the same
-    /// place each time, and measured afresh it is known only a frame late, so
-    /// the switcher showed at the toolbar's edge and then moved across.
-    @State private var origin: CGFloat? = Self.lastOrigin
-    @MainActor private static var lastOrigin: CGFloat?
-
-    var body: some View {
-        // The cards start the page's margin in from the content's edge.
-        let target = MainWindow.sidebarSpan + RX.Space.s4
-        let room = origin.map { max(0, target - $0) } ?? 0
-        HomeGroupSwitcher()
-            .padding(.trailing, room)
-            .offset(x: router.sidebarOpen ? room : 0)
-            .animation(SidebarSlide.animation, value: router.sidebarOpen)
-            // Not seen until it is in its place, the first time.
-            .opacity(origin == nil ? 0 : 1)
-            // Read where the item is, not where its content was moved to.
-            .background(WindowOriginReader { x in
-                guard x != origin else { return }
-                Self.lastOrigin = x
-                // Put there at once: the page's arrival animates, this must not.
-                var instant = Transaction()
-                instant.disablesAnimations = true
-                withTransaction(instant) { origin = x }
-            })
-    }
-}
-
-/// Tells where in its window the view it backs starts.
-private struct WindowOriginReader: NSViewRepresentable {
-    let changed: (CGFloat) -> Void
-
-    final class Probe: NSView {
-        var changed: ((CGFloat) -> Void)?
-        private var last: CGFloat?
-
-        override func layout() {
-            super.layout()
-            report()
-        }
-
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            report()
-        }
-
-        private func report() {
-            guard window != nil else { return }
-            let x = convert(bounds.origin, to: nil).x.rounded()
-            guard x != last else { return }
-            last = x
-            DispatchQueue.main.async { [weak self] in self?.changed?(x) }
-        }
-    }
-
-    func makeNSView(context _: Context) -> Probe {
-        let probe = Probe()
-        probe.changed = changed
-        return probe
-    }
-
-    func updateNSView(_ probe: Probe, context _: Context) {
-        probe.changed = changed
     }
 }
 

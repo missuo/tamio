@@ -96,8 +96,8 @@ private struct RXButtonBody: View {
         case .bordered:
             shape.fill(Color.primary.opacity(configuration.isPressed ? 0.16 : (hovered && isEnabled ? 0.11 : 0.07)))
         case .primary:
-            shape.fill(Color.rxAccent.opacity(configuration.isPressed ? 0.85 : 1))
-                .shadow(color: Color.rxAccent.opacity(0.25), radius: 6, y: 2)
+            shape.fill(Color.rxAccentSolid.opacity(configuration.isPressed ? 0.85 : 1))
+                .shadow(color: Color.rxAccentSolid.opacity(0.25), radius: 6, y: 2)
         case .danger:
             shape.fill(Color.rxDanger.opacity(configuration.isPressed ? 0.85 : 1))
         case .plain:
@@ -664,9 +664,9 @@ public extension View {
     @ViewBuilder
     func rxPrimaryAction() -> some View {
         if #available(macOS 26.0, iOS 26.0, *) {
-            buttonStyle(.glassProminent).tint(.rxAccent)
+            buttonStyle(.glassProminent).tint(.rxAccentSolid)
         } else {
-            buttonStyle(.borderedProminent).tint(.rxAccent)
+            buttonStyle(.borderedProminent).tint(.rxAccentSolid)
         }
     }
 

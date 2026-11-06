@@ -133,6 +133,10 @@ public extension ShapeStyle where Self == Color {
     static var rxAccent: Color { RXPalette.accent }
     /// Text and icons on an `accent` fill.
     static var rxOnAccent: Color { RXPalette.onAccent }
+    /// A solid fill in the accent colour, under `onAccent` text or symbols:
+    /// in Dark mode a deeper indigo than `accent`, which is light for text
+    /// on dark and too light for white on it.
+    static var rxAccentSolid: Color { RXPalette.accentSolid }
     /// Second data series.
     static var rxSeries2: Color { RXPalette.series2 }
     static var rxSeries2Fill: Color { RXPalette.series2Fill }
@@ -165,13 +169,17 @@ enum RXPalette {
     static let surface = Color(rxLight: 0xFFFF_FFFF, dark: 0x2627_2BFF)
     static let surfaceSunken = Color(rxLight: 0xF1F2_F5FF, dark: 0x1F20_23FF)
     static let pill = Color(rxLight: 0xE3E5_EBFF, dark: 0x2F31_35FF)
-    static let hairline = Color(rxLight: 0xE3E5_EAFF, dark: 0x3A3B_40FF)
+    /// On glass, a line a little lighter (darker in Light mode) than what is
+    /// behind it: a solid grey made for the solid window read as a black
+    /// stripe over the lighter glass in Dark mode.
+    static let hairline = Color(rxLight: 0xE3E5_EAFF, dark: 0x3A3B_40FF, glassLight: 0x0000_0014, glassDark: 0xFFFF_FF1A)
     static let controlBorder = Color(rxLight: 0x8A8D_96FF, dark: 0x7678_7FFF)
     static let ink = Color(rxLight: 0x1D1D_1FFF, dark: 0xF5F5_F7FF)
     static let inkSecondary = Color(rxLight: 0x5F61_68FF, dark: 0xA1A3_AAFF, glassLight: 0x4447_4EFF, glassDark: 0xC6C8_CEFF)
     static let inkTertiary = Color(rxLight: 0x7073_80FF, dark: 0x8A8D_96FF, glassLight: 0x585B_64FF, glassDark: 0xA9AC_B3FF)
     static let accent = Color(rxLight: 0x4B49_C8FF, dark: 0x8583_FFFF)
-    static let onAccent = Color(rxLight: 0xFFFF_FFFF, dark: 0x1212_2EFF)
+    static let onAccent = Color(rxLight: 0xFFFF_FFFF, dark: 0xFFFF_FFFF)
+    static let accentSolid = Color(rxLight: 0x4B49_C8FF, dark: 0x5E5C_E6FF)
     static let series2 = Color(rxLight: 0x3B94_D6FF, dark: 0x6CBC_F2FF)
     static let series2Fill = Color(rxLight: 0x3B94_D633, dark: 0x6CBC_F229)
     static let accentFill = Color(rxLight: 0x4B49_C826, dark: 0x8583_FF2E)

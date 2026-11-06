@@ -14,6 +14,9 @@ the user. To release, rename that heading to the version and date
 ## [Unreleased]
 
 ### Changed
+- **Snippets' groups are tabs.** They were a menu at the toolbar's leading
+  edge, over the sidebar, which without a capsule showed only its arrows;
+  they are now tabs like Home's, lined up with the page.
 - **Tabs look like tabs.** Home's groups and a server's Terminal, Files and
   Monitor sit in a light track with the selected one raised, as a Mac
   segmented control is, instead of reading as plain words.
@@ -22,6 +25,13 @@ the user. To release, rename that heading to the version and date
 - **Terminal, Files and Monitor are centred over the page.** With the
   sidebar open they were centred on the window, to the left of the page's
   middle; they now stay over its middle as the sidebar shows or hides.
+- **White text on purple buttons in Dark mode.** “+ New”, Connect and the
+  other filled buttons had near-black text on a light purple; in Dark mode
+  they are now a deeper indigo with white text, as in Light mode.
+- **No black lines on glass in Dark mode.** Dividers, such as the one under
+  the Servers list's header, were a solid grey made for the solid window and
+  read as black stripes over the glass; on glass they are now a faint light
+  line.
 - **Going to Home no longer jolts its group tabs.** They showed at the
   toolbar's edge for a frame and then moved across to the cards; they now
   appear in their place.

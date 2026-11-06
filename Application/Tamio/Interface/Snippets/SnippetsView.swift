@@ -8,6 +8,7 @@
 
 import MachineStatusView
 import SwiftUI
+import TamioDesign
 import TamioModule
 
 struct SnippetsView: View {
@@ -40,12 +41,12 @@ struct SnippetsView: View {
             primary: ToolbarAction("New Snippet", systemImage: "plus", primary: true) { creating = true }
         ) {
             if !groupNames.isEmpty {
-                Picker("Group", selection: $groupFilter) {
-                    Text("All Groups").tag(String?.none)
-                    Divider()
-                    ForEach(groupNames, id: \.self) { Text($0).tag(String?.some($0)) }
+                // The groups as tabs, lined up with the page as Home's are.
+                AlignedWithContent(margin: RX.Space.s6) {
+                    RXTabs([.init(String?.none, Text("All"))] + groupNames.map { .init(String?.some($0), Text(verbatim: $0)) },
+                           selection: groupFilter) { groupFilter = $0 }
+                        .help(String(localized: "Filter by group"))
                 }
-                .help(String(localized: "Filter by group"))
             }
         } trailing: {
         } header: {

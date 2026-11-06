@@ -225,7 +225,7 @@ private struct SourceMenu: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.rxOnAccent)
                     .frame(width: 26, height: 26)
-                    .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.rxAccent))
+                    .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.rxAccentSolid))
                 Text(verbatim: title)
                     .font(.rxBodyStrong)
                     .lineLimit(1)
