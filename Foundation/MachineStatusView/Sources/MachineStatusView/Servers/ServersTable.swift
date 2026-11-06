@@ -15,7 +15,17 @@ public struct ServersTable<Context: View>: View {
     let machines: [RDMachine]
     @Binding var selection: RDMachine.ID?
     let context: (RDMachine.ID) -> Context
-    @State private var width: CGFloat = 900
+    /// Two lines per server under `ServerColumns.compactWidth`. Which columns
+    /// a wide row shows is decided by `ServerColumnsLayout` as it places them.
+    @State private var compact = false
+    /// Held, not observed: the pointer moving between rows redraws only the
+    /// highlight, never the table or its rows.
+    @State private var hover = RowHoverModel()
+    @State private var arrived = false
+    /// The rows' width with the window's sidebar open: the columns are
+    /// chosen for it, so hiding the sidebar widens the names instead of
+    /// adding a column.
+    @Environment(\.rxOpenWidth) private var openWidth
 
     public init(machines: [RDMachine], selection: Binding<RDMachine.ID?>, @ViewBuilder context: @escaping (RDMachine.ID) -> Context) {
         self.machines = machines
@@ -24,48 +34,152 @@ public struct ServersTable<Context: View>: View {
     }
 
     public var body: some View {
-        let columns = ServerColumns(width: width)
         VStack(spacing: 0) {
-            if !columns.compact {
-                header(columns)
+            if !compact {
+                header
                 Hairline()
             }
-            ForEach(Array(machines.enumerated()), id: \.element.id) { index, machine in
-                ServerRow(machine: machine.id, columns: columns, selection: $selection, context: context)
-                    .rxRise(index)
-                    .transition(.opacity)
-                if columns.compact, index < machines.count - 1 {
-                    Hairline().padding(.horizontal, RX.Space.s3)
-                }
-            }
+            rows
         }
         // Rows make room for a new server and close up after a deleted one.
         .animation(.rxMove, value: machines.map(\.id))
-        .readWidth($width)
+        // Kept as whether it is narrow, not as the width: the table is drawn
+        // again only when it changes, not at every point the sidebar slides
+        // or the window is resized.
+        .onGeometryChange(for: Bool.self) { min($0.size.width, openWidth - RX.Space.s2 * 2) < ServerColumns.compactWidth } action: { new in
+            if new != compact { compact = new }
+        }
         .rxCard(padding: RX.Space.s2)
+        .transformEnvironment(\.rxOpenWidth) { $0 -= RX.Space.s2 * 2 }
+        .task {
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            arrived = true
+        }
     }
 
-    func header(_ columns: ServerColumns) -> some View {
-        HStack(spacing: 0) {
+    @ViewBuilder var rows: some View {
+        if compact {
+            VStack(spacing: 0) {
+                ForEach(Array(machines.enumerated()), id: \.element.id) { index, machine in
+                    row(machine.id, index: index, hovered: false, tracksHover: true)
+                    if index < machines.count - 1 {
+                        Hairline().padding(.horizontal, RX.Space.s3)
+                    }
+                }
+            }
+        } else {
+            // One hover region for the whole list, the row worked out from the
+            // fixed row height, and one highlight that moves to it: with a
+            // region per row and per button, and a row redrawn as the pointer
+            // crossed it, scrolling hit tested hundreds of regions and
+            // measured every row again at each frame.
+            // Lazy: only the rows in view are laid out and drawn, at each step
+            // of a sidebar slide or a resize, however many servers there are.
+            LazyVStack(spacing: 0) {
+                ForEach(Array(machines.enumerated()), id: \.element.id) { index, machine in
+                    row(machine.id, index: index, hovered: false, tracksHover: false)
+                }
+            }
+            .background(alignment: .top) { RowHoverHighlight(model: hover) }
+            .onContinuousHover { [hover, count = machines.count] phase in
+                var under: Int?
+                if case let .active(location) = phase, location.y >= 0 {
+                    let index = Int((location.y / RX.tableRowHeight).rounded(.down))
+                    if index < count { under = index }
+                }
+                if under != hover.index { hover.index = under }
+            }
+            .environment(\.rxButtonsTrackHover, false)
+        }
+    }
+
+    func row(_ machine: RDMachine.ID, index: Int, hovered: Bool, tracksHover: Bool) -> some View {
+        ServerRow(
+            machine: machine,
+            compact: compact,
+            selected: selection == machine,
+            hovered: hovered,
+            tracksHover: tracksHover,
+            select: { selection = machine },
+            context: context
+        )
+        // Drawn again only when what it shows changes: the menu closure is
+        // new at every update of the table, so SwiftUI could never tell.
+        .equatable()
+        // Rows rise as the page arrives, not as they scroll into view.
+        .rxRise(index, enabled: !arrived)
+        .transition(.opacity)
+    }
+
+    var header: some View {
+        ServerColumnsLayout(openWidth: openWidth - RX.Space.s2 * 2) {
             TableHeaderLabel("Name").frame(maxWidth: .infinity, alignment: .leading)
-            TableHeaderLabel("Address").frame(width: columns.address)
-            if columns.showIdentity { TableHeaderLabel("Identity").frame(width: columns.identity) }
-            if columns.showCPU { TableHeaderLabel("CPU").frame(width: columns.meter) }
-            if columns.showMemory { TableHeaderLabel("Mem").frame(width: columns.meter) }
-            if columns.showDisk { TableHeaderLabel("Disk").frame(width: columns.meter) }
-            if columns.showNetwork { TableHeaderLabel("Net ↑ ↓").frame(width: columns.network) }
-            if columns.showLastUsed { TableHeaderLabel("Last used").frame(width: columns.lastUsed) }
-            Color.clear.frame(width: columns.actions, height: 1)
+            TableHeaderLabel("Address").frame(maxWidth: .infinity, alignment: .leading)
+            TableHeaderLabel("Identity").frame(maxWidth: .infinity, alignment: .leading)
+            TableHeaderLabel("CPU").frame(maxWidth: .infinity, alignment: .leading)
+            TableHeaderLabel("Mem").frame(maxWidth: .infinity, alignment: .leading)
+            TableHeaderLabel("Disk").frame(maxWidth: .infinity, alignment: .leading)
+            TableHeaderLabel("Net ↑ ↓").frame(maxWidth: .infinity, alignment: .leading)
+            TableHeaderLabel("Last used").frame(maxWidth: .infinity, alignment: .leading)
+            Color.clear.frame(height: 1)
         }
         .padding(.horizontal, RX.Space.s3)
         .frame(height: RX.tableHeaderHeight)
     }
 }
 
+/// A wide row's nine columns, or the header's: name, address, identity, CPU,
+/// memory, disk, traffic, last use and the tools, in that order. The columns
+/// that fit are worked out from the width the row is placed at, in the same
+/// pass, so the header and every row agree at every width a sidebar slide or
+/// a resize passes through, with no frame drawn from an older width. The rest
+/// are placed out of sight.
+struct ServerColumnsLayout: Layout {
+    /// The table's width with the window's sidebar open; the columns are
+    /// chosen for the narrower of it and the width the row has.
+    var openWidth: CGFloat = .infinity
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews _: Subviews, cache _: inout ()) -> CGSize {
+        proposal.replacingUnspecifiedDimensions(by: CGSize(width: 900, height: RX.tableRowHeight))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
+        // The decisions are the table's, which counts the row's own margins.
+        let columns = ServerColumns(width: min(bounds.width + RX.Space.s3 * 2, openWidth))
+        let fixed: [(width: CGFloat, shown: Bool)?] = [
+            nil,
+            (columns.address, true),
+            (columns.identity, columns.showIdentity),
+            (columns.meter, columns.showCPU),
+            (columns.meter, columns.showMemory),
+            (columns.meter, columns.showDisk),
+            (columns.network, columns.showNetwork),
+            (columns.lastUsed, columns.showLastUsed),
+            (columns.actions, true),
+        ]
+        let taken = fixed.compactMap { $0 }.filter(\.shown).map(\.width).reduce(0, +)
+        let name = max(0, bounds.width - taken)
+        var x = bounds.minX
+        for (index, subview) in subviews.enumerated() where index < fixed.count {
+            let column = fixed[index]
+            let width = column?.width ?? name
+            if column?.shown ?? true {
+                subview.place(at: CGPoint(x: x, y: bounds.midY), anchor: .leading,
+                              proposal: ProposedViewSize(width: width, height: bounds.height))
+                x += width
+            } else {
+                // At its own width, so it is not measured again at each step.
+                subview.place(at: CGPoint(x: bounds.maxX + 100_000, y: bounds.midY), anchor: .leading,
+                              proposal: ProposedViewSize(width: width, height: bounds.height))
+            }
+        }
+    }
+}
+
 /// Which columns fit, in the order they give way: status first, then the
 /// identity and last use. Under `compactWidth` there is no row of columns at
 /// all: each server takes two lines.
-public struct ServerColumns {
+public struct ServerColumns: Equatable {
     public let address: CGFloat = 150
     public let identity: CGFloat = 130
     public let meter: CGFloat = 70
@@ -99,38 +213,51 @@ public struct ServerColumns {
     }
 }
 
-private struct ServerRow<Context: View>: View {
+private struct ServerRow<Context: View>: View, Equatable {
     let machine: RDMachine.ID
-    let columns: ServerColumns
-    @Binding var selection: RDMachine.ID?
+    let compact: Bool
+    let selected: Bool
+    /// From the table, which tracks the pointer for every row at once.
+    let hovered: Bool
+    /// In the compact list, where rows differ in height, each tracks its own.
+    let tracksHover: Bool
+    let select: () -> Void
     let context: (RDMachine.ID) -> Context
 
     @EnvironmentObject var store: TamioStore
     @Environment(\.serverActions) private var actions
-    @State private var hovered = false
+    /// The table's width with the sidebar open (the table takes its own
+    /// margins off).
+    @Environment(\.rxOpenWidth) private var openWidth
+    @State private var ownHover = false
+
+    nonisolated static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.machine == rhs.machine && lhs.compact == rhs.compact && lhs.selected == rhs.selected
+            && lhs.hovered == rhs.hovered && lhs.tracksHover == rhs.tracksHover
+    }
 
     var body: some View {
         let read = store.machineGroup[machine]
         ServerLiveReader(machine: machine) { state in
-            if columns.compact {
+            if compact {
                 compactRow(read, state)
             } else {
                 wideRow(read, state)
             }
         }
         .padding(.horizontal, RX.Space.s3)
-        .frame(height: columns.compact ? nil : RX.tableRowHeight)
-        .rxRowBackground(selected: selection == machine, hovered: hovered)
+        .frame(height: compact ? nil : RX.tableRowHeight)
+        .rxRowBackground(selected: selected, hovered: hovered || ownHover)
         .contentShape(Rectangle())
-        .onHover { hovered = $0 }
+        .modifier(RowHover(enabled: tracksHover, hovered: $ownHover))
         .gesture(TapGesture(count: 2).onEnded { actions.openTerminal(machine) })
-        .simultaneousGesture(TapGesture(count: 1).onEnded { selection = machine })
+        .simultaneousGesture(TapGesture(count: 1).onEnded(select))
         .contextMenu { context(machine) }
     }
 
     /// The name, its group and comment, then every column that fits.
     func wideRow(_ read: RDMachine, _ state: ServerLiveState) -> some View {
-        HStack(spacing: 0) {
+        ServerColumnsLayout(openWidth: openWidth) {
             nameColumn(read)
                 .frame(maxWidth: .infinity, alignment: .leading)
             RedactableText(read.remoteAddress, redacted: store.machineRedacted != .none)
@@ -138,30 +265,24 @@ private struct ServerRow<Context: View>: View {
                 .foregroundStyle(.rxInk)
                 .lineLimit(1)
                 .truncationMode(.middle)
-                .frame(width: columns.address, alignment: .leading)
-            if columns.showIdentity {
-                Text(identityName(read))
-                    .font(.rxBody)
-                    .foregroundStyle(read.associatedIdentity == nil && !read.signsInWithoutCredentials ? Color.rxInkSecondary : Color.rxInk)
-                    .lineLimit(1)
-                    .frame(width: columns.identity, alignment: .leading)
-            }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(identityName(read))
+                .font(.rxBody)
+                .foregroundStyle(read.associatedIdentity == nil && !read.signsInWithoutCredentials ? Color.rxInkSecondary : Color.rxInk)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
             // CPU, memory and disk read alike: a percentage, coloured
             // as it gets high.
-            if columns.showCPU { percentText(state.cpu).frame(width: columns.meter, alignment: .leading) }
-            if columns.showMemory { percentText(state.memory).frame(width: columns.meter, alignment: .leading) }
-            if columns.showDisk { percentText(state.disk).frame(width: columns.meter, alignment: .leading) }
-            if columns.showNetwork {
-                networkText(state)
-                    .frame(width: columns.network, alignment: .leading)
-            }
-            if columns.showLastUsed {
-                Text(RXFormat.relative(read.lastConnection))
-                    .font(.rxBody)
-                    .foregroundStyle(.rxInkSecondary)
-                    .lineLimit(1)
-                    .frame(width: columns.lastUsed, alignment: .leading)
-            }
+            percentText(state.cpu).frame(maxWidth: .infinity, alignment: .leading)
+            percentText(state.memory).frame(maxWidth: .infinity, alignment: .leading)
+            percentText(state.disk).frame(maxWidth: .infinity, alignment: .leading)
+            networkText(state)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(RXFormat.relative(read.lastConnection))
+                .font(.rxBody)
+                .foregroundStyle(.rxInkSecondary)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: RX.Space.s1) {
                 // All three bordered alike, so each reads as a button.
                 ForEach([ServerTool.files, .monitor, .terminal]) { tool in
@@ -170,7 +291,7 @@ private struct ServerRow<Context: View>: View {
                         .help(tool.help)
                 }
             }
-            .frame(width: columns.actions, alignment: .trailing)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
 
@@ -184,7 +305,7 @@ private struct ServerRow<Context: View>: View {
                 Menu {
                     context(machine)
                 } label: {
-                    Label("More", systemImage: "ellipsis")
+                    Label("More", rx: "ellipsis")
                 }
                 .menuStyle(.button)
                 .menuIndicator(.hidden)
@@ -287,6 +408,39 @@ private struct ServerRow<Context: View>: View {
     }
 }
 
+@MainActor
+private final class RowHoverModel: ObservableObject {
+    @Published var index: Int?
+}
+
+/// The `row-hover` fill under the row the pointer is over.
+private struct RowHoverHighlight: View {
+    @ObservedObject var model: RowHoverModel
+
+    var body: some View {
+        if let index = model.index {
+            RoundedRectangle(cornerRadius: RX.Radius.lg, style: .continuous)
+                .fill(Color.rxRowHover)
+                .frame(height: RX.tableRowHeight)
+                .offset(y: CGFloat(index) * RX.tableRowHeight)
+                .allowsHitTesting(false)
+        }
+    }
+}
+
+private struct RowHover: ViewModifier {
+    let enabled: Bool
+    @Binding var hovered: Bool
+
+    func body(content: Content) -> some View {
+        if enabled {
+            content.onHover { hovered = $0 }
+        } else {
+            content
+        }
+    }
+}
+
 // MARK: - Redaction
 
 /// None → Sensitive hides addresses → All hides names too.
@@ -301,7 +455,7 @@ public struct RedactionMenu: View {
             item("Hide Addresses", systemImage: "eye.slash", level: .sensitive)
             item("Hide Names and Addresses", systemImage: "eye.slash.fill", level: .all)
         } label: {
-            Label("Privacy", systemImage: store.machineRedacted == .none ? "eye" : "eye.slash")
+            Label("Privacy", rx: store.machineRedacted == .none ? "eye" : "eye.slash")
         }
         .help(store.machineRedacted.tooltip)
     }
@@ -311,7 +465,7 @@ public struct RedactionMenu: View {
             store.machineRedacted = level
         } label: {
             if store.machineRedacted == level {
-                Label(title, systemImage: "checkmark")
+                Label(title, rx: "checkmark")
             } else {
                 Text(title)
             }
@@ -327,7 +481,7 @@ public struct RedactionBanner: View {
 
     public var body: some View {
         HStack(spacing: RX.Space.s2) {
-            Image(systemName: "eye.slash")
+            Image(rx: "eye.slash")
                 .foregroundStyle(.rxInkSecondary)
             Text(store.machineRedacted == .all ? String(localized: "Names and addresses hidden") : String(localized: "Addresses hidden"))
                 .font(.rxBody)

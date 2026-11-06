@@ -9,6 +9,7 @@ import AppKit
 import Combine
 import MachineStatusView
 import SwiftUI
+import TamioDesign
 import TamioModule
 import TamioTerminal
 
@@ -55,7 +56,6 @@ struct TamioApp: App {
         .defaultSize(width: 1280, height: 800)
         .windowResizability(.contentMinSize)
         .commands {
-            SidebarCommands()
             TamioCommands()
         }
     }
@@ -64,6 +64,9 @@ struct TamioApp: App {
 /// Menu commands: New Server, Settings (Settings is a sidebar destination), navigation.
 struct TamioCommands: Commands {
     var body: some Commands {
+        CommandGroup(replacing: .appInfo) {
+            Button("About Tamio") { Mac.showAbout() }
+        }
         CommandGroup(after: .appInfo) {
             if UpdateCenter.shared.isSupported {
                 Button("Check for Updates…") { UpdateCenter.shared.checkNow() }
@@ -92,6 +95,15 @@ struct TamioCommands: Commands {
                 AppRouter.shared.openLocalTerminal()
             }
             .keyboardShortcut("t", modifiers: .command)
+        }
+        // The sidebar is Tamio's own, not a split view's, so AppKit's Show
+        // Sidebar would find nothing to act on.
+        CommandGroup(replacing: .sidebar) {
+            Button("Toggle Sidebar") {
+                MainWindow.show()
+                AppRouter.shared.toggleSidebar()
+            }
+            .keyboardShortcut("s", modifiers: [.control, .command])
         }
         CommandGroup(after: .sidebar) {
             Button("Home") {
@@ -137,6 +149,12 @@ enum MainWindow {
     /// Settings' three columns, and the whole sidebar with Settings clear of
     /// the bottom edge.
     static let minimumSize = CGSize(width: 960, height: 640)
+
+    /// Between the sidebar panel and the window's edges.
+    static let sidebarInset: CGFloat = 8
+    /// From the window's leading edge to where the content starts while the
+    /// sidebar is open.
+    static let sidebarSpan: CGFloat = RX.sidebarWidth + sidebarInset * 2
 
     /// SwiftUI's way of opening the window, kept by the view that lives in
     /// it, for the times it has been closed.

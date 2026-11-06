@@ -88,7 +88,7 @@ public struct RXTag: View {
     public var body: some View {
         HStack(spacing: 4) {
             if let systemImage {
-                Image(systemName: systemImage)
+                Image(rx: systemImage)
                     .font(.system(size: 10, weight: .semibold))
             }
             text
@@ -159,7 +159,7 @@ public struct SymbolTile: View {
             .fill(tinted ? Color.rxAccentFill : Color.rxSurfaceSunken)
             .frame(width: size, height: size)
             .overlay(
-                Image(systemName: systemImage)
+                Image(rx: systemImage)
                     .font(.system(size: size * 0.5, weight: .regular))
                     .foregroundStyle(tinted ? Color.rxAccent : Color.rxInkSecondary)
             )

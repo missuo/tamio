@@ -18,10 +18,15 @@ import SwiftUI
 public struct CardGrid: Layout {
     let minimumWidth: CGFloat
     let spacing: CGFloat
+    /// The grid's width with the window's sidebar open. The column count is
+    /// chosen for the narrower of it and the grid's width, so hiding the
+    /// sidebar widens the cards instead of adding a column.
+    let openWidth: CGFloat
 
-    public init(minimumWidth: CGFloat, spacing: CGFloat) {
+    public init(minimumWidth: CGFloat, spacing: CGFloat, openWidth: CGFloat = .infinity) {
         self.minimumWidth = minimumWidth
         self.spacing = spacing
+        self.openWidth = openWidth
     }
 
     public struct Cache {
@@ -36,7 +41,7 @@ public struct CardGrid: Layout {
         // and Int(.infinity) traps (#11): then, and for any width no row of
         // cards could have, one column of the narrowest cards.
         guard width.isFinite, width < 100_000 else { return (1, minimumWidth) }
-        let count = max(1, Int((width + spacing) / (minimumWidth + spacing)))
+        let count = max(1, Int((min(width, openWidth) + spacing) / (minimumWidth + spacing)))
         return (count, max(minimumWidth, (width - spacing * CGFloat(count - 1)) / CGFloat(count)))
     }
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0D996008869B53B9E095749C /* PageScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DDE29F5CD9A23175CCFBCF3 /* PageScaffold.swift */; };
+		0DC4C788F8B5EC6EC2B64532 /* SidebarSlide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63796B4E4DBEEC81D63678D4 /* SidebarSlide.swift */; };
 		11B537FA4478F90533B25DD9 /* SyncedSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EE5D514035098C28958260 /* SyncedSettings.swift */; };
 		13B1EBCB526576E408152CE0 /* TamioModule in Frameworks */ = {isa = PBXBuildFile; productRef = A3E56E2E2CB7C5ABCE3270FA /* TamioModule */; };
 		14821D2BEB0AF7EE8F14421A /* OpenSSHConfigResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55A715F31337168A65B48A07 /* OpenSSHConfigResolver.swift */; };
@@ -104,6 +105,7 @@
 		5AE055DD91FA890DB5DDB079 /* EULA */ = {isa = PBXFileReference; path = EULA; sourceTree = "<group>"; };
 		5BF8E05669BAD48CA9ADC146 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		615A9FAD4A0F752FBD542810 /* BatchSnippetExecContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchSnippetExecContext.swift; sourceTree = "<group>"; };
+		63796B4E4DBEEC81D63678D4 /* SidebarSlide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSlide.swift; sourceTree = "<group>"; };
 		655C0A15AF2F03284F556BC5 /* MacUpdates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacUpdates.swift; sourceTree = "<group>"; };
 		679A47FAE8BD5AB800A76194 /* Tamio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tamio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DB86E586C8CCFF7474F9F75 /* MenubarTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenubarTool.swift; sourceTree = "<group>"; };
@@ -331,6 +333,7 @@
 				2EAB94544BDE15E396B57A48 /* AppRouter.swift */,
 				85358DC98DB406C6FB6D164E /* MainView.swift */,
 				9DDE29F5CD9A23175CCFBCF3 /* PageScaffold.swift */,
+				63796B4E4DBEEC81D63678D4 /* SidebarSlide.swift */,
 				42B043231E7AF65887A269C2 /* SidebarView.swift */,
 				29183565D571B1DD9EFBC65E /* UpdateCenter.swift */,
 			);
@@ -565,6 +568,7 @@
 				EB87D94F557DAFC57811CD08 /* ServerEditorDialog.swift in Sources */,
 				ECD3BB0A68E4995B319A09DF /* ServersView.swift in Sources */,
 				BD3114CB7B4AEB7FD75D9F78 /* SettingsView.swift in Sources */,
+				0DC4C788F8B5EC6EC2B64532 /* SidebarSlide.swift in Sources */,
 				69FFECCDAACA590F05A1F963 /* SidebarView.swift in Sources */,
 				4D8520C6A941E8188A7D2F17 /* SnippetEditorSheet.swift in Sources */,
 				D3CDEBCD8F8F7C158C37684E /* SnippetsView.swift in Sources */,

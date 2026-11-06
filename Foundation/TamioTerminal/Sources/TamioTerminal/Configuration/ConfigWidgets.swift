@@ -83,7 +83,7 @@ struct ConfigSettingRow: View {
                             .disabled(setting.disabled == true)
                     }
                     Button { help.toggle() } label: {
-                        Label(String(format: ConfigLayout.tr("action.about_setting", default: "About %@"), ConfigLayout.title(setting)), systemImage: "questionmark.circle")
+                        Label(String(format: ConfigLayout.tr("action.about_setting", default: "About %@"), ConfigLayout.title(setting)), rx: "questionmark.circle")
                     }
                     .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
                     .help(String(format: ConfigLayout.tr("action.about_setting", default: "About %@"), ConfigLayout.title(setting)))
@@ -116,7 +116,7 @@ struct ConfigSettingRow: View {
                     }
                     // Only a changed setting can be reset; the slot stays so controls don't shift.
                     Button { model.reset(setting.key) } label: {
-                        Label(ConfigLayout.tr("action.reset_default", default: "Reset to Default"), systemImage: "arrow.counterclockwise")
+                        Label(ConfigLayout.tr("action.reset_default", default: "Reset to Default"), rx: "arrow.counterclockwise")
                     }
                     .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
                     .opacity(isModified ? 1 : 0)
@@ -469,7 +469,7 @@ struct ConfigRepeatableEditor: View {
             Button {
                 model.edit { $0.set(key, $0.values(key) + [""]) }
             } label: {
-                Label(ConfigLayout.tr("action.add_value", default: "Add Value"), systemImage: "plus")
+                Label(ConfigLayout.tr("action.add_value", default: "Add Value"), rx: "plus")
                     .font(.rxBody)
                     .foregroundStyle(.rxInkSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)

@@ -109,5 +109,10 @@ step, and never put screenshots of the app on the site.
   their actions the same way.
 - **Comments and copy:** plain, specific English; comments say why, not what.
   Match the surrounding code's style and density.
+- **Contributors:** Settings › About › Acknowledgements lists every GitHub
+  contributor, as `@login`, in the order `gh api repos/missuo/tamio/contributors`
+  gives (`AcknowledgementSettings` in `Interface/Settings/SettingsView.swift`).
+  When a pull request from someone not yet listed is merged, add them in the
+  same change; before each release, check the list against that command.
 - **Upstream:** Tamio descends from mizorewww/catussh and Lakr233/Rayon;
   `Workflow/Scripts/tamio-rename.py` ports upstream changes.

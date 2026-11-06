@@ -206,7 +206,7 @@ struct ConfigFontPicker: View {
                     .foregroundStyle(family.isEmpty ? Color.rxInkSecondary : Color.rxInk)
                     .lineLimit(1)
                 Spacer(minLength: RX.Space.s2)
-                Image(systemName: "chevron.up.chevron.down")
+                Image(rx: "chevron.up.chevron.down")
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(.rxInkSecondary)
             }
@@ -284,7 +284,7 @@ private struct FontFamilyList: View {
                 Text(title).font(font).lineLimit(1)
                 Spacer()
                 if selection == name {
-                    Image(systemName: "checkmark").foregroundStyle(.rxAccent)
+                    Image(rx: "checkmark").foregroundStyle(.rxAccent)
                 }
             }
             .contentShape(Rectangle())
@@ -362,7 +362,7 @@ struct ConfigFontFamilyEditor: View {
                 Button {
                     addingFallback = true
                 } label: {
-                    Label(ConfigLayout.tr("font.add_fallback", default: "Add Fallback"), systemImage: "plus")
+                    Label(ConfigLayout.tr("font.add_fallback", default: "Add Fallback"), rx: "plus")
                 }
                 .buttonStyle(.rx(.plain, size: .small))
                 .fixedSize()
@@ -414,7 +414,7 @@ struct ConfigFontStylePicker: View {
                     .foregroundStyle(.rxInk)
                     .lineLimit(1)
                 Spacer(minLength: RX.Space.s2)
-                Image(systemName: "chevron.up.chevron.down")
+                Image(rx: "chevron.up.chevron.down")
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(.rxInkSecondary)
             }

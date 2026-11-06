@@ -118,7 +118,7 @@ struct ServerPickerSheet: View {
             }
         } label: {
             HStack(spacing: RX.Space.s3) {
-                Image(systemName: allowsMany
+                Image(rx: allowsMany
                     ? (isSelected ? "checkmark.square.fill" : "square")
                     : (isSelected ? "largecircle.fill.circle" : "circle"))
                     .font(.system(size: 15))
@@ -170,7 +170,7 @@ struct IdentityPickerSheet: View {
                                 selection = identity.id
                             } label: {
                                 HStack(spacing: RX.Space.s3) {
-                                    Image(systemName: selection == identity.id ? "largecircle.fill.circle" : "circle")
+                                    Image(rx: selection == identity.id ? "largecircle.fill.circle" : "circle")
                                         .font(.system(size: 15))
                                         .foregroundStyle(selection == identity.id ? Color.rxAccent : Color.rxControlBorder)
                                     VStack(alignment: .leading, spacing: 1) {
@@ -208,7 +208,7 @@ struct IdentityPickerSheet: View {
             Button {
                 creating = true
             } label: {
-                Label("New Identity", systemImage: "plus")
+                Label("New Identity", rx: "plus")
             }
             .buttonStyle(.rx)
             Spacer()

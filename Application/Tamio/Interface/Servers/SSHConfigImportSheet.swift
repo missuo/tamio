@@ -191,7 +191,7 @@ struct SSHConfigImportSheet: View {
                     }
                     if let error = model.error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
                     if let summary = model.summary {
-                        Label(summary, systemImage: "checkmark.circle").font(.headline)
+                        Label(summary, rx: "checkmark.circle").font(.headline)
                     } else {
                         safetyNotice
                         if let scan = model.scan {

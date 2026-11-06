@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Lucide (ISC, Lucide contributors), outlined at stroke 2 -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="3300" height="2200">
+ <g id="Notes">
+  <rect height="2200" id="artboard" style="fill:white;opacity:1" width="3300" x="0" y="0"/>
+  <text id="template-version" style="stroke:none;fill:black;font-family:sans-serif;font-size:13;" transform="matrix(1 0 0 1 3036 1933)">Template v.3.0</text>
+ </g>
+ <g id="Guides">
+  <path id="Capline-S" d="M263 625.541 L3036 625.541" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5;"/>
+  <path id="Baseline-S" d="M263 696 L3036 696" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5;"/>
+  <path id="Capline-M" d="M263 1055.54 L3036 1055.54" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5;"/>
+  <path id="Baseline-M" d="M263 1126.0 L3036 1126.0" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5;"/>
+  <path id="Capline-L" d="M263 1485.54 L3036 1485.54" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5;"/>
+  <path id="Baseline-L" d="M263 1556 L3036 1556" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5;"/>
+  <path id="left-margin-Ultralight-M" d="M520.00 1030 L520.00 1150" style="fill:none;stroke:#00AEEF;stroke-width:0.5;opacity:1.0;"/>
+  <path id="right-margin-Ultralight-M" d="M630.00 1030 L630.00 1150" style="fill:none;stroke:#00AEEF;stroke-width:0.5;opacity:1.0;"/>
+  <path id="left-margin-Regular-M" d="M1352.00 1030 L1352.00 1150" style="fill:none;stroke:#00AEEF;stroke-width:0.5;opacity:1.0;"/>
+  <path id="right-margin-Regular-M" d="M1462.00 1030 L1462.00 1150" style="fill:none;stroke:#00AEEF;stroke-width:0.5;opacity:1.0;"/>
+  <path id="left-margin-Black-M" d="M2184.00 1030 L2184.00 1150" style="fill:none;stroke:#00AEEF;stroke-width:0.5;opacity:1.0;"/>
+  <path id="right-margin-Black-M" d="M2294.00 1030 L2294.00 1150" style="fill:none;stroke:#00AEEF;stroke-width:0.5;opacity:1.0;"/>
+ </g>
+ <g id="Symbols">
+  <g id="Ultralight-M">
+   <path d="M590,1035.77 Q592.07,1035.77 593.535,1037.235 L618.535,1062.235 Q620,1063.7 620,1065.77 L620,1130.77 Q620,1145.77 605,1145.77 L545,1145.77 Q530,1145.77 530,1130.77 L530,1050.77 Q530,1035.77 545,1035.77 Z M587.93,1045.77 L545,1045.77 Q540,1045.77 540,1050.77 L540,1130.77 Q540,1135.77 545,1135.77 L605,1135.77 Q610,1135.77 610,1130.77 L610,1067.84 L587.93,1045.77 Z"/>
+   <path d="M590,1040.77 L590,1060.77 Q590,1065.77 595,1065.77 L615,1065.77 Q617.07,1065.77 618.535,1067.235 Q620,1068.7 620,1070.77 Q620,1072.84 618.535,1074.305 Q617.07,1075.77 615,1075.77 L595,1075.77 Q580,1075.77 580,1060.77 L580,1040.77 Q580,1038.7 581.465,1037.235 Q582.93,1035.77 585,1035.77 Q587.07,1035.77 588.535,1037.235 Q590,1038.7 590,1040.77 Z"/>
+  </g>
+  <g id="Regular-M">
+   <path d="M1422,1035.77 Q1424.07,1035.77 1425.535,1037.235 L1450.535,1062.235 Q1452,1063.7 1452,1065.77 L1452,1130.77 Q1452,1145.77 1437,1145.77 L1377,1145.77 Q1362,1145.77 1362,1130.77 L1362,1050.77 Q1362,1035.77 1377,1035.77 Z M1419.93,1045.77 L1377,1045.77 Q1372,1045.77 1372,1050.77 L1372,1130.77 Q1372,1135.77 1377,1135.77 L1437,1135.77 Q1442,1135.77 1442,1130.77 L1442,1067.84 L1419.93,1045.77 Z"/>
+   <path d="M1422,1040.77 L1422,1060.77 Q1422,1065.77 1427,1065.77 L1447,1065.77 Q1449.07,1065.77 1450.535,1067.235 Q1452,1068.7 1452,1070.77 Q1452,1072.84 1450.535,1074.305 Q1449.07,1075.77 1447,1075.77 L1427,1075.77 Q1412,1075.77 1412,1060.77 L1412,1040.77 Q1412,1038.7 1413.465,1037.235 Q1414.93,1035.77 1417,1035.77 Q1419.07,1035.77 1420.535,1037.235 Q1422,1038.7 1422,1040.77 Z"/>
+  </g>
+  <g id="Black-M">
+   <path d="M2254,1035.77 Q2256.07,1035.77 2257.535,1037.235 L2282.535,1062.235 Q2284,1063.7 2284,1065.77 L2284,1130.77 Q2284,1145.77 2269,1145.77 L2209,1145.77 Q2194,1145.77 2194,1130.77 L2194,1050.77 Q2194,1035.77 2209,1035.77 Z M2251.93,1045.77 L2209,1045.77 Q2204,1045.77 2204,1050.77 L2204,1130.77 Q2204,1135.77 2209,1135.77 L2269,1135.77 Q2274,1135.77 2274,1130.77 L2274,1067.84 L2251.93,1045.77 Z"/>
+   <path d="M2254,1040.77 L2254,1060.77 Q2254,1065.77 2259,1065.77 L2279,1065.77 Q2281.07,1065.77 2282.535,1067.235 Q2284,1068.7 2284,1070.77 Q2284,1072.84 2282.535,1074.305 Q2281.07,1075.77 2279,1075.77 L2259,1075.77 Q2244,1075.77 2244,1060.77 L2244,1040.77 Q2244,1038.7 2245.465,1037.235 Q2246.93,1035.77 2249,1035.77 Q2251.07,1035.77 2252.535,1037.235 Q2254,1038.7 2254,1040.77 Z"/>
+  </g>
+ </g>
+</svg>

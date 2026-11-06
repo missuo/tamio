@@ -37,7 +37,7 @@ struct TerminalPage: View {
                 // material underneath instead of an opaque fill.
                 .clipShape(RoundedRectangle(cornerRadius: RX.Radius.lg, style: .continuous))
                 // The terminal ends level with the sidebar's Settings row; the
-                // status line takes the margin under it.
+                // live figures, while a monitor is open, take the margin under it.
                 TerminalStatusBar(context: context)
                     .frame(height: RX.Space.s6)
             }
@@ -67,21 +67,21 @@ struct TerminalPage: View {
                 Button {
                     store.terminalFontSize -= 1
                 } label: {
-                    Label("Smaller Text", systemImage: "textformat.size.smaller")
+                    Label("Smaller Text", rx: "textformat.size.smaller")
                 }
                 .disabled(store.terminalFontSize <= 4)
                 .keyboardShortcut("-", modifiers: .command)
                 Button {
                     store.terminalFontSize += 1
                 } label: {
-                    Label("Larger Text", systemImage: "textformat.size.larger")
+                    Label("Larger Text", rx: "textformat.size.larger")
                 }
                 .disabled(store.terminalFontSize >= 30)
                 .keyboardShortcut("+", modifiers: .command)
             }
             .help(String(localized: "Text Size"))
             Toggle(isOn: $snippetsShown) {
-                Label("Snippets", systemImage: "sidebar.trailing")
+                Label("Snippets", rx: "sidebar.trailing")
             }
             .keyboardShortcut("s", modifiers: [.command, .option])
             .help(String(localized: "Show or hide the snippets panel (⌥⌘S)"))
@@ -127,26 +127,26 @@ struct TerminalPage: View {
     var disconnectedBanner: some View {
         HStack(spacing: RX.Space.s2) {
             Text(context.remoteType == .local ? "Shell exited" : "Connection closed")
-                .foregroundStyle(.rxTerminalForeground)
+                .foregroundStyle(.rxInk)
             Spacer()
         }
         .font(.rxBody)
         .padding(.horizontal, RX.Space.s3)
         .frame(height: 36)
-        .background(Color.black.opacity(0.35))
+        // Over the terminal, which is light in Light mode on glass.
+        .background(Color.primary.opacity(0.1))
     }
 }
 
-/// State, user@host:port, live CPU and memory while a monitor is open, font size.
+/// Live CPU, memory and traffic while a monitor is open on the server. The
+/// address is not repeated here: the sidebar and the window title name the
+/// server already.
 private struct TerminalStatusBar: View {
     @ObservedObject var context: TerminalManager.Context
     @ObservedObject var monitors = MonitorCenter.shared
-    @EnvironmentObject var store: TamioStore
 
     var body: some View {
         HStack(spacing: RX.Space.s4) {
-            RedactableText(endpoint, redacted: store.machineRedacted != .none)
-                .font(.rxCode)
             Spacer(minLength: RX.Space.s2)
             if let session = monitors.session(for: context.machine.id) {
                 LiveFigures(session: session)
@@ -155,14 +155,6 @@ private struct TerminalStatusBar: View {
         .font(.system(size: 11).monospacedDigit())
         .foregroundStyle(.rxInkSecondary)
         .padding(.horizontal, RX.Space.s1)
-    }
-
-    var endpoint: String {
-        if let command = context.command { return command.command }
-        if context.remoteType == .local {
-            return "\(NSUserName())@\(Host.current().localizedName ?? "Mac") · \(ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh")"
-        }
-        return context.machine.getCommand(insertLeadingSSH: false)
     }
 
     private struct LiveFigures: View {

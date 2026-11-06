@@ -60,13 +60,13 @@ struct SidebarView: View {
         let metrics = SidebarMetrics.current
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                place(.home, "Home", systemImage: "house")
+                place(.home, "Home", icon: .home)
 
                 SidebarHeader("Manage")
-                place(.servers, "Servers", systemImage: "server.rack", badge: store.machineGroup.count)
-                place(.identities, "Identities", systemImage: "person.badge.key", badge: store.identityGroup.shared.count)
-                place(.snippets, "Snippets", systemImage: "chevron.left.forwardslash.chevron.right", badge: store.snippetGroup.count)
-                place(.portForward, "Port Forward", systemImage: "arrow.left.arrow.right", badge: store.portForwardGroup.count)
+                place(.servers, "Servers", icon: .servers, badge: store.machineGroup.count)
+                place(.identities, "Identities", icon: .identities, badge: store.identityGroup.shared.count)
+                place(.snippets, "Snippets", icon: .snippets, badge: store.snippetGroup.count)
+                place(.portForward, "Port Forward", icon: .portForward, badge: store.portForwardGroup.count)
 
                 if !sessionIDs.isEmpty {
                     SidebarHeader("Sessions")
@@ -103,13 +103,14 @@ struct SidebarView: View {
             VStack(alignment: .leading, spacing: RX.Space.s2) {
                 KeyNotice()
                 UpdateNotice()
-                place(.settings, "Settings", systemImage: "gearshape")
+                place(.settings, "Settings", icon: .settings)
                     .help(Text("Settings (⌘,)"))
                     .frame(height: 48, alignment: .top)
             }
             .padding(.horizontal, SidebarMetrics.inset)
         }
         .environment(\.sidebarMetrics, metrics)
+        .pausesHitTestingWhileSidebarSlides()
     }
 
     /// A session row's name: the server's, or the Quick Connect command's.
@@ -120,11 +121,11 @@ struct SidebarView: View {
         }
     }
 
-    private func place(_ route: Route, _ title: LocalizedStringKey, systemImage: String, badge: Int = 0) -> some View {
+    private func place(_ route: Route, _ title: LocalizedStringKey, icon: SidebarIcon, badge: Int = 0) -> some View {
         SidebarRow(isSelected: selection.wrappedValue == .place(route)) {
             selection.wrappedValue = .place(route)
         } label: {
-            SidebarLabel(title, systemImage: systemImage, badge: badge)
+            SidebarLabel(title, icon: icon, badge: badge)
         }
         .accessibilityLabel(Text(title))
     }
@@ -222,25 +223,50 @@ extension View {
     }
 }
 
-/// Icon in the accent colour, title, and a count at the trailing edge.
+/// The sidebar's icons, by the SF Symbol each stands for: drawn as Tamio's
+/// icons (Lucide's, in TamioDesign), like every other icon in the app.
+enum SidebarIcon: String {
+    case home = "house"
+    case servers = "server.rack"
+    case identities = "key"
+    case snippets = "chevron.left.forwardslash.chevron.right"
+    case portForward = "arrow.left.arrow.right"
+    case settings = "gearshape"
+    case terminal
+    case files = "folder"
+    case monitor = "waveform.path.ecg"
+
+    var image: Image { Image(rx: rawValue) }
+
+    init(_ tool: ServerTool) {
+        switch tool {
+        case .terminal: self = .terminal
+        case .files: self = .files
+        case .monitor: self = .monitor
+        }
+    }
+}
+
+/// Icon, title, and a count at the trailing edge. The icon is a step softer
+/// than the title, and full ink on the selected row.
 struct SidebarLabel<Title: View>: View {
-    let systemImage: String
+    let icon: SidebarIcon
     let badge: Int
     let title: Title
     @Environment(\.sidebarMetrics) private var metrics
     @Environment(\.isSidebarRowSelected) private var isSelected
 
-    init(systemImage: String, badge: Int = 0, @ViewBuilder title: () -> Title) {
-        self.systemImage = systemImage
+    init(icon: SidebarIcon, badge: Int = 0, @ViewBuilder title: () -> Title) {
+        self.icon = icon
         self.badge = badge
         self.title = title()
     }
 
     var body: some View {
         HStack(spacing: 0) {
-            Image(systemName: systemImage)
-                .font(.system(size: metrics.iconSize))
-                .foregroundStyle(.rxAccent)
+            icon.image
+                .font(.system(size: metrics.iconSize * 0.92))
+                .foregroundStyle(Color.primary.opacity(isSelected ? 1 : 0.8))
                 .frame(width: metrics.iconCenter * 2)
                 .frame(width: metrics.titleLeading, alignment: .leading)
             title
@@ -259,8 +285,8 @@ struct SidebarLabel<Title: View>: View {
 }
 
 extension SidebarLabel where Title == Text {
-    init(_ title: LocalizedStringKey, systemImage: String, badge: Int = 0) {
-        self.init(systemImage: systemImage, badge: badge) { Text(title) }
+    init(_ title: LocalizedStringKey, icon: SidebarIcon, badge: Int = 0) {
+        self.init(icon: icon, badge: badge) { Text(title) }
     }
 }
 
@@ -271,7 +297,7 @@ private struct KeyNotice: View {
     var body: some View {
         if !TamioStore.savesChanges {
             HStack(alignment: .top, spacing: RX.Space.s2) {
-                Image(systemName: "lock.fill")
+                Image(rx: "lock.fill")
                     .font(.system(size: 15))
                     .foregroundStyle(.rxDanger)
                 VStack(alignment: .leading, spacing: 2) {
@@ -361,8 +387,8 @@ private struct OwnerSidebarRow: View {
             if case .server = owner {
                 HStack(spacing: 3) {
                     ForEach(openTools) { tool in
-                        Image(systemName: tool.systemImage)
-                            .font(.system(size: 10))
+                        SidebarIcon(tool).image
+                            .font(.system(size: 11))
                             .foregroundStyle(.secondary)
                     }
                 }

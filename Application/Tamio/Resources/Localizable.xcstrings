@@ -129,6 +129,22 @@
         }
       }
     },
+    "Contributors": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contributors"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "贡献者"
+          }
+        }
+      }
+    },
     "Could not create the private SSH configuration snapshot.": {
       "localizations": {
         "en": {
@@ -225,6 +241,38 @@
         }
       }
     },
+    "Frosted glass": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frosted glass"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "磨砂玻璃"
+          }
+        }
+      }
+    },
+    "Icons": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icons"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图标"
+          }
+        }
+      }
+    },
     "Importing OpenSSH private keys is available on macOS.": {
       "localizations": {
         "en": {
@@ -285,6 +333,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Match 规则仅在此次导入时解析。Tamio 不会在连接时重新求值。"
+          }
+        }
+      }
+    },
+    "New": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新建"
           }
         }
       }
@@ -529,6 +593,22 @@
         }
       }
     },
+    "Sign in with": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in with"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录方式"
+          }
+        }
+      }
+    },
     "SSH certificates and hardware-backed security keys are not supported by Tamio's connection engine.": {
       "localizations": {
         "en": {
@@ -669,6 +749,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tamio 使用独立的连接和主机信任策略；不会导入以下 OpenSSH 设置：%@。"
+          }
+        }
+      }
+    },
+    "The sidebar's icons are Lucide's (ISC, Lucide contributors; portions MIT, Cole Bemis, from Feather).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sidebar's icons are Lucide's (ISC, Lucide contributors; portions MIT, Cole Bemis, from Feather)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "侧边栏图标来自 Lucide（ISC，Lucide 贡献者；部分来自 Feather，MIT，Cole Bemis）。"
           }
         }
       }
@@ -15656,6 +15752,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "已运行 %@"
+          }
+        }
+      }
+    },
+    "Your desktop shows through the window, its cards and the terminal, blurred. A background opacity set under Terminal stays as it is.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your desktop shows through the window, its cards and the terminal, blurred. A background opacity set under Terminal stays as it is."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桌面透过窗口、卡片和终端模糊地显示出来。在“终端”中设置过的背景不透明度保持不变。"
           }
         }
       }

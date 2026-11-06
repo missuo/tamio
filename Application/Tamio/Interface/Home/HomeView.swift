@@ -2,9 +2,9 @@
 //  HomeView.swift
 //  Tamio (macOS)
 //
-//  Start page: every server's live status card in a dense grid, straight
-//  under the toolbar (a group switcher at the top left, search and New Server
-//  at the top right, no title row), and beside them the inspector of the card
+//  Start page: every server's live status card in a dense grid straight under
+//  the toolbar (the group switcher in its middle, New Server and search at its
+//  trailing end, no title row), and beside them the inspector of the card
 //  that is selected.
 //
 
@@ -28,9 +28,75 @@ struct HomeView: View {
                 },
                 trailingMetrics: .group,
                 search: ($search, "Search servers")
-            ) {
-                HomeGroupSwitcher()
-            } trailing: {}
+            ) {} trailing: {}
+            // The groups at the toolbar's leading edge, on the row of New and
+            // search, lined up with the cards.
+            .toolbar {
+                ToolbarItem(placement: .navigation) { LeadingGroupSwitcher() }
+                    .rxPlain()
+            }
+    }
+}
+
+/// The group switcher, lined up with the cards' leading edge: the toolbar
+/// places it after the sidebar button, which with the sidebar open is over
+/// the sidebar, so it is moved along to where the cards start, and back to
+/// the button as the sidebar hides. The toolbar item keeps one width (the
+/// switcher and the room it moves in) and only what is drawn in it moves, so
+/// the toolbar is not laid out again at every frame of the slide.
+private struct LeadingGroupSwitcher: View {
+    @ObservedObject private var router = AppRouter.shared
+    /// The item's leading edge in the window, where the toolbar put it.
+    @State private var origin: CGFloat?
+
+    var body: some View {
+        // The cards start the page's margin in from the content's edge.
+        let target = MainWindow.sidebarSpan + RX.Space.s4
+        let room = origin.map { max(0, target - $0) } ?? 0
+        HomeGroupSwitcher()
+            .padding(.trailing, room)
+            .offset(x: router.sidebarOpen ? room : 0)
+            .animation(SidebarSlide.animation, value: router.sidebarOpen)
+            // Read where the item is, not where its content was moved to.
+            .background(WindowOriginReader { origin = $0 })
+    }
+}
+
+/// Tells where in its window the view it backs starts.
+private struct WindowOriginReader: NSViewRepresentable {
+    let changed: (CGFloat) -> Void
+
+    final class Probe: NSView {
+        var changed: ((CGFloat) -> Void)?
+        private var last: CGFloat?
+
+        override func layout() {
+            super.layout()
+            report()
+        }
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            report()
+        }
+
+        private func report() {
+            guard window != nil else { return }
+            let x = convert(bounds.origin, to: nil).x.rounded()
+            guard x != last else { return }
+            last = x
+            DispatchQueue.main.async { [weak self] in self?.changed?(x) }
+        }
+    }
+
+    func makeNSView(context _: Context) -> Probe {
+        let probe = Probe()
+        probe.changed = changed
+        return probe
+    }
+
+    func updateNSView(_ probe: Probe, context _: Context) {
+        probe.changed = changed
     }
 }
 
@@ -60,6 +126,7 @@ private struct HomeContent: View {
                     .padding(.top, RX.Space.s1)
                     .padding(.bottom, RX.Space.s6)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .transformEnvironment(\.rxOpenWidth) { $0 -= RX.Space.s4 * 2 }
             }
             .frame(minWidth: StatusCardMetrics.minimumWidth + RX.Space.s4 * 2, maxWidth: .infinity)
             if let selection, store.machineGroup.machines.contains(where: { $0.id == selection }) {

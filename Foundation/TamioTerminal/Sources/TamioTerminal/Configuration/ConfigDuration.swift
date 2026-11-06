@@ -56,7 +56,7 @@ struct ConfigDurationInput: View {
                         Button(ConfigLayout.tr("action.unset", default: "Unset")) { value = "" }
                     }
                 } label: {
-                    Label(ConfigLayout.tr("duration.units", default: "Units"), systemImage: "clock")
+                    Label(ConfigLayout.tr("duration.units", default: "Units"), rx: "clock")
                 }
                 .rxButtonMenu(indicator: false)
                 .buttonStyle(.rx(iconOnly: true))

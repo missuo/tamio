@@ -145,60 +145,60 @@ struct ServerContextMenu: View {
                 Button {
                     ServerTool.terminal.show(machine)
                 } label: {
-                    Label("Open Terminal", systemImage: ServerTool.terminal.systemImage)
+                    Label("Open Terminal", rx: ServerTool.terminal.systemImage)
                 }
                 Button {
                     ServerTool.files.show(machine)
                 } label: {
-                    Label("Open Files", systemImage: ServerTool.files.systemImage)
+                    Label("Open Files", rx: ServerTool.files.systemImage)
                 }
                 Button {
                     ServerTool.monitor.show(machine)
                 } label: {
-                    Label("Open Monitor", systemImage: ServerTool.monitor.systemImage)
+                    Label("Open Monitor", rx: ServerTool.monitor.systemImage)
                 }
             }
             Button {
                 router.openTerminal(machine: machine)
             } label: {
-                Label("New Terminal", systemImage: "plus.rectangle")
+                Label("New Terminal", rx: "plus.rectangle")
             }
             Button {
                 router.showInMenuBar(machine: machine)
             } label: {
-                Label("Show in Menu Bar", systemImage: "menubar.rectangle")
+                Label("Show in Menu Bar", rx: "menubar.rectangle")
             }
             Divider()
             Button {
                 ServerActions.edit(machine)
             } label: {
-                Label("Edit…", systemImage: "pencil")
+                Label("Edit…", rx: "pencil")
             }
             Button {
                 ServerActions.duplicate(machine)
             } label: {
-                Label("Duplicate", systemImage: "plus.square.on.square")
+                Label("Duplicate", rx: "plus.square.on.square")
             }
             Button {
                 ServerActions.copyAddress(machine)
             } label: {
-                Label("Copy Address", systemImage: "doc.on.doc")
+                Label("Copy Address", rx: "doc.on.doc")
             }
             Button {
                 ServerActions.copyCommand(machine)
             } label: {
-                Label("Copy SSH Command", systemImage: "chevron.left.forwardslash.chevron.right")
+                Label("Copy SSH Command", rx: "chevron.left.forwardslash.chevron.right")
             }
             Button {
                 ServerActions.forgetHostKey(machine)
             } label: {
-                Label("Forget Host Key…", systemImage: "key.slash")
+                Label("Forget Host Key…", rx: "key.slash")
             }
             Divider()
             Button(role: .destructive) {
                 ServerActions.delete([machine])
             } label: {
-                Label("Delete…", systemImage: "trash")
+                Label("Delete…", rx: "trash")
             }
         }
     }

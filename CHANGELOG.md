@@ -23,6 +23,82 @@ the user. To release, rename that heading to the version and date
   keeps it away for 30 seconds. **Let programs copy to the clipboard**, under
   Settings › Mouse & Clipboard, allows every copy; it is off unless you turn
   it on. Programs still can never read the clipboard.
+- **Frosted glass, on by default.** The whole window is see-through: your
+  desktop's colour comes through the blur, under a light neutral tint that
+  keeps text readable over a white or a dark wallpaper alike, and grey text
+  on glass is a step lighter (darker in Light mode) than on solid colour.
+  Cards and the sidebar are a light tint over it instead of a solid fill, and
+  the terminal's background is mostly see-through (opacity 0.3), the same
+  glass as the window with a wash of its theme's colour. In Light mode,
+  unless you picked a theme or colours of your own, the terminal takes a
+  light theme (Apple System Colors Light), so it is a white wash over the
+  glass with dark text rather than a dark one. Turn it off under
+  Settings › Appearance › Frosted glass; macOS's Reduce transparency makes
+  it solid too. A background opacity you set under Terminal stays as it is.
+
+### Changed
+- **One set of icons across the app.** Every icon (the sidebar, the
+  toolbars, menus, Settings, cards and empty pages) is now Lucide's, drawn to
+  one grid and stroke, as symbols that size with the text beside them as SF
+  Symbols do, instead of SF Symbols of different weights. The sidebar's are a
+  step softer than its titles and full ink on the selected row. The sidebar
+  button keeps the Mac's own symbol, and a snippet's icon, which you pick,
+  stays as it was.
+- **The sidebar stays put, and the content slides over it.** The sidebar is
+  a panel inset from the window's edge, with the window's buttons and the
+  sidebar button on it. Hiding the sidebar slides the content's edge across
+  to fill the window; showing it slides the edge back. The sidebar button is
+  always in the same place, beside the window's buttons, and Home's group
+  switcher sits in the toolbar, lined up with the cards. The sidebar has a
+  fixed width.
+- **No capsules around buttons.** The toolbar's buttons are plain symbols
+  over the window, with no Liquid Glass capsule around each: the sidebar
+  button, the search field (a flat field) and the rest. The one exception is
+  each page's primary action, a small accent capsule that says “+ New”
+  (its whole name, such as New Server, is its tooltip). Home's group switcher has no capsule track either.
+- **A simpler Settings toolbar.** Only search is in it. Back and Forward are
+  gone (the categories are always beside the page); Undo, Redo and Reset
+  Terminal Settings (in the ⋯ menu) are beside a terminal category's title,
+  where they apply. The live terminal preview no longer has a toggle: it is
+  on the Text, Colors, Cursor and Window pages, beside the settings when
+  there is room and above them when not.
+- **The server editor's credentials line up.** The Password, SSH key and
+  None switch is a row of its own, Sign in with, starting where the fields
+  above it do, and the notes under a field start where the field does.
+- **About Tamio reads in lines.** Tamio's copyright stands on its own, and
+  below it, apart, what Tamio is based on: Rayon, with one copyright to a
+  line.
+- **Pages no longer scroll into the toolbar.** With the toolbar's capsules
+  gone, a page scrolled up ran under its buttons and search field; it now
+  fades out as it reaches the toolbar.
+- **Acknowledgements list the contributors.** Settings › About ›
+  Acknowledgements names everyone who has contributed to Tamio on GitHub, in
+  place of the maintainer's name.
+- **No address under the terminal.** The `user@host` line under every
+  terminal is gone; the sidebar and the title already name the server. Live
+  CPU and memory still show there while a monitor is open.
+
+### Fixed
+- **The Servers list scrolls smoothly.** With 60 servers, a third of the
+  frames of a scroll came late. Each row and each of its three buttons
+  tracked the pointer, so every frame tested hundreds of regions and drew the
+  row under the pointer again; the list now tracks it once and moves a single
+  highlight. Rows are drawn only when what they show changes, and only the
+  ones in view are laid out.
+- **The sidebar opens and closes smoothly.** The window's split view laid
+  out its toolbar again at every frame of the slide, which took a sixth of
+  each frame, and Home's group switcher slid its selection with an effect
+  that followed its place in the window, so it was drawn and measured again
+  at every frame too: Home ran at about 30 frames a second while the sidebar
+  moved. The toolbar now stays still, the switcher's selection slides within
+  it, and while the sidebar slides nothing on the page is tested for the
+  pointer, which took a fifth of each frame with many servers.
+- **Showing or hiding the sidebar keeps the columns.** The Servers list
+  dropped a column, and Home a column of cards, when the sidebar opened. The
+  columns are now chosen for the width with the sidebar open, so hiding it
+  gives the names and the cards more room instead. The list's columns are
+  also chosen as its rows are laid out, so the header and the rows agree at
+  every width, and only the rows in view are laid out.
 
 ## [0.2.18] - 2026-11-05
 

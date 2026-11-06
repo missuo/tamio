@@ -21,8 +21,13 @@ public extension Animation {
 /// of a list pass their index and arrive one after another.
 private struct RXRise: ViewModifier {
     let index: Int
-    @State private var shown = false
+    @State private var shown: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    init(index: Int, shown: Bool) {
+        self.index = index
+        _shown = State(initialValue: shown)
+    }
 
     func body(content: Content) -> some View {
         content
@@ -53,8 +58,10 @@ private struct RXPop: ViewModifier {
 
 public extension View {
     /// Arrives with a fade and a slight rise; `index` staggers the items of a list.
-    func rxRise(_ index: Int = 0) -> some View {
-        modifier(RXRise(index: index))
+    /// - Parameter enabled: false shows the view at rest at once: a row a
+    ///   lazy list makes as it scrolls into view, long after the page arrived.
+    func rxRise(_ index: Int = 0, enabled: Bool = true) -> some View {
+        modifier(RXRise(index: index, shown: !enabled))
     }
 
     /// Pops in with a small spring.

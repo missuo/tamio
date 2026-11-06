@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import GhosttyTerminal
+import TamioDesign
 
 /// Passed down a setting's row: it changes when the row has to be drawn again.
 private struct ConfigRevisionKey: EnvironmentKey {
@@ -162,6 +163,16 @@ final class ConfigEditorModel: ObservableObject {
     }
 }
 
+/// Frosted glass turned on or off in Settings: the terminal takes the
+/// background opacity that goes with it, unless one is set under Terminal.
+@MainActor
+public enum TerminalGlass {
+    public static func refresh() {
+        try? TamioTerminalConfiguration.apply(ConfigEditorModel.storedDocument())
+        ConfigEditorModel.shared.objectWillChange.send()
+    }
+}
+
 /// The terminal's configuration as iCloud sync carries it.
 @MainActor
 public enum TerminalConfigurationSync {
@@ -193,7 +204,8 @@ enum TamioTerminalConfiguration {
         let result = TerminalController(configuration: baseConfiguration
             .custom("clipboard-read", "ask").custom("clipboard-write", "ask"))
         let document = ConfigEditorModel.storedDocument()
-        if !document.overrides.isEmpty { try? apply(document, to: result) }
+        // Frosted glass changes a default, so it is applied like a setting.
+        if !document.overrides.isEmpty || RXGlass.isOn { try? apply(document, to: result) }
         return result
     }()
 
@@ -207,7 +219,29 @@ enum TamioTerminalConfiguration {
         .windowPaddingX(12)
         .windowPaddingY(10)
 
-    nonisolated static let runtimeDefaults: [String: [String]] = {
+    /// With frosted glass on, the terminal's background is part see-through,
+    /// so the window's blur, and the desktop's colour through it, shows
+    /// behind the text. A background opacity set under Terminal wins.
+    nonisolated static var glassDefaults: [String: [String]] {
+        RXGlass.isOn ? ["background-opacity": [RXGlass.terminalOpacity]] : [:]
+    }
+
+    /// With frosted glass on and no theme or colours of the user's own, a
+    /// light theme in Light mode: the terminal's see-through background is
+    /// then a white wash over the glass, as the window is, instead of the
+    /// default colours' dark one in both appearances.
+    static func glassLightTheme(_ document: ConfigDocument, dark: Bool) -> ConfigTheme? {
+        guard !dark, RXGlass.isOn,
+              document.overrides["background"] == nil, document.overrides["foreground"] == nil
+        else { return nil }
+        return ConfigCatalog.shared.themes["Apple System Colors Light"]
+    }
+
+    nonisolated static var runtimeDefaults: [String: [String]] {
+        baseDefaults.merging(glassDefaults) { $1 }
+    }
+
+    nonisolated private static let baseDefaults: [String: [String]] = {
         var result: [String: [String]] = [:]
         for line in baseConfiguration.rendered.components(separatedBy: "\n") {
             guard let eq = line.firstIndex(of: "=") else { continue }
@@ -244,7 +278,10 @@ enum TamioTerminalConfiguration {
     ]
     static func runtimeContents(_ document: ConfigDocument, dark: Bool) -> String {
         var lines = [baseConfiguration.rendered]
+        for (key, values) in glassDefaults { lines += values.map { "\(key) = \($0)" } }
         if let theme = document.effectiveTheme(dark: dark) {
+            lines += theme.entries.map { "\($0.0) = \($0.1)" }
+        } else if let theme = glassLightTheme(document, dark: dark) {
             lines += theme.entries.map { "\($0.0) = \($0.1)" }
         }
         for key in document.overrides.keys.sorted() where supportedKeys.contains(key) && key != "theme" {

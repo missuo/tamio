@@ -5,19 +5,33 @@
 
 import SwiftUI
 
-/// A card on the window: solid `surface`, a hairline edge and a soft shadow.
-/// Content is never glass; that is for the controls floating above it.
-struct RXCardBackground: View {
+/// A card on the window: solid `surface`, a hairline edge and a soft shadow;
+/// with frosted glass on, a light tint over the window's blur with an edge
+/// that catches the light, and no shadow, which would only muddy the tint.
+public struct RXCardBackground: View {
     var radius: CGFloat = RX.Radius.card
-    var fill: Color = .rxSurface
-    @Environment(\.colorScheme) private var colorScheme
+    /// False for a card that floats over a scrim, which stays solid.
+    var glassy = true
 
-    var body: some View {
+    public init(radius: CGFloat = RX.Radius.card, glassy: Bool = true) {
+        self.radius = radius
+        self.glassy = glassy
+    }
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.rxGlass) private var glass
+
+    public var body: some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        shape
-            .fill(fill)
-            .overlay(shape.strokeBorder(Color.rxHairline, lineWidth: 0.5))
-            .shadow(color: .black.opacity(colorScheme == .dark ? 0.2 : 0.05), radius: 8, x: 0, y: 3)
+        if glass, glassy {
+            shape
+                .fill(RXPalette.glassSurface)
+                .overlay(shape.strokeBorder(RXPalette.glassEdge, lineWidth: 0.5))
+        } else {
+            shape
+                .fill(Color.rxSurface)
+                .overlay(shape.strokeBorder(Color.rxHairline, lineWidth: 0.5))
+                .shadow(color: .black.opacity(colorScheme == .dark ? 0.2 : 0.05), radius: 8, x: 0, y: 3)
+        }
     }
 }
 

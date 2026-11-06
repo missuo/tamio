@@ -41,7 +41,7 @@ public struct ServerInspector: View {
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: RX.Space.s2)
                 Button(action: close) {
-                    Label("Close", systemImage: "xmark")
+                    Label("Close", rx: "xmark")
                 }
                 .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
                 .help(String(localized: "Close (Esc)"))
@@ -253,7 +253,7 @@ private struct InspectorOverview: View {
                 Hairline()
                 VStack(alignment: .leading, spacing: RX.Space.s2) {
                     HStack {
-                        Image(systemName: element.device.hasPrefix("w") ? "wifi" : "network")
+                        Image(rx: element.device.hasPrefix("w") ? "wifi" : "network")
                             .font(.system(size: 11))
                             .foregroundStyle(.rxSuccess)
                         Text(element.device).font(.rxCode)
@@ -758,7 +758,7 @@ private struct ContainerList: View {
                         .disabled(!container.running)
                     Button("Copy ID") { actions.copy(container.id) }
                 } label: {
-                    Label("Actions", systemImage: "ellipsis")
+                    Label("Actions", rx: "ellipsis")
                 }
                 .menuStyle(.button)
                 .menuIndicator(.hidden)
@@ -818,7 +818,7 @@ public struct AgentActivityRow: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: RX.Space.s2) {
-                Image(systemName: (entry.steps?.count ?? 0) > 1 ? "list.bullet" : entry.tool == "report" ? "text.bubble" : entry.tool.hasPrefix("run_") ? "terminal" : "pencil")
+                Image(rx: (entry.steps?.count ?? 0) > 1 ? "list.bullet" : entry.tool == "report" ? "text.bubble" : entry.tool.hasPrefix("run_") ? "terminal" : "pencil")
                     .font(.system(size: 11))
                     .foregroundStyle(.rxAccent)
                     .frame(width: 14)

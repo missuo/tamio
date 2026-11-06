@@ -117,7 +117,7 @@ struct ConfigCodepointMapEditor: View {
                 Button {
                     pending = CodepointMapping(ranges: CodepointRangeSet.presets[0].ranges, family: "")
                 } label: {
-                    Label(ConfigLayout.tr("button.add_rule", default: "Add Rule"), systemImage: "plus")
+                    Label(ConfigLayout.tr("button.add_rule", default: "Add Rule"), rx: "plus")
                 }
                 .buttonStyle(.rx(size: .small))
                 .fixedSize()
@@ -149,7 +149,7 @@ private struct CodepointRangePicker: View {
                     ranges = preset.ranges
                 } label: {
                     if preset.ranges == ranges {
-                        Label(preset.localizedName, systemImage: "checkmark")
+                        Label(preset.localizedName, rx: "checkmark")
                     } else {
                         Text(preset.localizedName)
                     }
@@ -164,7 +164,7 @@ private struct CodepointRangePicker: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                 Spacer(minLength: RX.Space.s1)
-                Image(systemName: "chevron.up.chevron.down")
+                Image(rx: "chevron.up.chevron.down")
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(.rxInkSecondary)
             }
@@ -226,7 +226,7 @@ private struct CodepointRangeEditor: View {
             Button {
                 rows.append(("", ""))
             } label: {
-                Label(ConfigLayout.tr("button.add_range", default: "Add Range"), systemImage: "plus")
+                Label(ConfigLayout.tr("button.add_range", default: "Add Range"), rx: "plus")
             }
             .buttonStyle(.rx(size: .small))
         }

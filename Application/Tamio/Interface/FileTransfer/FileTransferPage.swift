@@ -203,7 +203,7 @@ private struct SourceMenu: View {
             Button {
                 model.show(LocalBrowser())
             } label: {
-                Label("Local", systemImage: "laptopcomputer")
+                Label("Local", rx: "laptopcomputer")
             }
             if !store.machineGroup.machines.isEmpty {
                 Divider()
@@ -211,7 +211,7 @@ private struct SourceMenu: View {
                     Button {
                         model.show(RemoteBrowser(machine: machine))
                     } label: {
-                        Label([machine.countryFlag, machine.name].compactMap { $0 }.joined(separator: " "), systemImage: "server.rack")
+                        Label([machine.countryFlag, machine.name].compactMap { $0 }.joined(separator: " "), rx: "server.rack")
                     }
                 }
             }
@@ -221,7 +221,7 @@ private struct SourceMenu: View {
             }
         } label: {
             HStack(spacing: RX.Space.s2) {
-                Image(systemName: systemImage)
+                Image(rx: systemImage)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.rxOnAccent)
                     .frame(width: 26, height: 26)
@@ -229,7 +229,7 @@ private struct SourceMenu: View {
                 Text(verbatim: title)
                     .font(.rxBodyStrong)
                     .lineLimit(1)
-                Image(systemName: "chevron.down")
+                Image(rx: "chevron.down")
                     .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(.rxInkSecondary)
             }
@@ -304,7 +304,7 @@ private struct BrowserPane: View {
         .overlay(alignment: .bottom) {
             if let problem {
                 HStack {
-                    Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.rxWarning)
+                    Image(rx: "exclamationmark.triangle.fill").foregroundStyle(.rxWarning)
                     Text(verbatim: problem).font(.rxBody).fixedSize(horizontal: false, vertical: true)
                     Spacer()
                     Button("OK") { self.problem = nil }.buttonStyle(.rx(size: .small))
@@ -360,7 +360,7 @@ private struct BrowserPane: View {
         } label: {
             HStack(spacing: 4) {
                 Text("Actions").font(.rxBody)
-                Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold))
+                Image(rx: "chevron.down").font(.system(size: 9, weight: .bold))
             }
             .foregroundStyle(.rxInk)
             .contentShape(Rectangle())
@@ -381,7 +381,7 @@ private struct BrowserPane: View {
                 HStack(spacing: 2) {
                     ForEach(Array(crumbs.enumerated()), id: \.offset) { index, crumb in
                         if index > 0 {
-                            Image(systemName: "chevron.right")
+                            Image(rx: "chevron.right")
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundStyle(.rxInkTertiary)
                         }
@@ -389,7 +389,7 @@ private struct BrowserPane: View {
                             browser.open(crumb.path)
                         } label: {
                             HStack(spacing: 4) {
-                                Image(systemName: "folder.fill")
+                                Image(rx: "folder.fill")
                                     .font(.system(size: 12))
                                     .foregroundStyle(Color(red: 0.42, green: 0.71, blue: 0.96))
                                 Text(verbatim: crumb.name)
@@ -427,7 +427,7 @@ private struct BrowserPane: View {
     }
 
     func navButton(_ title: LocalizedStringKey, _ systemImage: String, disabled: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) { Label(title, systemImage: systemImage) }
+        Button(action: action) { Label(title, rx: systemImage) }
             .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
             .disabled(disabled)
             .help(title)
@@ -461,7 +461,7 @@ private struct BrowserPane: View {
                     .foregroundStyle(.rxInk)
                     .lineLimit(1)
                 if model.sort == key {
-                    Image(systemName: model.ascending ? "chevron.up" : "chevron.down")
+                    Image(rx: model.ascending ? "chevron.up" : "chevron.down")
                         .font(.system(size: 8, weight: .bold))
                         .foregroundStyle(.rxInkSecondary)
                 }
@@ -514,7 +514,7 @@ private struct BrowserPane: View {
         let targeted = hoveredFolder == path && isFolder
         return HStack(spacing: 0) {
             HStack(spacing: RX.Space.s2) {
-                Image(systemName: isFolder ? "folder.fill" : FileIcon.symbol(for: entry!))
+                Image(rx: isFolder ? "folder.fill" : FileIcon.symbol(for: entry!))
                     .font(.system(size: 16))
                     .foregroundStyle(isFolder ? Color(red: 0.42, green: 0.71, blue: 0.96) : Color.rxInkSecondary)
                     .frame(width: 22)
@@ -871,7 +871,7 @@ private struct TransferBar: View {
                 withAnimation(.easeOut(duration: 0.2)) { expanded.toggle() }
             } label: {
                 HStack(spacing: 4) {
-                    Image(systemName: expanded ? "chevron.down" : "chevron.up").font(.system(size: 9, weight: .bold))
+                    Image(rx: expanded ? "chevron.down" : "chevron.up").font(.system(size: 9, weight: .bold))
                     Text("Transfers (\(queue.jobs.count))").font(.rxBodyStrong)
                 }
                 .contentShape(Rectangle())
@@ -905,7 +905,7 @@ private struct TransferProgressLine: View {
 
     var body: some View {
         HStack(spacing: RX.Space.s3) {
-            Image(systemName: job.direction == .download ? "arrow.down" : "arrow.up")
+            Image(rx: job.direction == .download ? "arrow.down" : "arrow.up")
                 .font(.system(size: 11, weight: .bold))
                 .foregroundStyle(.rxAccent)
             // The file's whole name, or none when there is no room for it.
@@ -934,7 +934,7 @@ private struct TransferProgressLine: View {
             Button {
                 TransferQueue.shared.cancel(job)
             } label: {
-                Label("Cancel", systemImage: "xmark.circle.fill")
+                Label("Cancel", rx: "xmark.circle.fill")
             }
             .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
             .help("Cancel")
@@ -947,7 +947,7 @@ private struct TransferRow: View {
 
     var body: some View {
         HStack(spacing: RX.Space.s3) {
-            Image(systemName: icon)
+            Image(rx: icon)
                 .foregroundStyle(color)
                 .frame(width: 18)
             VStack(alignment: .leading, spacing: 2) {

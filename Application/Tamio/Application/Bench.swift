@@ -12,6 +12,7 @@
     import Combine
     import MachineStatusView
     import NSRemoteShell
+    import TamioDesign
     import TamioModule
     import TamioTerminal
 import SwiftUI
@@ -37,6 +38,7 @@ import SwiftUI
     @MainActor
     enum Bench {
         static func runIfRequested() {
+            if ProcessInfo.processInfo.environment["TAMIO_BENCH_ICONS"] != nil { NSLog("BENCH icons %@", RXIcon.diagnosis) }
             if ProcessInfo.processInfo.environment["TAMIO_PREVIEW_FILES"] != nil {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) { Task { await previewFiles() } }
             }
@@ -45,6 +47,79 @@ import SwiftUI
             }
             if ProcessInfo.processInfo.environment["TAMIO_BENCH_SETTINGS"] != nil {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) { Task { await settings() } }
+            }
+            // "servers", "home"…: opens that page, for a screenshot.
+            if let page = ProcessInfo.processInfo.environment["TAMIO_PREVIEW_ROUTE"] {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    switch page {
+                    case "servers": AppRouter.shared.route = .servers
+                    case "identities": AppRouter.shared.route = .identities
+                    case "snippets": AppRouter.shared.route = .snippets
+                    case "portForward": AppRouter.shared.route = .portForward
+                    case "newServer": AppRouter.shared.presentNewServer = true
+                    default: AppRouter.shared.route = .home
+                    }
+                    if ProcessInfo.processInfo.environment["TAMIO_BENCH_LIVE"] != nil { LiveStatusCenter.shared.installPreviews() }
+                }
+            }
+            // TAMIO_PREVIEW_SNAPSHOT=<path.png>: the main window's contents,
+            // drawn by AppKit, four seconds in (TAMIO_PREVIEW_SNAPSHOT_AT).
+            if let path = ProcessInfo.processInfo.environment["TAMIO_PREVIEW_SNAPSHOT"] {
+                let delay = Double(ProcessInfo.processInfo.environment["TAMIO_PREVIEW_SNAPSHOT_AT"] ?? "") ?? 4
+                if let width = Double(ProcessInfo.processInfo.environment["TAMIO_BENCH_WIDTH"] ?? "") {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        guard let window = Mac.mainWindow else { return }
+                        var frame = window.frame
+                        frame.size.width = width
+                        frame.size.height = Double(ProcessInfo.processInfo.environment["TAMIO_BENCH_HEIGHT"] ?? "") ?? frame.height
+                        window.setFrame(frame, display: true)
+                    }
+                }
+                // TAMIO_PREVIEW_SNAPSHOT_SLIDE=1: toggles the sidebar, twice,
+                // and takes a picture every 40 ms of each slide.
+                let slide = ProcessInfo.processInfo.environment["TAMIO_PREVIEW_SNAPSHOT_SLIDE"] != nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    // TAMIO_PREVIEW_SCROLL=<points>: the page scrolled that far first.
+                    if let y = Double(ProcessInfo.processInfo.environment["TAMIO_PREVIEW_SCROLL"] ?? ""),
+                       let content = Mac.mainWindow?.contentView, let scroller = largestScrollView(in: content)
+                    {
+                        scroller.contentView.scroll(to: NSPoint(x: 0, y: y))
+                        scroller.reflectScrolledClipView(scroller.contentView)
+                    }
+                    guard slide else {
+                        snapshot(path)
+                        return NSLog("BENCH done")
+                    }
+                    // The toggle goes to the key window's responder chain.
+                    MainWindow.show()
+                    for round in 0 ..< 2 {
+                        let start = 0.5 + Double(round) * 1.2
+                        DispatchQueue.main.asyncAfter(deadline: .now() + start) { toggleSidebar() }
+                        for step in 0 ..< 9 {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + start + Double(step) * 0.04) {
+                                snapshot(path.replacingOccurrences(of: ".png", with: "-\(round)-\(step).png"))
+                            }
+                        }
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) { NSLog("BENCH done") }
+                }
+            }
+            // TAMIO_PREVIEW_ABOUT=<path.png>: the About panel, captured.
+            if let path = ProcessInfo.processInfo.environment["TAMIO_PREVIEW_ABOUT"] {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { Mac.showAbout() }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                    typealias Capture = @convention(c) (CGRect, UInt32, UInt32, UInt32) -> Unmanaged<CGImage>?
+                    if let panel = NSApp.windows.first(where: { $0.isVisible && $0 is NSPanel }),
+                       let symbol = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGWindowListCreateImage"),
+                       let image = unsafeBitCast(symbol, to: Capture.self)(.null, 1 << 3, UInt32(panel.windowNumber), 1 | 8)?.takeRetainedValue()
+                    {
+                        try? NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
+                    }
+                    NSLog("BENCH done")
+                }
+            }
+            if let pages = ProcessInfo.processInfo.environment["TAMIO_BENCH_PAGESCROLL"] {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { Task { await pageScroll(pages) } }
             }
             guard let value = ProcessInfo.processInfo.environment["TAMIO_BENCH_FILES"], let count = Int(value) else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { Task { await files(count) } }
@@ -96,6 +171,14 @@ import SwiftUI
                     ))
                 }
             }
+            // TAMIO_BENCH_KEEP=<n> takes the made-up servers away down to n.
+            if let keep = Int(environment["TAMIO_BENCH_KEEP"] ?? "") {
+                for machine in TamioStore.shared.machineGroup.machines.filter({ $0.name.hasPrefix("bench-") }).reversed()
+                    where TamioStore.shared.machineGroup.machines.count > keep
+                {
+                    TamioStore.shared.machineGroup.delete(machine.id)
+                }
+            }
             // TAMIO_BENCH_LIVE=1 gives every card made-up live readings.
             if environment["TAMIO_BENCH_LIVE"] != nil { LiveStatusCenter.shared.installPreviews() }
             for machine in TamioStore.shared.machineGroup.machines.prefix(Int(environment["TAMIO_BENCH_TERMINALS"] ?? "") ?? 0) {
@@ -128,6 +211,7 @@ import SwiftUI
                 for _ in 0 ..< 5 {
                     collapse.append(await settle(for: 0.8) { toggleSidebar() })
                     collapseHitch.append(longest)
+                    NSLog("BENCH %@ collapse stretches %@", page, stretches)
                     let collapsed = sidebarWidth()
                     let frames = FrameGaps()
                     frames.start()
@@ -141,12 +225,13 @@ import SwiftUI
                         MainActor.assumeIsolated { widths.append((CACurrentMediaTime() - began, sidebarWidth())) }
                     }
                     RunLoop.main.add(sampler, forMode: .common)
-                    let watch = router.$columnVisibility.dropFirst().sink { value in
-                        bindingChanged += String(format: " +%.0fms:%@", (CACurrentMediaTime() - began) * 1000, String(describing: value).contains("detailOnly") ? "detailOnly" : "all")
+                    let watch = router.$sidebarOpen.dropFirst().sink { value in
+                        bindingChanged += String(format: " +%.0fms:%@", (CACurrentMediaTime() - began) * 1000, value ? "open" : "hidden")
                     }
                     expand.append(await settle(for: 0.8) { toggleSidebar() })
                     sampler.invalidate(); watch.cancel()
                     expandHitch.append(longest)
+                    NSLog("BENCH %@ expand stretches %@", page, stretches)
                     var steps: [String] = []
                     var jumps: [String] = []
                     for (a, b) in zip(widths, widths.dropFirst()) {
@@ -221,7 +306,7 @@ import SwiftUI
         }
 
         private static func toggleSidebar() {
-            NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
+            AppRouter.shared.toggleSidebar()
             if ProcessInfo.processInfo.environment["TAMIO_BENCH_TOOLBAR"] != nil {
                 // Every step of the slide: which items still fit, and the
                 // search field's width (narrow when it has collapsed).
@@ -448,9 +533,67 @@ import SwiftUI
             try? await Task.sleep(nanoseconds: 800_000_000)
         }
 
+        /// The main window as on screen. CGWindowListCreateImage, which Swift
+        /// no longer offers by name; a window of its own needs no permission.
+        static func snapshot(_ path: String) {
+            typealias Capture = @convention(c) (CGRect, UInt32, UInt32, UInt32) -> Unmanaged<CGImage>?
+            guard let window = Mac.mainWindow,
+                  let symbol = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGWindowListCreateImage")
+            else { return NSLog("BENCH snapshot: no window") }
+            // TAMIO_PREVIEW_SNAPSHOT_DESKTOP: with what is behind the window
+            // (the desktop picture, without screen recording), to see glass.
+            let desktop = ProcessInfo.processInfo.environment["TAMIO_PREVIEW_SNAPSHOT_DESKTOP"] != nil
+            let top = NSScreen.screens.first?.frame.height ?? 0
+            let rect = CGRect(x: window.frame.minX, y: top - window.frame.maxY, width: window.frame.width, height: window.frame.height)
+            guard let image = unsafeBitCast(symbol, to: Capture.self)(
+                desktop ? rect : .null, desktop ? (1 << 2 | 1 << 3) : 1 << 3, UInt32(window.windowNumber), desktop ? 8 : 1 | 8
+            )?.takeRetainedValue()
+            else { return NSLog("BENCH snapshot: no image") }
+            try? NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
+            NSLog("BENCH snapshot %@", path)
+        }
+
+        /// Scrolls Home's cards or the Servers list ("home,servers") from top
+        /// to bottom and back, with the pointer over the page as it is when
+        /// someone scrolls with a trackpad, so every hover region under it is
+        /// tested at each frame. TAMIO_BENCH_SERVERS=<n> tops the store up to
+        /// n servers no one answers at (for a copy of the app with its own
+        /// store only), TAMIO_BENCH_LIVE=1 gives them made-up readings.
+        static func pageScroll(_ pages: String) async {
+            let environment = ProcessInfo.processInfo.environment
+            let servers = Int(environment["TAMIO_BENCH_SERVERS"] ?? "") ?? 0
+            let existing = TamioStore.shared.machineGroup.machines.count
+            if servers > existing {
+                LiveStatusCenter.shared.isEnabled = false
+                for index in existing ..< servers {
+                    TamioStore.shared.machineGroup.insert(RDMachine(
+                        remoteAddress: "203.0.113.\(index % 250 + 1)", remotePort: "22", name: "bench-\(index + 1)", group: index % 3 == 0 ? "Web" : "DB"
+                    ))
+                }
+            }
+            if environment["TAMIO_BENCH_LIVE"] != nil { LiveStatusCenter.shared.installPreviews() }
+            MainWindow.show()
+            for page in pages.split(separator: ",").map(String.init) {
+                AppRouter.shared.route = page == "servers" ? .servers : .home
+                try? await Task.sleep(nanoseconds: 2_500_000_000)
+                for round in 0 ..< 2 {
+                    if let window = Mac.mainWindow, let content = window.contentView, let scroller = largestScrollView(in: content) {
+                        let rect = scroller.convert(scroller.bounds, to: nil)
+                        let center = window.convertPoint(toScreen: NSPoint(x: rect.midX, y: rect.midY))
+                        // CoreGraphics counts from the top of the main screen.
+                        let height = NSScreen.screens.first?.frame.height ?? 0
+                        CGWarpMouseCursorPosition(CGPoint(x: center.x, y: height - center.y))
+                    }
+                    try? await Task.sleep(nanoseconds: 300_000_000)
+                    await scroll(label: "\(page) #\(round + 1)")
+                }
+            }
+            NSLog("BENCH done")
+        }
+
         /// Scrolls the file list from top to bottom and back at a steady pace
         /// and reports how long frames took.
-        static func scroll() async {
+        static func scroll(label: String = "") async {
             guard let window = Mac.mainWindow, let content = window.contentView,
                   let scroller = largestScrollView(in: content)
             else { return NSLog("BENCH scroll: no scroll view") }
@@ -472,8 +615,8 @@ import SwiftUI
             let sorted = frames.sorted()
             let slow = frames.filter { $0 > 1000.0 / 60 * 1.5 }.count
             NSLog(
-                "BENCH scroll %.0f pt  frames %d  median %.2f ms  p95 %.2f ms  max %.2f ms  slow(>25ms) %d",
-                distance, frames.count, sorted[sorted.count / 2], sorted[Int(Double(sorted.count) * 0.95)], sorted.last ?? 0, slow
+                "BENCH scroll %@ %.0f pt  frames %d  median %.2f ms  p95 %.2f ms  max %.2f ms  slow(>25ms) %d",
+                label, distance, frames.count, sorted[sorted.count / 2], sorted[Int(Double(sorted.count) * 0.95)], sorted.last ?? 0, slow
             )
         }
 

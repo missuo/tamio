@@ -40,12 +40,12 @@ struct ServersView: View {
         ) {
         } trailing: {
             Button { importsSSHConfig = true } label: {
-                Label("Import…", systemImage: "square.and.arrow.down")
+                Label("Import…", rx: "square.and.arrow.down")
             }
             .help(String(localized: "Import from SSH Config"))
             RedactionMenu()
             Button { router.openTerminals() } label: {
-                Label("Open Terminals…", systemImage: "rectangle.stack.badge.plus")
+                Label("Open Terminals…", rx: "rectangle.stack.badge.plus")
             }
             .help(String(localized: "Pick several servers and open a terminal on each"))
             .disabled(store.machineGroup.machines.isEmpty)

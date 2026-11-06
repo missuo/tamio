@@ -29,6 +29,21 @@ enum Mac {
         for item in MacStatusItem.live.allObjects { item.popover?.appearance = NSApp.appearance }
     }
 
+    /// The standard About panel, with the copyright set in lines: Tamio's
+    /// own, then, apart, what it is based on, one copyright to a line. The
+    /// Info.plist keeps it in one line, for Finder's Get Info.
+    @MainActor static func showAbout() {
+        let copyright = """
+        Copyright © 2026 MOE AI LLC
+
+        Based on Rayon
+        © 2022 Lakr Aream
+        © 2026 mizorewww and catussh contributors
+        """
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.orderFrontStandardAboutPanel(options: [NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): copyright])
+    }
+
     @MainActor static func terminate() {
         NSApp.terminate(nil)
     }

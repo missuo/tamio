@@ -53,7 +53,7 @@ struct SnippetEditorSheet: View {
                                 Button {
                                     symbol = item
                                 } label: {
-                                    Image(systemName: item)
+                                    Image(rx: item)
                                         .font(.system(size: 13))
                                         .foregroundStyle(symbol == item ? Color.rxOnAccent : Color.rxInkSecondary)
                                         .frame(maxWidth: .infinity)

@@ -7,6 +7,7 @@
 //
 
 import MachineStatusView
+import TamioDesign
 import TamioModule
 import SwiftUI
 
@@ -19,11 +20,14 @@ struct MainView: View {
     /// Settings is built when it is first opened and kept from then on: its
     /// categories are many rows each, and coming back shows what is there.
     @State private var settingsOpened = false
+    @AppStorage(RXGlass.key) private var glass = true
+    @State private var windowWidth: CGFloat = MainWindow.minimumSize.width
 
     var body: some View {
         window
             // The shared server views (cards, table, inspector) act through these.
             .environment(\.serverActions, .mac)
+            .environment(\.rxGlass, glass)
             // Open Tamio from the menu bar, with the window closed, opens it again.
             .onAppear {
                 MainWindow.openWindow = openWindow
@@ -32,57 +36,30 @@ struct MainView: View {
     }
 
     private var window: some View {
-        NavigationSplitView(columnVisibility: $router.columnVisibility) {
-            SidebarView()
-                .navigationSplitViewColumnWidth(min: 200, ideal: RX.sidebarWidth, max: 280)
-                // AppKit moves its own toggle into the sidebar's part of the
-                // toolbar partway through the slide open, while that part is
-                // too narrow for it: it fell into the overflow menu (»), and
-                // the toolbar jumped, until the sidebar was all the way out.
-                .toolbar(removing: .sidebarToggle)
-        } detail: {
-            // Pages cross-fade with a slight rise, so the eye follows the change
-            // of place instead of seeing the content column jump.
-            ZStack {
-                RXWindowBackground()
-                    .ignoresSafeArea()
-                // Places (Home, Servers, Settings…) cross-fade with a slight rise,
-                // so the eye follows the change of place.
-                if !router.route.isSession, router.route != .settings {
-                    content
-                        .id(router.route)
-                        .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .offset(y: 6)),
-                            removal: .opacity
-                        ))
-                }
-                if settingsOpened || router.route == .settings {
-                    // Told directly, not through the environment: a change of
-                    // environment reaches every row of every category.
-                    SettingsView(active: router.route == .settings)
-                        .keepsSize(whileHidden: router.route != .settings)
-                        .opacity(router.route == .settings ? 1 : 0)
-                        .animation(router.route == .settings ? .easeOut(duration: 0.16) : nil, value: router.route == .settings)
-                        .allowsHitTesting(router.route == .settings)
-                        .accessibilityHidden(router.route != .settings)
-                }
-                SessionPages(route: router.route)
-            }
-            .onChange(of: router.route == .settings) { shown in
-                // Before macOS 26 its toolbar and search field cannot be taken
-                // out of the window while it is kept, so there it is not kept.
-                if shown, #available(macOS 26.0, *) { settingsOpened = true }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .animation(.easeOut(duration: 0.2), value: router.route.isSession ? nil : router.route)
-            .toolbar {
-                // In the content's part of the toolbar, which always has room.
-                ToolbarItem(placement: .navigation) { SidebarToggle() }
-            }
-            // Set here, outside the page transition, so the toolbar never falls
-            // back to its opaque background while one page fades into another.
-            .rxClearToolbar()
+        // The sidebar stays where it is, a panel at the leading edge; the
+        // content lies over it and its leading edge slides: across the
+        // sidebar to fill the window, or back to show it. The toggle is the
+        // toolbar's first item and never moves.
+        ZStack(alignment: .topLeading) {
+            RXWindowBackground()
+                .ignoresSafeArea()
+            SidebarPanel()
+            detail
+                .padding(.leading, router.sidebarOpen ? MainWindow.sidebarSpan : 0)
+                // The width the content has with the sidebar open, whatever
+                // it has now: tables and grids choose their columns from it,
+                // so showing or hiding the sidebar widens or narrows them
+                // without a column coming or going.
+                .environment(\.rxOpenWidth, max(0, windowWidth - MainWindow.sidebarSpan))
         }
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
+            if width != windowWidth { windowWidth = width }
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigation) { SidebarToggle() }
+                .rxPlain()
+        }
+        .rxClearToolbar()
         // No minimum frame of its own: the window cannot be smaller than
         // MainWindow.minimumSize (the scene's restriction, and AppKit's), and
         // content held to a minimum the window sits exactly at makes Catalyst
@@ -120,6 +97,53 @@ struct MainView: View {
                 if !store.licenseAgreed { openLicenseAgreement = true }
             }
         }
+    }
+
+    /// The pages, on a backdrop of their own that covers the sidebar as the
+    /// content's edge slides over it.
+    private var detail: some View {
+        ZStack {
+            RXWindowBackground()
+                .ignoresSafeArea()
+            ZStack {
+                // Places (Home, Servers, Settings…) cross-fade with a slight rise,
+                // so the eye follows the change of place.
+                if !router.route.isSession, router.route != .settings {
+                    content
+                        .id(router.route)
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .offset(y: 6)),
+                            removal: .opacity
+                        ))
+                }
+                if settingsOpened || router.route == .settings {
+                    // Told directly, not through the environment: a change of
+                    // environment reaches every row of every category.
+                    SettingsView(active: router.route == .settings)
+                        .keepsSize(whileHidden: router.route != .settings)
+                        .opacity(router.route == .settings ? 1 : 0)
+                        .animation(router.route == .settings ? .easeOut(duration: 0.16) : nil, value: router.route == .settings)
+                        .allowsHitTesting(router.route == .settings)
+                        .accessibilityHidden(router.route != .settings)
+                }
+                SessionPages(route: router.route)
+            }
+            // Pages scroll up under the toolbar, which has neither a
+            // background nor capsules round its buttons: what scrolls fades
+            // out as it reaches the toolbar and is never drawn behind it.
+            .mask { ToolbarEdgeMask() }
+        }
+        .onChange(of: router.route == .settings) { shown in
+            // Before macOS 26 its toolbar and search field cannot be taken
+            // out of the window while it is kept, so there it is not kept.
+            if shown, #available(macOS 26.0, *) { settingsOpened = true }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .pausesHitTestingWhileSidebarSlides()
+        .animation(.easeOut(duration: 0.2), value: router.route.isSession ? nil : router.route)
+        // Set here, outside the page transition, so the toolbar never falls
+        // back to its opaque background while one page fades into another.
+        .rxClearToolbar()
     }
 
     @ViewBuilder var content: some View {
@@ -212,15 +236,60 @@ private extension View {
     }
 }
 
-/// Shows and hides the sidebar, as AppKit's own toggle does (the same action,
-/// so the same slide), from a place in the toolbar it never has to leave.
-private struct SidebarToggle: View {
+/// Clear over the toolbar, then a short fade, then the page: the band the
+/// toolbar takes is the top safe-area inset.
+private struct ToolbarEdgeMask: View {
+    var body: some View {
+        GeometryReader { proxy in
+            VStack(spacing: 0) {
+                Color.clear.frame(height: proxy.safeAreaInsets.top)
+                LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 12)
+                Color.black
+            }
+            .ignoresSafeArea()
+        }
+    }
+}
+
+/// Shows and hides the sidebar, from the start of the toolbar, beside the
+/// window's buttons, where it stays whether the sidebar is open or not.
+struct SidebarToggle: View {
     var body: some View {
         Button {
-            NSApp.sendAction(#selector(NSSplitViewController.toggleSidebar(_:)), to: nil, from: nil)
+            AppRouter.shared.toggleSidebar()
         } label: {
+            // The system's own symbol, the one icon not from Tamio's set: the
+            // window's sidebar button reads best as the Mac draws it.
             Label("Toggle Sidebar", systemImage: "sidebar.leading")
         }
         .help(Text("Show or hide the sidebar (⌃⌘S)"))
+    }
+}
+
+/// The sidebar: a panel inset from the window's leading edge, under the
+/// window's buttons and the toggle, at a fixed width. It does not move; when
+/// it is hidden the content lies over it.
+private struct SidebarPanel: View {
+    @ObservedObject private var router = AppRouter.shared
+    @ObservedObject private var slide = SidebarSlide.shared
+
+    var body: some View {
+        SidebarView()
+            .frame(width: RX.sidebarWidth)
+            .frame(maxHeight: .infinity)
+            // Up past the toolbar to just under the window's top edge, so the
+            // window's buttons and the toggle sit on the panel.
+            .background {
+                RXCardBackground(radius: RX.Radius.card)
+                    .padding(.top, MainWindow.sidebarInset)
+                    .ignoresSafeArea(.container, edges: .top)
+            }
+            .padding(.bottom, MainWindow.sidebarInset)
+            .padding(.leading, MainWindow.sidebarInset)
+            // Covered by the content while hidden; out of sight once it is.
+            .opacity(router.sidebarOpen || slide.sliding ? 1 : 0)
+            .allowsHitTesting(router.sidebarOpen && !slide.sliding)
+            .accessibilityHidden(!router.sidebarOpen)
     }
 }

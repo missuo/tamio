@@ -321,7 +321,7 @@ struct ConfigKeybindingList: View {
             draft = ConfigKeybinding().rendered
             editing = true
         } label: {
-            Label(ConfigLayout.tr("action.add_shortcut", default: "Add Shortcut"), systemImage: "plus")
+            Label(ConfigLayout.tr("action.add_shortcut", default: "Add Shortcut"), rx: "plus")
         }
         .buttonStyle(.rxPrimary)
         .fixedSize()
@@ -393,7 +393,7 @@ struct ConfigKeybindingBuilder: View {
                 Button {
                     edit { $0.steps.append("key_k") }
                 } label: {
-                    Label(ConfigLayout.tr("keybinding.action.add_step", default: "Add Step"), systemImage: "plus")
+                    Label(ConfigLayout.tr("keybinding.action.add_step", default: "Add Step"), rx: "plus")
                 }
                 .buttonStyle(.rx(.plain, size: .small))
                 .disabled(parsed.steps.count >= 4)

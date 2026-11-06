@@ -152,7 +152,7 @@ private struct IdentityDetail: View {
                     Divider()
                     Button("Delete…", role: .destructive) { IdentityActions.delete(identity) }
                 } label: {
-                    Label("More", systemImage: "ellipsis")
+                    Label("More", rx: "ellipsis")
                 }
                 .menuStyle(.button)
                 .menuIndicator(.hidden)
@@ -439,7 +439,7 @@ struct IdentityForm: View {
             Button {
                 showsSecret.toggle()
             } label: {
-                Label(showsSecret ? "Hide" : "Show", systemImage: showsSecret ? "eye.slash" : "eye")
+                Label(showsSecret ? "Hide" : "Show", rx: showsSecret ? "eye.slash" : "eye")
             }
             .buttonStyle(.rx(.plain, iconOnly: true))
             .help(showsSecret ? String(localized: "Hide") : String(localized: "Show"))
@@ -550,7 +550,7 @@ private struct SealedKeyRow: View {
 
     var body: some View {
         HStack(spacing: RX.Space.s2) {
-            Image(systemName: "lock.fill")
+            Image(rx: "lock.fill")
                 .font(.system(size: 12))
                 .foregroundStyle(.rxInkSecondary)
             Text("••••••")

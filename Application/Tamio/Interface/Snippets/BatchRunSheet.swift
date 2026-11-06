@@ -128,8 +128,8 @@ struct BatchRunSheet: View {
         switch state {
         case .waiting: EmptyView()
         case .running: ProgressView().controlSize(.mini)
-        case .done: Image(systemName: "checkmark").foregroundStyle(.rxSuccess).accessibilityLabel("Done")
-        case .failed: Image(systemName: "xmark").foregroundStyle(.rxDanger).accessibilityLabel("Failed")
+        case .done: Image(rx: "checkmark").foregroundStyle(.rxSuccess).accessibilityLabel("Done")
+        case .failed: Image(rx: "xmark").foregroundStyle(.rxDanger).accessibilityLabel("Failed")
         }
     }
 

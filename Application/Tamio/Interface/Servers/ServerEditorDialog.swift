@@ -123,7 +123,7 @@ struct ServerEditorDialog: View {
                 .font(.rxSheetTitle)
             Spacer()
             Button(action: requestClose) {
-                Label("Close", systemImage: "xmark")
+                Label("Close", rx: "xmark")
             }
             .buttonStyle(.rx(.plain, iconOnly: true))
             .keyboardShortcut(.cancelAction)
@@ -169,7 +169,7 @@ struct ServerEditorDialog: View {
                                 Button(item) { draft.group = item }
                             }
                         } label: {
-                            Label("Existing Groups", systemImage: "chevron.down")
+                            Label("Existing Groups", rx: "chevron.down")
                         }
                         .menuStyle(.button)
                         .menuIndicator(.hidden)
@@ -223,19 +223,26 @@ struct ServerEditorDialog: View {
 
     var credentialsSection: some View {
         section("Credentials") {
-            RXSegmented(selection: $draft.credential, options: [
-                .init(.password, "Password"),
-                .init(.key, "SSH key"),
-                .init(.none, "None"),
-            ], caps: false, fullWidth: true)
+            row("Sign in with") {
+                RXSegmented(selection: $draft.credential, options: [
+                    .init(.password, "Password"),
+                    .init(.key, "SSH key"),
+                    .init(.none, "None"),
+                ], caps: false)
+                Spacer(minLength: 0)
+            }
             switch draft.credential {
             case .none:
-                HelpText("Signs in as \(trimmedUsername) with no password or key, for a server that trusts the connection itself, such as Tailscale SSH.")
+                note {
+                    HelpText("Signs in as \(trimmedUsername) with no password or key, for a server that trusts the connection itself, such as Tailscale SSH.")
+                }
             case .password:
                 row("Password") {
                     secretField(placeholder: "Required")
                 }
-                HelpText("Kept with this server only.")
+                note {
+                    HelpText("Kept with this server only.")
+                }
             case .key:
                 row("Key") {
                     HStack(spacing: RX.Space.s2) {
@@ -251,7 +258,7 @@ struct ServerEditorDialog: View {
                 }
                 if let id = draft.key {
                     let key = store.identityGroup[id]
-                    HStack(alignment: .top, spacing: RX.Space.s2) {
+                    note {
                         if key.usesAgent {
                             HelpText("Signs in as \(trimmedUsername) with a key the SSH agent holds.")
                         } else {
@@ -267,7 +274,9 @@ struct ServerEditorDialog: View {
                 }
             }
             if let credentialsError {
-                HelpText(credentialsError, isError: true)
+                note {
+                    HelpText(credentialsError, isError: true)
+                }
             }
         }
         .sheet(isPresented: $addsKey) {
@@ -285,7 +294,7 @@ struct ServerEditorDialog: View {
                 withAnimation(.easeOut(duration: 0.2)) { showsAdvanced.toggle() }
             } label: {
                 HStack(spacing: 6) {
-                    Image(systemName: "chevron.right")
+                    Image(rx: "chevron.right")
                         .font(.system(size: 10, weight: .semibold))
                         .rotationEffect(.degrees(showsAdvanced ? 90 : 0))
                     CapsLabel("Advanced")
@@ -316,7 +325,9 @@ struct ServerEditorDialog: View {
                             .textFieldStyle(.rxMono)
                             .disableAutocorrection(true)
                     }
-                    HelpText("The connection goes through this command instead of directly to the address. %h is the address and %p the port. Leave empty to connect directly.")
+                    note {
+                        HelpText("The connection goes through this command instead of directly to the address. %h is the address and %p the port. Leave empty to connect directly.")
+                    }
                     row("Shell integration") {
                         Toggle("Shell integration", isOn: $draft.shellIntegration)
                             .labelsHidden()
@@ -324,7 +335,9 @@ struct ServerEditorDialog: View {
                             .tint(.rxAccent)
                             .controlSize(.small)
                     }
-                    HelpText("Files follows the terminal's folder. Each new terminal types a line that has bash, zsh or fish tell Tamio its folder at every prompt; nothing is changed on the server.")
+                    note {
+                        HelpText("Files follows the terminal's folder. Each new terminal types a line that has bash, zsh or fish tell Tamio its folder at every prompt; nothing is changed on the server.")
+                    }
                     if !isNew {
                         row("Last banner") {
                             RXValueField(banner, placeholder: "None", monospaced: true)
@@ -374,7 +387,7 @@ struct ServerEditorDialog: View {
             Button {
                 showsPassword.toggle()
             } label: {
-                Label(showsPassword ? "Hide" : "Show", systemImage: showsPassword ? "eye.slash" : "eye")
+                Label(showsPassword ? "Hide" : "Show", rx: showsPassword ? "eye.slash" : "eye")
             }
             .buttonStyle(.rx(.plain, iconOnly: true))
             .help(showsPassword ? String(localized: "Hide") : String(localized: "Show"))
@@ -388,15 +401,27 @@ struct ServerEditorDialog: View {
         }
     }
 
+    /// A label in its column, then the field.
     func row(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
         HStack(spacing: RX.Space.s3) {
             Text(title)
                 .font(.rxBody)
                 .foregroundStyle(.rxInkSecondary)
-                .frame(width: 110, alignment: .leading)
+                .frame(width: Self.labelWidth, alignment: .leading)
             content()
         }
     }
+
+    /// A note about the row above it, starting where its field does, so every
+    /// field and its note share one leading edge.
+    func note(@ViewBuilder content: () -> some View) -> some View {
+        HStack(alignment: .top, spacing: RX.Space.s2) {
+            content()
+        }
+        .padding(.leading, Self.labelWidth + RX.Space.s3)
+    }
+
+    static var labelWidth: CGFloat { 110 }
 
     // MARK: - Loading and saving
 

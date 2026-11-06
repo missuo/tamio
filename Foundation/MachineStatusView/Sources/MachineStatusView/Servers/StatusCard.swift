@@ -106,7 +106,7 @@ public struct StatusCard<More: View, Context: View>: View {
                 Menu {
                     more()
                 } label: {
-                    Label("More", systemImage: "ellipsis")
+                    Label("More", rx: "ellipsis")
                 }
                 .menuStyle(.button)
                 .menuIndicator(.hidden)
@@ -123,7 +123,7 @@ public struct StatusCard<More: View, Context: View>: View {
 
     func cardButton(_ title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Label(title, systemImage: systemImage)
+            Label(title, rx: systemImage)
         }
         .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
         .foregroundStyle(.rxAccent)
@@ -132,7 +132,7 @@ public struct StatusCard<More: View, Context: View>: View {
 
     func unfollowed(_ read: RDMachine) -> some View {
         HStack(spacing: RX.Space.s3) {
-            Image(systemName: "key")
+            Image(rx: "key")
                 .foregroundStyle(.rxInkSecondary)
             Text(live.isEnabled ? "Add a password or key to see live status." : "Live status is off in Settings.")
                 .font(.rxBody)
@@ -236,7 +236,7 @@ public struct StatusSlots: View {
             switch session.phase {
             case let .failed(message) where !session.status.hasData:
                 HStack(spacing: RX.Space.s2) {
-                    Image(systemName: "exclamationmark.triangle")
+                    Image(rx: "exclamationmark.triangle")
                         .foregroundStyle(.rxDanger)
                     // The card's height is fixed: the whole message when
                     // it fits, else the word, with the message on hover.
@@ -320,6 +320,7 @@ public struct ServerCardsGrid<More: View, Context: View>: View {
     @EnvironmentObject var store: TamioStore
     @Environment(\.serverActions) private var actions
     @ObservedObject private var filterStore = HomeGroupFilterStore.shared
+    @Environment(\.rxOpenWidth) private var openWidth
 
     public init(
         search: String,
@@ -354,7 +355,7 @@ public struct ServerCardsGrid<More: View, Context: View>: View {
             EmptyStateView(filter.noMatchTitle(for: search), systemImage: "magnifyingglass")
                 .rxCard()
         } else {
-            CardGrid(minimumWidth: StatusCardMetrics.minimumWidth, spacing: RX.Space.s3) {
+            CardGrid(minimumWidth: StatusCardMetrics.minimumWidth, spacing: RX.Space.s3, openWidth: openWidth) {
                 ForEach(machines) { machine in
                     // A click shows the card's server in the panel; the panel's
                     // close button and Esc put it away.

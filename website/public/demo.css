@@ -92,7 +92,9 @@
   color: var(--tw-ink); cursor: default;
 }
 .tw-row.sel { background: var(--tw-selected); font-weight: 600; }
-.tw-row .ic { width: 38px; display: flex; justify-content: center; color: var(--tw-accent); }
+/* Lucide's icons, grey like the counts; full ink on the selected row. */
+.tw-row .ic { width: 38px; display: flex; justify-content: center; color: var(--tw-ink); opacity: 0.6; }
+.tw-row.sel .ic { opacity: 0.9; }
 .tw-row .badge { margin-left: auto; font-size: 11px; opacity: 0.45; font-weight: 400; }
 .tw-head { height: 32px; display: flex; align-items: flex-end; padding: 0 0 4px 4px; font-size: 11px; font-weight: 600; opacity: 0.32; }
 .tw-side-bottom { margin-top: auto; }

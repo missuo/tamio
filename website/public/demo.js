@@ -5,16 +5,17 @@
 (() => {
   "use strict";
 
-  // Icons, drawn to SF Symbols' proportions.
+  // Icons: the sidebar's are Lucide's, as in the app; the rest are drawn to
+  // SF Symbols' proportions.
   const icon = (d, size = 17, extra = "") =>
-    `<svg aria-hidden="true" focusable="false" style="width:${size}px;height:${size}px" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
+    `<svg aria-hidden="true" focusable="false" style="width:${size}px;height:${size}px" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" ${extra.includes("stroke-width") ? "" : 'stroke-width="1.7"'} stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
   const I = {
-    home: icon('<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/>'),
-    servers: icon('<rect x="3" y="4" width="18" height="7" rx="1.6"/><rect x="3" y="13" width="18" height="7" rx="1.6"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/>'),
-    identities: icon('<circle cx="10" cy="8" r="3.4"/><path d="M3.5 20c.6-3.6 3.2-5.6 6.5-5.6 1.3 0 2.5.3 3.4.9"/><circle cx="17.5" cy="15" r="1.8"/><path d="M17.5 16.8V21M17.5 19h1.6"/>'),
-    snippets: icon('<path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>'),
-    forward: icon('<path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/>'),
-    gear: icon('<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/>'),
+    home: icon('<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>', 18, 'stroke-width="1.75"'),
+    servers: icon('<rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><path d="M6 6h.01M6 18h.01"/>', 18, 'stroke-width="1.75"'),
+    identities: icon('<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>', 18, 'stroke-width="1.75"'),
+    snippets: icon('<path d="m18 16 4-4-4-4M6 8l-4 4 4 4M14.5 4l-5 16"/>', 18, 'stroke-width="1.75"'),
+    forward: icon('<path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>', 18, 'stroke-width="1.75"'),
+    gear: icon('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>', 18, 'stroke-width="1.75"'),
     search: icon('<circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/>', 15),
     terminal: icon('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m7 10 3 2-3 2M12 15h4"/>', 14),
     close: icon('<path d="m6 6 12 12M18 6 6 18"/>', 13, 'stroke-width="2"'),

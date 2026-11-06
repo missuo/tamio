@@ -9,18 +9,56 @@ import SwiftUI
     import AppKit
 
     /// The translucent window backdrop: the desktop shows through, blurred.
+    /// With frosted glass on, a clearer material that lets more of the
+    /// desktop's colour through, under a tint of the window's own colour
+    /// that keeps every text on it readable whatever the wallpaper.
     public struct RXWindowBackground: NSViewRepresentable {
         public init() {}
 
-        public func makeNSView(context _: Context) -> NSVisualEffectView {
-            let view = NSVisualEffectView()
-            view.material = .underWindowBackground
-            view.blendingMode = .behindWindow
-            view.state = .followsWindowActiveState
+        public func makeNSView(context: Context) -> GlassBackdropView {
+            let view = GlassBackdropView()
+            view.glass = context.environment.rxGlass
             return view
         }
 
-        public func updateNSView(_: NSVisualEffectView, context _: Context) {}
+        public func updateNSView(_ view: GlassBackdropView, context: Context) {
+            if view.glass != context.environment.rxGlass { view.glass = context.environment.rxGlass }
+        }
+    }
+
+    public final class GlassBackdropView: NSVisualEffectView {
+        private let tint = NSView()
+
+        var glass = false {
+            didSet { update() }
+        }
+
+        override init(frame: NSRect) {
+            super.init(frame: frame)
+            blendingMode = .behindWindow
+            state = .followsWindowActiveState
+            tint.wantsLayer = true
+            tint.frame = bounds
+            tint.autoresizingMask = [.width, .height]
+            addSubview(tint)
+            update()
+        }
+
+        @available(*, unavailable)
+        required init?(coder _: NSCoder) { nil }
+
+        override public func viewDidChangeEffectiveAppearance() {
+            super.viewDidChangeEffectiveAppearance()
+            update()
+        }
+
+        private func update() {
+            material = glass ? RXGlass.material : .underWindowBackground
+            tint.isHidden = !glass
+            effectiveAppearance.performAsCurrentDrawingAppearance {
+                tint.layer?.backgroundColor = RXGlass.tint.cgColor
+            }
+        }
     }
 
     /// Lets the user move a hidden-title-bar window by dragging empty chrome,
@@ -185,7 +223,7 @@ public struct RXChip: View {
     public var body: some View {
         Button(action: action) {
             HStack(spacing: 4) {
-                Image(systemName: isOn ? "checkmark" : "plus")
+                Image(rx: isOn ? "checkmark" : "plus")
                     .font(.system(size: 9, weight: .bold))
                 title
                     .font(.system(size: 12))

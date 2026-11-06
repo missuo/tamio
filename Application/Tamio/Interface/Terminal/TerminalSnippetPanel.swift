@@ -85,7 +85,7 @@ struct TerminalSnippetPanel: View {
                     .font(.system(size: 13, weight: .bold))
                 Spacer(minLength: RX.Space.s2)
                 Button(action: close) {
-                    Label("Close", systemImage: "xmark")
+                    Label("Close", rx: "xmark")
                 }
                 .buttonStyle(.rx(.plain, size: .small, iconOnly: true))
                 .help(String(localized: "Hide Snippets (⌥⌘S)"))
@@ -199,7 +199,7 @@ private struct SnippetRow: View {
                     .lineLimit(1)
             }
             Spacer(minLength: 0)
-            Image(systemName: "play.fill")
+            Image(rx: "play.fill")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(.rxAccent)
                 .opacity(hovered && enabled ? 1 : 0)

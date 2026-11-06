@@ -49,6 +49,22 @@ public enum RX {
 // MARK: - Colors
 
 extension Color {
+    /// An appearance-aware color whose values on frosted glass differ: text
+    /// there sits on whatever the desktop shows through, so it keeps further
+    /// from the background than on solid colour.
+    init(rxLight light: UInt32, dark: UInt32, glassLight: UInt32, glassDark: UInt32) {
+        #if canImport(AppKit) && !targetEnvironment(macCatalyst)
+            let color = NSColor(name: nil) { appearance in
+                let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+                let glass = RXGlass.isOn
+                return NSColor(rxRGBA: isDark ? (glass ? glassDark : dark) : (glass ? glassLight : light))
+            }
+            self.init(nsColor: color)
+        #else
+            self.init(rxLight: light, dark: dark)
+        #endif
+    }
+
     /// Builds an appearance-aware color from `0xRRGGBBAA` literals.
     init(rxLight light: UInt32, dark: UInt32) {
         #if canImport(AppKit) && !targetEnvironment(macCatalyst)
@@ -152,8 +168,8 @@ enum RXPalette {
     static let hairline = Color(rxLight: 0xE3E5_EAFF, dark: 0x3A3B_40FF)
     static let controlBorder = Color(rxLight: 0x8A8D_96FF, dark: 0x7678_7FFF)
     static let ink = Color(rxLight: 0x1D1D_1FFF, dark: 0xF5F5_F7FF)
-    static let inkSecondary = Color(rxLight: 0x5F61_68FF, dark: 0xA1A3_AAFF)
-    static let inkTertiary = Color(rxLight: 0x7073_80FF, dark: 0x8A8D_96FF)
+    static let inkSecondary = Color(rxLight: 0x5F61_68FF, dark: 0xA1A3_AAFF, glassLight: 0x4447_4EFF, glassDark: 0xC6C8_CEFF)
+    static let inkTertiary = Color(rxLight: 0x7073_80FF, dark: 0x8A8D_96FF, glassLight: 0x585B_64FF, glassDark: 0xA9AC_B3FF)
     static let accent = Color(rxLight: 0x4B49_C8FF, dark: 0x8583_FFFF)
     static let onAccent = Color(rxLight: 0xFFFF_FFFF, dark: 0x1212_2EFF)
     static let series2 = Color(rxLight: 0x3B94_D6FF, dark: 0x6CBC_F2FF)

@@ -67,7 +67,7 @@ struct UpdateNotice: View {
                 center.checkNow()
             } label: {
                 HStack(spacing: RX.Space.s2) {
-                    Image(systemName: "arrow.down.circle.fill")
+                    Image(rx: "arrow.down.circle.fill")
                         .font(.system(size: 15))
                         .foregroundStyle(.rxAccent)
                     VStack(alignment: .leading, spacing: 1) {

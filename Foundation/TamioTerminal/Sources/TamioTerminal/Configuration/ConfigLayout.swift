@@ -87,8 +87,10 @@ struct ConfigLayout {
             }
         }
 
-        /// Shows the live terminal preview beside it.
-        var previews: Bool { section == .terminal && id != "keyboard" }
+        /// Shows the live terminal preview: the categories whose changes can
+        /// be seen in it (text, colours, cursor, the window's transparency
+        /// and padding), not those whose settings it would not show.
+        var previews: Bool { ["text", "colors", "cursor", "window"].contains(id) }
     }
 
     static let categories: [Category] = [

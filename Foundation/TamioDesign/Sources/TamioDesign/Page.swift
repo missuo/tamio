@@ -102,7 +102,7 @@ public struct EmptyStateView: View {
 
     public var body: some View {
         VStack(spacing: RX.Space.s3) {
-            Image(systemName: systemImage)
+            Image(rx: systemImage)
                 .font(.system(size: 28, weight: .regular))
                 .foregroundStyle(.rxInkSecondary)
                 .frame(height: 36)
@@ -303,7 +303,7 @@ public struct ProgressHUD: View {
             .padding(.horizontal, RX.Space.s6)
             .padding(.vertical, RX.Space.s5)
             .frame(minWidth: 200)
-            .background(RXCardBackground())
+            .background(RXCardBackground(glassy: false))
         }
         .accessibilityElement(children: .combine)
     }

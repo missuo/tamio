@@ -135,7 +135,13 @@ struct ConfigCategoryContent: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: RX.Space.s6) {
-                    PageTitle(category.title)
+                    HStack(alignment: .center, spacing: RX.Space.s2) {
+                        PageTitle(category.title)
+                        Spacer(minLength: RX.Space.s2)
+                        if category.section == .terminal {
+                            ConfigPageActions(model: model)
+                        }
+                    }
                     if state.previewAbove, category.previews {
                         ConfigPreview(model: model)
                             .rxCard(padding: 0)
@@ -160,6 +166,54 @@ struct ConfigCategoryContent: View {
                 await Task.yield()
                 proxy.scrollTo(jump.key, anchor: .top)
             }
+        }
+    }
+}
+
+/// Undo, redo, and Reset in a menu, beside a terminal category's title: they
+/// act on the terminal's settings, so they are on its pages, not in the
+/// window toolbar. Plain symbols, no capsules.
+struct ConfigPageActions: View {
+    let model: ConfigEditorModel
+    @ObservedObject private var history: ConfigEditorModel.History
+    @State private var resetConfirm = false
+
+    init(model: ConfigEditorModel) {
+        self.model = model
+        history = model.history
+    }
+
+    var body: some View {
+        HStack(spacing: RX.Space.s3) {
+            Button { model.undo() } label: {
+                Label(ConfigLayout.tr("action.undo", default: "Undo"), rx: "arrow.uturn.backward")
+            }
+            .disabled(!history.canUndo)
+            .help(ConfigLayout.tr("help.undo_change", default: "Undo the last terminal setting change"))
+            Button { model.redo() } label: {
+                Label(ConfigLayout.tr("action.redo", default: "Redo"), rx: "arrow.uturn.forward")
+            }
+            .disabled(!history.canRedo)
+            .help(ConfigLayout.tr("help.redo_change", default: "Redo"))
+            Menu {
+                Button(role: .destructive) { resetConfirm = true } label: {
+                    Text(ConfigLayout.tr("action.reset_terminal_settings", default: "Reset Terminal Settings…"))
+                }
+            } label: {
+                Label(ConfigLayout.tr("action.more", default: "More"), rx: "ellipsis")
+            }
+            .menuStyle(.button)
+            .menuIndicator(.hidden)
+            .fixedSize()
+        }
+        .labelStyle(.iconOnly)
+        .buttonStyle(.borderless)
+        .font(.system(size: 15))
+        .foregroundStyle(.rxInkSecondary)
+        .confirmationDialog(ConfigLayout.tr("dialog.reset_terminal.title", default: "Reset every terminal setting to its default?"), isPresented: $resetConfirm) {
+            Button(ConfigLayout.tr("action.reset", default: "Reset"), role: .destructive) { model.edit { $0 = ConfigDocument() } }
+        } message: {
+            Text(ConfigLayout.tr("dialog.reset_terminal.message", default: "Tamio's General and Connection preferences are kept."))
         }
     }
 }
@@ -228,7 +282,7 @@ struct ConfigCategoryContent: View {
         var body: some View {
             Button(action: select) {
                 HStack(spacing: RX.Space.s2) {
-                    Image(systemName: category.icon)
+                    Image(rx: category.icon)
                         .font(.system(size: 13))
                         .foregroundStyle(selected ? Color.rxAccent : Color.rxInkSecondary)
                         .frame(width: 18)
@@ -288,14 +342,14 @@ struct ConfigCategoryContent: View {
         var body: some View {
             if !model.message.isEmpty {
                 HStack(spacing: RX.Space.s2) {
-                    Image(systemName: "exclamationmark.triangle")
+                    Image(rx: "exclamationmark.triangle")
                         .foregroundStyle(.rxWarning)
                     Text(model.message)
                         .font(.rxBody)
                         .foregroundStyle(.rxInk)
                         .textSelection(.enabled)
                     Spacer()
-                    Button { model.message = "" } label: { Image(systemName: "xmark") }
+                    Button { model.message = "" } label: { Image(rx: "xmark") }
                         .buttonStyle(.borderless)
                         .accessibilityLabel(ConfigLayout.tr("action.dismiss", default: "Dismiss"))
                 }
@@ -308,93 +362,6 @@ struct ConfigCategoryContent: View {
         }
     }
 
-    struct ConfigHistoryButtons: View {
-        let navigation: ConfigNavigation
-        @ObservedObject var chrome: ConfigNavigation.Chrome
-
-        var body: some View {
-            ControlGroup {
-                Button { navigation.step(-1) } label: { Label(ConfigLayout.tr("action.back", default: "Back"), systemImage: "chevron.left") }
-                    .disabled(!chrome.state.canGoBack)
-                    .help(ConfigLayout.tr("help.previous_category", default: "Previous category"))
-                Button { navigation.step(1) } label: { Label(ConfigLayout.tr("action.forward", default: "Forward"), systemImage: "chevron.right") }
-                    .disabled(!chrome.state.canGoForward)
-                    .help(ConfigLayout.tr("help.next_category", default: "Next category"))
-            }
-        }
-    }
-
-    /// Every category has the same items: one that does not apply is
-    /// unavailable. Adding and removing them rebuilds the window toolbar.
-    struct ConfigToolbarTools: View {
-        @ObservedObject var chrome: ConfigNavigation.Chrome
-        let model: ConfigEditorModel
-        @ObservedObject var history: ConfigEditorModel.History
-        let searching: Bool
-        @Binding var showPreview: Bool
-        @Binding var resetConfirm: Bool
-
-        var body: some View {
-            let terminal = searching || chrome.state.terminal
-            #if targetEnvironment(macCatalyst)
-                // Plain buttons, drawn in one capsule by the toolbar: one item
-                // for AppKit to place instead of one per control.
-                undo(terminal)
-                redo(terminal)
-                reset(terminal)
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) { showPreview.toggle() }
-                } label: {
-                    Label {
-                        Text(ConfigLayout.tr("preview.title", default: "Preview"))
-                    } icon: {
-                        // Tinted only while showing: any colour given here
-                        // would also replace the dimming of a disabled button.
-                        if showPreview, terminal, chrome.state.previews {
-                            Image(systemName: "sidebar.right").foregroundStyle(Color.rxAccent)
-                        } else {
-                            Image(systemName: "sidebar.right")
-                        }
-                    }
-                }
-                .disabled(!terminal || !chrome.state.previews)
-                .help(showPreview ? ConfigLayout.tr("help.hide_preview", default: "Hide the live terminal preview") : ConfigLayout.tr("help.show_preview", default: "Show a live terminal preview beside the settings"))
-                .accessibilityAddTraits(showPreview ? .isSelected : [])
-            #else
-                ControlGroup {
-                    undo(terminal)
-                    redo(terminal)
-                }
-                reset(terminal)
-                Toggle(isOn: $showPreview.animation(.easeInOut(duration: 0.25))) {
-                    Label(ConfigLayout.tr("preview.title", default: "Preview"), systemImage: "sidebar.right")
-                }
-                .toggleStyle(.button)
-                .disabled(!terminal || !chrome.state.previews)
-                .help(showPreview ? ConfigLayout.tr("help.hide_preview", default: "Hide the live terminal preview") : ConfigLayout.tr("help.show_preview", default: "Show a live terminal preview beside the settings"))
-            #endif
-        }
-
-        private func undo(_ terminal: Bool) -> some View {
-            Button { model.undo() } label: { Label(ConfigLayout.tr("action.undo", default: "Undo"), systemImage: "arrow.uturn.backward") }
-                .disabled(!history.canUndo || !terminal)
-                .help(ConfigLayout.tr("help.undo_change", default: "Undo the last terminal setting change"))
-        }
-
-        private func redo(_ terminal: Bool) -> some View {
-            Button { model.redo() } label: { Label(ConfigLayout.tr("action.redo", default: "Redo"), systemImage: "arrow.uturn.forward") }
-                .disabled(!history.canRedo || !terminal)
-                .help(ConfigLayout.tr("help.redo_change", default: "Redo"))
-        }
-
-        private func reset(_ terminal: Bool) -> some View {
-            Button { resetConfirm = true } label: {
-                Label(ConfigLayout.tr("action.reset_terminal_settings", default: "Reset Terminal Settings…"), systemImage: "arrow.counterclockwise")
-            }
-            .disabled(!terminal)
-            .help(ConfigLayout.tr("help.reset_all_defaults", default: "Reset every terminal setting to its default"))
-        }
-    }
 #endif
 
 #if !targetEnvironment(macCatalyst)

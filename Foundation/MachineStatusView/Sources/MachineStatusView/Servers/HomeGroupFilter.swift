@@ -137,14 +137,17 @@ public struct HomeGroupSwitcher: View {
         return items
     }
 
-    @Namespace private var pill
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public var body: some View {
         let segments = segments
         let active = filterStore.selection.resolved(in: store.machineGroup.machines)
         if !segments.isEmpty {
-            HStack(spacing: 0) {
+            SegmentsLayout(selected: segments.firstIndex { $0.filter == active }) {
+                // First, so it is drawn under the segments.
+                RoundedRectangle(cornerRadius: RX.Radius.md, style: .continuous)
+                    .fill(Color.primary.opacity(0.1))
+                    .accessibilityHidden(true)
                 ForEach(segments, id: \.filter) { segment in
                     let isSelected = segment.filter == active
                     Button {
@@ -157,14 +160,7 @@ public struct HomeGroupSwitcher: View {
                             .lineLimit(1)
                             .padding(.horizontal, 14)
                             .frame(minWidth: 56, minHeight: 28, maxHeight: 28)
-                            .background {
-                                if isSelected {
-                                    Capsule()
-                                        .fill(Color.primary.opacity(0.14))
-                                        .matchedGeometryEffect(id: "selection", in: pill)
-                                }
-                            }
-                            .contentShape(Capsule())
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .help(segment.count == 1 ? String(localized: "1 server") : String(localized: "\(segment.count) servers"))
@@ -172,7 +168,6 @@ public struct HomeGroupSwitcher: View {
                     .accessibilityAddTraits(isSelected ? .isSelected : [])
                 }
             }
-            .padding(.horizontal, 4)
             .fixedSize()
             .animation(reduceMotion ? nil : .rxMove, value: active)
             .help(String(localized: "Show every server, or one group's"))
@@ -186,6 +181,40 @@ public struct HomeGroupSwitcher: View {
     private func reconcile(_ segments: [Segment]) {
         if !segments.isEmpty, !segments.contains(where: { $0.filter == filterStore.selection }) {
             filterStore.selection = .all
+        }
+    }
+}
+
+/// The segments side by side and the selection's capsule under the selected
+/// one, its first subview. Placed here, in the switcher's own space, the
+/// capsule slides when the selection changes (SwiftUI animates placements)
+/// and does nothing when the toolbar it sits in moves: a matched geometry
+/// effect followed its place in the window, so at every frame of a sidebar
+/// slide the switcher was drawn again and AppKit measured its toolbar item
+/// again and put it back.
+private struct SegmentsLayout: Layout {
+    let selected: Int?
+
+    func sizeThatFits(proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
+        let sizes = subviews.dropFirst().map { $0.sizeThatFits(.unspecified) }
+        return CGSize(width: sizes.map(\.width).reduce(0, +), height: sizes.map(\.height).max() ?? 0)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
+        guard let capsule = subviews.first else { return }
+        var x = bounds.minX
+        var frames: [CGRect] = []
+        for segment in subviews.dropFirst() {
+            let size = segment.sizeThatFits(.unspecified)
+            let frame = CGRect(x: x, y: bounds.midY - size.height / 2, width: size.width, height: size.height)
+            segment.place(at: frame.origin, proposal: ProposedViewSize(frame.size))
+            frames.append(frame)
+            x += size.width
+        }
+        if let selected, frames.indices.contains(selected) {
+            capsule.place(at: frames[selected].origin, proposal: ProposedViewSize(frames[selected].size))
+        } else {
+            capsule.place(at: CGPoint(x: bounds.minX, y: bounds.midY), proposal: .zero)
         }
     }
 }

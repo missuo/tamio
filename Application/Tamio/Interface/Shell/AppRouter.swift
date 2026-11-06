@@ -52,7 +52,16 @@ final class AppRouter: ObservableObject {
     }
     /// The last page that is not a session; closing a session returns here.
     private(set) var lastPlace: Route = .home
-    @Published var columnVisibility: NavigationSplitViewVisibility = .all
+    /// The sidebar is shown. Changed through `toggleSidebar()`, which moves
+    /// the content over it.
+    @Published private(set) var sidebarOpen = true
+
+    /// Shows or hides the sidebar: the content's leading edge slides across
+    /// to fill the window, or back to show the sidebar where it stands.
+    func toggleSidebar() {
+        SidebarSlide.shared.begin()
+        withAnimation(SidebarSlide.animation) { sidebarOpen.toggle() }
+    }
     /// The server editor panel at the trailing edge of the window: a new
     /// server, or one being edited. Nil when the panel is closed.
     @Published var serverEditor: ServerEditorTarget?

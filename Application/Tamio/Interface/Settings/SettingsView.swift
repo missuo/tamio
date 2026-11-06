@@ -7,6 +7,7 @@
 //  preferences (General, Connection, About).
 //
 
+import TamioDesign
 import TamioModule
 import TamioTerminal
 import MachineStatusView
@@ -25,7 +26,7 @@ struct SettingsView: View {
             // Each category's page is hosted on its own, so the rows carry the
             // store with them.
             hostSections: [
-                ConfigHostSettingsSection(id: "general.appearance", keywords: "appearance dark light mode theme system") {
+                ConfigHostSettingsSection(id: "general.appearance", keywords: "appearance dark light mode theme system frosted glass translucent transparent blur wallpaper") {
                     AppearanceSettings().environmentObject(store)
                 },
                 ConfigHostSettingsSection(id: "general.sessions", keywords: "open sessions automatically ask before closing confirmation quit") {
@@ -126,14 +127,28 @@ enum AppearancePreference: String, CaseIterable {
 
 private struct AppearanceSettings: View {
     @AppStorage(AppearancePreference.key) private var appearance = AppearancePreference.system.rawValue
+    @AppStorage(RXGlass.key) private var glass = true
 
     var body: some View {
-        RXFormRow("Light or dark", description: "Terminal colors are set under Colors.") {
-            RXSegmented(selection: $appearance, options: [
-                .init(AppearancePreference.system.rawValue, "System"),
-                .init(AppearancePreference.light.rawValue, "Light"),
-                .init(AppearancePreference.dark.rawValue, "Dark"),
-            ], caps: false)
+        RXDividedStack {
+            RXFormRow("Light or dark", description: "Terminal colors are set under Colors.") {
+                RXSegmented(selection: $appearance, options: [
+                    .init(AppearancePreference.system.rawValue, "System"),
+                    .init(AppearancePreference.light.rawValue, "Light"),
+                    .init(AppearancePreference.dark.rawValue, "Dark"),
+                ], caps: false)
+            }
+            SwitchRow(
+                "Frosted glass",
+                description: "Your desktop shows through the window, its cards and the terminal, blurred. A background opacity set under Terminal stays as it is.",
+                isOn: $glass
+            )
+        }
+        .onChange(of: glass) { _ in
+            TerminalGlass.refresh()
+            // Text colours on glass differ; drawing every window again in its
+            // appearance picks them up.
+            (AppearancePreference(rawValue: appearance) ?? .system).apply(crossFade: true)
         }
         .onChange(of: appearance) { raw in
             // Once the selection has slid over: the whole app draws itself
@@ -277,7 +292,7 @@ private struct AboutSettings: View {
             }
             RXFormRow("What's new", description: "This version's release notes. New versions show theirs before they install.") {
                 Link(destination: UpdateCenter.releaseNotesURL) {
-                    Label("Release Notes", systemImage: "arrow.up.right.square")
+                    Label("Release Notes", rx: "arrow.up.right.square")
                 }
                 .buttonStyle(.rx)
             }
@@ -289,7 +304,7 @@ private struct AboutSettings: View {
             }
             RXFormRow("Report a problem", description: "Bugs and ideas go to the project's issue tracker.") {
                 Link(destination: URL(string: "https://github.com/missuo/tamio/issues")!) {
-                    Label("Issues", systemImage: "arrow.up.right.square")
+                    Label("Issues", rx: "arrow.up.right.square")
                 }
                 .buttonStyle(.rx)
             }
@@ -347,7 +362,10 @@ private struct UpdateSettings: View {
 private struct AcknowledgementSettings: View {
     var body: some View {
         RXDividedStack {
-            RXFormRow("Maintained by", description: "MOE AI LLC") {
+            // Everyone who has contributed on GitHub, in the order GitHub
+            // lists them (gh api repos/missuo/tamio/contributors). A merged pull
+            // request from someone new adds them here (AGENTS.md).
+            RXFormRow("Contributors", description: "@mizorewww · @missuo · @Lakr233 · @sarkrui · @SukkaW · @thedavidweng · @delete-cloud · @FahimFBA · @NyaMisty · @FaiChou") {
                 EmptyView()
             }
             RXFormRow("Based on", description: "mizorewww/catussh · Lakr233/Rayon") {
@@ -360,6 +378,9 @@ private struct AcknowledgementSettings: View {
                 EmptyView()
             }
             RXFormRow("Libraries", description: "libssh2 · NSRemoteShell · XMLCoder · SymbolPicker · Keychain") {
+                EmptyView()
+            }
+            RXFormRow("Icons", description: "The sidebar's icons are Lucide's (ISC, Lucide contributors; portions MIT, Cole Bemis, from Feather).") {
                 EmptyView()
             }
         }

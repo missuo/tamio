@@ -48,6 +48,7 @@ private struct RXButtonBody: View {
     let iconOnly: Bool
 
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.rxButtonsTrackHover) private var tracksHover
 
     var height: CGFloat { size == .small ? RX.smallControlHeight : RX.controlHeight }
 
@@ -71,7 +72,7 @@ private struct RXButtonBody: View {
             .animation(.rxQuick, value: configuration.isPressed)
             .animation(.rxQuick, value: hovered)
             #if os(macOS) || targetEnvironment(macCatalyst)
-            .onHover { hovered = $0 }
+            .modifier(HoverTracking(enabled: tracksHover, hovered: $hovered))
             #endif
     }
 
@@ -102,6 +103,35 @@ private struct RXButtonBody: View {
         case .plain:
             shape.fill(Color.primary.opacity(configuration.isPressed ? 0.12 : (hovered && isEnabled ? 0.07 : 0)))
         }
+    }
+}
+
+/// `onHover` only where it is wanted: every hover region on screen is hit
+/// tested again whenever the content under the pointer moves.
+private struct HoverTracking: ViewModifier {
+    let enabled: Bool
+    @Binding var hovered: Bool
+
+    func body(content: Content) -> some View {
+        if enabled {
+            content.onHover { hovered = $0 }
+        } else {
+            content
+        }
+    }
+}
+
+private struct RXButtonsTrackHoverKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+public extension EnvironmentValues {
+    /// False in long lists whose rows already highlight under the pointer:
+    /// the buttons in them then skip their own hover fill, so scrolling does
+    /// not hit test a hover region per button at every frame.
+    var rxButtonsTrackHover: Bool {
+        get { self[RXButtonsTrackHoverKey.self] }
+        set { self[RXButtonsTrackHoverKey.self] = newValue }
     }
 }
 
@@ -180,14 +210,14 @@ public struct RXIconButton: View {
         switch title {
         case let .key(key):
             Button(action: action) {
-                Label(key, systemImage: systemImage)
+                Label(key, rx: systemImage)
             }
             .buttonStyle(RXButtonStyle(kind, size: size, iconOnly: true))
             .help(key)
             .accessibilityLabel(key)
         case let .verbatim(text):
             Button(action: action) {
-                Label(text, systemImage: systemImage)
+                Label(text, rx: systemImage)
             }
             .buttonStyle(RXButtonStyle(kind, size: size, iconOnly: true))
             .help(text)
@@ -262,7 +292,7 @@ public struct RXSegmented<Value: Hashable>: View {
             let separated = index + 1 < options.count && !isSelected && options[index + 1].value != selection
             return HStack(spacing: 4) {
                 if let systemImage = option.systemImage {
-                    Image(systemName: systemImage)
+                    Image(rx: systemImage)
                 }
                 option.title
             }
@@ -296,7 +326,7 @@ public struct RXSegmented<Value: Hashable>: View {
                 ForEach(options.indices, id: \.self) { index in
                     let option = options[index]
                     if let systemImage = option.systemImage {
-                        Label { option.title } icon: { Image(systemName: systemImage) }.tag(option.value)
+                        Label { option.title } icon: { Image(rx: systemImage) }.tag(option.value)
                     } else {
                         option.title.tag(option.value)
                     }
@@ -468,7 +498,7 @@ public struct RXSearchField: View {
 
     public var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: "magnifyingglass")
+            Image(rx: "magnifyingglass")
                 .font(.system(size: 12))
                 .foregroundStyle(.rxInkSecondary)
             TextField(text: $text, prompt: prompt) { prompt }
@@ -480,7 +510,7 @@ public struct RXSearchField: View {
                 Button {
                     text = ""
                 } label: {
-                    Image(systemName: "xmark.circle.fill")
+                    Image(rx: "xmark.circle.fill")
                         .font(.system(size: 12))
                         .foregroundStyle(.rxInkSecondary)
                 }
@@ -490,7 +520,11 @@ public struct RXSearchField: View {
         }
         .padding(.horizontal, 10)
         .frame(width: width, height: RX.controlHeight)
-        .background(Capsule().fill(Color.primary.opacity(0.06)))
+        // A field, not a capsule: no control in Tamio is wrapped in one.
+        .background(
+            RoundedRectangle(cornerRadius: RX.Radius.md, style: .continuous)
+                .fill(Color.primary.opacity(0.06))
+        )
     }
 }
 
@@ -580,7 +614,7 @@ public struct RXPicker<Value: Hashable>: View {
                     .foregroundStyle(options.contains { $0.value == selection } ? Color.rxInk : Color.rxInkSecondary)
                     .lineLimit(1)
                 Spacer(minLength: 0)
-                Image(systemName: "chevron.up.chevron.down")
+                Image(rx: "chevron.up.chevron.down")
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(.rxInkSecondary)
             }
@@ -593,6 +627,22 @@ public struct RXPicker<Value: Hashable>: View {
         .menuStyle(.button)
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
+    }
+}
+
+// MARK: - Toolbar
+
+public extension ToolbarContent {
+    /// The item as it is, with no Liquid Glass capsule around it: macOS 26
+    /// wraps every toolbar item in one, and Tamio's toolbar is plain icons
+    /// over the window's glass.
+    @ToolbarContentBuilder
+    func rxPlain() -> some ToolbarContent {
+        if #available(macOS 26.0, iOS 26.0, *) {
+            sharedBackgroundVisibility(.hidden)
+        } else {
+            self
+        }
     }
 }
 

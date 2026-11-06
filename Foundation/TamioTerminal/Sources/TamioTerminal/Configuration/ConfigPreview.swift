@@ -20,11 +20,11 @@ struct ConfigPreview: View {
             }
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Image(systemName: "terminal").font(.system(size: 11)).foregroundStyle(.rxTerminalMuted)
+                    Image(rx: "terminal").font(.system(size: 11)).foregroundStyle(.rxTerminalMuted)
                     Text("Tamio — playground").font(.system(size: 11)).foregroundStyle(.rxTerminalMuted)
                     Spacer()
                     Button { minimized.toggle() } label: {
-                        Image(systemName: minimized ? "chevron.down" : "chevron.up").font(.system(size: 10, weight: .semibold))
+                        Image(rx: minimized ? "chevron.down" : "chevron.up").font(.system(size: 10, weight: .semibold))
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.rxTerminalMuted)

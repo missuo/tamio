@@ -72,7 +72,10 @@ public struct GhosttyConfigurationView: View {
         self.embedded = embedded
         self.active = active
         self.onApplied = onApplied
-        _showPreview = State(initialValue: !embedded)
+        // Shown wherever a category previews, beside the settings or above
+        // them: a toggle for it in the toolbar read as one more unexplained
+        // button.
+        _showPreview = State(initialValue: true)
     }
 
     private func installApplyHandler() {
@@ -126,14 +129,8 @@ public struct GhosttyConfigurationView: View {
             if !embedded { RXWindowBackground().ignoresSafeArea() }
         }
         .rxClearToolbar()
-        .modifier(ConfigToolbar(active: active, leading: {
-            ConfigHistoryButtons(navigation: navigation, chrome: navigation.chrome)
-        }, trailing: {
-            ConfigToolbarTools(
-                chrome: navigation.chrome, model: model, history: model.history,
-                searching: !search.isEmpty, showPreview: $showPreview, resetConfirm: $resetConfirm
-            )
-        }))
+        // Only search in the toolbar: undo, redo and reset are on the page,
+        // beside its title, where they apply.
         .configSearch(text: $search, active: active)
         .onAppear {
             installApplyHandler()
@@ -151,11 +148,6 @@ public struct GhosttyConfigurationView: View {
         // category it is next opened at.
         .onChange(of: active) { if !$0 { search = "" } }
         .animation(.easeOut(duration: 0.18), value: search.isEmpty)
-        .confirmationDialog(ConfigLayout.tr("dialog.reset_terminal.title", default: "Reset every terminal setting to its default?"), isPresented: $resetConfirm) {
-            Button(ConfigLayout.tr("action.reset", default: "Reset"), role: .destructive) { model.edit { $0 = ConfigDocument() } }
-        } message: {
-            Text(ConfigLayout.tr("dialog.reset_terminal.message", default: "Tamio's General and Connection preferences are kept."))
-        }
         .frame(minWidth: embedded ? 700 : 960, minHeight: 560)
     }
     #endif
@@ -235,7 +227,7 @@ public struct GhosttyConfigurationView: View {
                     if !groups.isEmpty {
                         VStack(alignment: .leading, spacing: RX.Space.s3) {
                             HStack {
-                                Label(category.title, systemImage: category.icon)
+                                Label(category.title, rx: category.icon)
                                     .font(.rxBodyStrong)
                                     .foregroundStyle(.rxInk)
                                 Spacer()
@@ -346,7 +338,7 @@ public struct GhosttyConfigurationView: View {
                                             categoryPage(category)
                                         } label: {
                                             HStack {
-                                                Label(category.title, systemImage: category.icon)
+                                                Label(category.title, rx: category.icon)
                                                 Spacer()
                                                 let count = modifiedCount(category)
                                                 if count > 0 {
@@ -370,16 +362,16 @@ public struct GhosttyConfigurationView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
-                        Button { model.undo() } label: { Label(ConfigLayout.tr("action.undo", default: "Undo"), systemImage: "arrow.uturn.backward") }
+                        Button { model.undo() } label: { Label(ConfigLayout.tr("action.undo", default: "Undo"), rx: "arrow.uturn.backward") }
                             .disabled(model.undoStack.isEmpty)
-                        Button { model.redo() } label: { Label(ConfigLayout.tr("action.redo", default: "Redo"), systemImage: "arrow.uturn.forward") }
+                        Button { model.redo() } label: { Label(ConfigLayout.tr("action.redo", default: "Redo"), rx: "arrow.uturn.forward") }
                             .disabled(model.redoStack.isEmpty)
                         Divider()
                         Button(role: .destructive) { resetConfirm = true } label: {
-                            Label(ConfigLayout.tr("action.reset_terminal_settings", default: "Reset Terminal Settings…"), systemImage: "arrow.counterclockwise")
+                            Label(ConfigLayout.tr("action.reset_terminal_settings", default: "Reset Terminal Settings…"), rx: "arrow.counterclockwise")
                         }
                     } label: {
-                        Label(ConfigLayout.tr("action.more", default: "More"), systemImage: "ellipsis.circle")
+                        Label(ConfigLayout.tr("action.more", default: "More"), rx: "ellipsis.circle")
                     }
                 }
             }
@@ -390,48 +382,18 @@ public struct GhosttyConfigurationView: View {
 #if os(macOS)
 private extension View {
     /// Search in the window toolbar, only while Settings is the page on
-    /// screen: Settings stays mounted out of sight, and a second search
-    /// field in the toolbar, the next page's, is an AppKit exception.
-    @ViewBuilder
+    /// screen: Settings stays mounted out of sight. Tamio's own field, plain
+    /// like the rest of the toolbar, with no capsule around it.
     func configSearch(text: Binding<String>, active: Bool) -> some View {
-        if active {
-            searchable(text: text, placement: .toolbar, prompt: Text(ConfigLayout.tr("search.prompt", default: "Search settings")))
-        } else {
-            self
-        }
-    }
-}
-
-/// Navigation at the leading edge, actions at the trailing edge of the window toolbar.
-private struct ConfigToolbar<Leading: View, Trailing: View>: ViewModifier {
-    let active: Bool
-    let leading: Leading
-    let trailing: Trailing
-
-    init(active: Bool, @ViewBuilder leading: () -> Leading, @ViewBuilder trailing: () -> Trailing) {
-        self.active = active
-        self.leading = leading()
-        self.trailing = trailing()
-    }
-
-    // The condition sits inside the toolbar: outside it, Settings would be
-    // built again each time it came into sight. Out of sight, it adds nothing
-    // to the window toolbar.
-    func body(content: Content) -> some View {
-        if #available(macOS 26.0, *) {
-            content.toolbar {
-                if active {
-                    ToolbarItemGroup(placement: .navigation) { leading }
+        toolbar {
+            if active {
+                if #available(macOS 26.0, *) {
                     ToolbarSpacer(.flexible)
-                    ToolbarItemGroup(placement: .automatic) { trailing }
                 }
-            }
-        } else {
-            content.toolbar {
-                if active {
-                    ToolbarItemGroup(placement: .navigation) { leading }
-                    ToolbarItemGroup(placement: .automatic) { trailing }
+                ToolbarItem(placement: .primaryAction) {
+                    RXSearchField(ConfigLayout.tr("search.prompt", default: "Search settings"), text: text, width: 200)
                 }
+                .rxPlain()
             }
         }
     }

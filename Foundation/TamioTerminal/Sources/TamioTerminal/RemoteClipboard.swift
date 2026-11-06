@@ -77,7 +77,7 @@ struct RemoteClipboardNoticeBar: View {
     var body: some View {
         if notice.shown {
             HStack(spacing: RX.Space.s3) {
-                Image(systemName: "doc.on.clipboard")
+                Image(rx: "doc.on.clipboard")
                     .foregroundStyle(.rxInkSecondary)
                 Text(ConfigLayout.tr("terminal.clipboard.blocked", default: "Blocked a program from copying to the clipboard"))
                     .font(.rxBody)
