@@ -13,6 +13,8 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+## [0.2.20] - 2026-11-06
+
 ### Changed
 - **Snippets' groups are tabs.** They were a menu at the toolbar's leading
   edge, over the sidebar, which without a capsule showed only its arrows;

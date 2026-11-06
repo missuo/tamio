@@ -40,6 +40,7 @@
 		8ED6DCE83F8FD7FBA2CED5C8 /* AgentSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D77332CA29BD257A4BA5AD0 /* AgentSettings.swift */; };
 		9F47B627FDC40959A351D89B /* DoubleConfirm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18038823C6B06193E1A8D86A /* DoubleConfirm.swift */; };
 		A1376A08C03541305FE6BA99 /* SSHConfigImportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFCBE66686362A4C966742A /* SSHConfigImportSheet.swift */; };
+		A18AECED619F516622FB513E /* AlignedWithContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83F1AFF22EB00B4B6D74EEF /* AlignedWithContent.swift */; };
 		ADF9F497480AAECF8EFA2978 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 0536A2AD7F379DA9E4410736 /* LICENSE */; };
 		B2DEED12A1C4505ABEED8FF8 /* BatchSnippetExecContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 615A9FAD4A0F752FBD542810 /* BatchSnippetExecContext.swift */; };
 		B347AFC662FEA41D342D2394 /* MonitorPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9ACCCD82006879E4BFB703 /* MonitorPage.swift */; };
@@ -135,6 +136,7 @@
 		E9D95BD46C45D856C39E3568 /* PresentError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentError.swift; sourceTree = "<group>"; };
 		F42B19215937CD8331FA07FC /* TerminalManager+Context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TerminalManager+Context.swift"; sourceTree = "<group>"; };
 		F5BD85D2A70187112CEC7FAB /* MachineStatus */ = {isa = PBXFileReference; lastKnownFileType = folder; name = MachineStatus; path = ../../Foundation/MachineStatus; sourceTree = SOURCE_ROOT; };
+		F83F1AFF22EB00B4B6D74EEF /* AlignedWithContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlignedWithContent.swift; sourceTree = "<group>"; };
 		FB9E4DDA19C6E86B44842578 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -330,6 +332,7 @@
 		8963826341C72F4CB8E0C5C7 /* Shell */ = {
 			isa = PBXGroup;
 			children = (
+				F83F1AFF22EB00B4B6D74EEF /* AlignedWithContent.swift */,
 				2EAB94544BDE15E396B57A48 /* AppRouter.swift */,
 				85358DC98DB406C6FB6D164E /* MainView.swift */,
 				9DDE29F5CD9A23175CCFBCF3 /* PageScaffold.swift */,
@@ -541,6 +544,7 @@
 			files = (
 				B407B4973269B8D2FF62A6CF /* AgentBridge.swift in Sources */,
 				8ED6DCE83F8FD7FBA2CED5C8 /* AgentSettings.swift in Sources */,
+				A18AECED619F516622FB513E /* AlignedWithContent.swift in Sources */,
 				8766A75FC53E74F9069FC9A2 /* AppRouter.swift in Sources */,
 				24E5740380D9EAC687D3FC9E /* BatchRunSheet.swift in Sources */,
 				B2DEED12A1C4505ABEED8FF8 /* BatchSnippetExecContext.swift in Sources */,
@@ -697,7 +701,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.19;
+				MARKETING_VERSION = 0.2.20;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -757,7 +761,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.19;
+				MARKETING_VERSION = 0.2.20;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
