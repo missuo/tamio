@@ -57,6 +57,14 @@ import SwiftUI
                     case "snippets": AppRouter.shared.route = .snippets
                     case "portForward": AppRouter.shared.route = .portForward
                     case "newServer": AppRouter.shared.presentNewServer = true
+                    case "terminal":
+                        // A terminal on the first server, for its toolbar.
+                        if let machine = TamioStore.shared.machineGroup.machines.first {
+                            TerminalManager.shared.createSession(withMachineID: machine.id)
+                            if let context = TerminalManager.shared.sessionContexts.last {
+                                AppRouter.shared.route = .terminal(context.id)
+                            }
+                        }
                     default: AppRouter.shared.route = .home
                     }
                     if ProcessInfo.processInfo.environment["TAMIO_BENCH_LIVE"] != nil { LiveStatusCenter.shared.installPreviews() }

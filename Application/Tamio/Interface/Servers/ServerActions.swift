@@ -211,16 +211,9 @@ struct ServerToolSwitcher: View {
     let current: ServerTool
 
     var body: some View {
-        Picker("View", selection: Binding(get: { current }, set: { $0.show(machine) })) {
-            ForEach(ServerTool.allCases) { tool in
-                Text(tool.title)
-                    .help(tool.help)
-                    .tag(tool)
-            }
+        RXTabs(ServerTool.allCases.map { .init($0, Text($0.title), help: Text($0.help)) }, selection: current) { tool in
+            tool.show(machine)
         }
-        .pickerStyle(.segmented)
-        .labelsHidden()
-        .fixedSize()
         .help(String(localized: "Switch between this server's terminal, files and monitor"))
     }
 }

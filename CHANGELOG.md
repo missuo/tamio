@@ -13,7 +13,18 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+### Changed
+- **Tabs look like tabs.** Home's groups and a server's Terminal, Files and
+  Monitor sit in a light track with the selected one raised, as a Mac
+  segmented control is, instead of reading as plain words.
+
 ### Fixed
+- **Terminal, Files and Monitor are centred over the page.** With the
+  sidebar open they were centred on the window, to the left of the page's
+  middle; they now stay over its middle as the sidebar shows or hides.
+- **Going to Home no longer jolts its group tabs.** They showed at the
+  toolbar's edge for a frame and then moved across to the cards; they now
+  appear in their place.
 - **The snippets panel's button matches the sidebar's.** It had become
   Tamio's own icon in 0.2.19 while the sidebar button kept the Mac's; both
   are now the Mac's sidebar symbols, one the mirror of the other.

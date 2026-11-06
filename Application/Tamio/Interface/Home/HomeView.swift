@@ -45,8 +45,12 @@ struct HomeView: View {
 /// the toolbar is not laid out again at every frame of the slide.
 private struct LeadingGroupSwitcher: View {
     @ObservedObject private var router = AppRouter.shared
-    /// The item's leading edge in the window, where the toolbar put it.
-    @State private var origin: CGFloat?
+    /// The item's leading edge in the window, where the toolbar put it. Kept
+    /// from the last time Home was shown: the toolbar puts it in the same
+    /// place each time, and measured afresh it is known only a frame late, so
+    /// the switcher showed at the toolbar's edge and then moved across.
+    @State private var origin: CGFloat? = Self.lastOrigin
+    @MainActor private static var lastOrigin: CGFloat?
 
     var body: some View {
         // The cards start the page's margin in from the content's edge.
@@ -56,8 +60,17 @@ private struct LeadingGroupSwitcher: View {
             .padding(.trailing, room)
             .offset(x: router.sidebarOpen ? room : 0)
             .animation(SidebarSlide.animation, value: router.sidebarOpen)
+            // Not seen until it is in its place, the first time.
+            .opacity(origin == nil ? 0 : 1)
             // Read where the item is, not where its content was moved to.
-            .background(WindowOriginReader { origin = $0 })
+            .background(WindowOriginReader { x in
+                guard x != origin else { return }
+                Self.lastOrigin = x
+                // Put there at once: the page's arrival animates, this must not.
+                var instant = Transaction()
+                instant.disablesAnimations = true
+                withTransaction(instant) { origin = x }
+            })
     }
 }
 

@@ -137,41 +137,21 @@ public struct HomeGroupSwitcher: View {
         return items
     }
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     public var body: some View {
         let segments = segments
         let active = filterStore.selection.resolved(in: store.machineGroup.machines)
         if !segments.isEmpty {
-            SegmentsLayout(selected: segments.firstIndex { $0.filter == active }) {
-                // First, so it is drawn under the segments.
-                RoundedRectangle(cornerRadius: RX.Radius.md, style: .continuous)
-                    .fill(Color.primary.opacity(0.1))
-                    .accessibilityHidden(true)
-                ForEach(segments, id: \.filter) { segment in
-                    let isSelected = segment.filter == active
-                    Button {
-                        guard filterStore.selection != segment.filter else { return }
-                        filterStore.selection = segment.filter
-                    } label: {
-                        Text(segment.title)
-                            .font(.system(size: 13))
-                            .foregroundStyle(Color.primary.opacity(isSelected ? 0.96 : 0.78))
-                            .lineLimit(1)
-                            .padding(.horizontal, 14)
-                            .frame(minWidth: 56, minHeight: 28, maxHeight: 28)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .help(segment.count == 1 ? String(localized: "1 server") : String(localized: "\(segment.count) servers"))
-                    .accessibilityLabel("\(segment.rawTitle), \(segment.count)")
-                    .accessibilityAddTraits(isSelected ? .isSelected : [])
-                }
+            RXTabs(segments.map { segment in
+                .init(
+                    segment.filter,
+                    Text(segment.title),
+                    help: Text(segment.count == 1 ? String(localized: "1 server") : String(localized: "\(segment.count) servers")),
+                    accessibilityLabel: Text("\(segment.rawTitle), \(segment.count)")
+                )
+            }, selection: active) { filter in
+                filterStore.selection = filter
             }
-            .fixedSize()
-            .animation(reduceMotion ? nil : .rxMove, value: active)
             .help(String(localized: "Show every server, or one group's"))
-            .accessibilityElement(children: .contain)
             .accessibilityLabel(String(localized: "Group"))
             .onAppear { reconcile(segments) }
             .onChange(of: segments) { reconcile($0) }
@@ -181,40 +161,6 @@ public struct HomeGroupSwitcher: View {
     private func reconcile(_ segments: [Segment]) {
         if !segments.isEmpty, !segments.contains(where: { $0.filter == filterStore.selection }) {
             filterStore.selection = .all
-        }
-    }
-}
-
-/// The segments side by side and the selection's capsule under the selected
-/// one, its first subview. Placed here, in the switcher's own space, the
-/// capsule slides when the selection changes (SwiftUI animates placements)
-/// and does nothing when the toolbar it sits in moves: a matched geometry
-/// effect followed its place in the window, so at every frame of a sidebar
-/// slide the switcher was drawn again and AppKit measured its toolbar item
-/// again and put it back.
-private struct SegmentsLayout: Layout {
-    let selected: Int?
-
-    func sizeThatFits(proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
-        let sizes = subviews.dropFirst().map { $0.sizeThatFits(.unspecified) }
-        return CGSize(width: sizes.map(\.width).reduce(0, +), height: sizes.map(\.height).max() ?? 0)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
-        guard let capsule = subviews.first else { return }
-        var x = bounds.minX
-        var frames: [CGRect] = []
-        for segment in subviews.dropFirst() {
-            let size = segment.sizeThatFits(.unspecified)
-            let frame = CGRect(x: x, y: bounds.midY - size.height / 2, width: size.width, height: size.height)
-            segment.place(at: frame.origin, proposal: ProposedViewSize(frame.size))
-            frames.append(frame)
-            x += size.width
-        }
-        if let selected, frames.indices.contains(selected) {
-            capsule.place(at: frames[selected].origin, proposal: ProposedViewSize(frames[selected].size))
-        } else {
-            capsule.place(at: CGPoint(x: bounds.minX, y: bounds.midY), proposal: .zero)
         }
     }
 }

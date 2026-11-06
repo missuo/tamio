@@ -161,7 +161,9 @@ private struct PageToolbar<Leading: View, Trailing: View>: ViewModifier {
                     }
                     if let toolSwitch {
                         ToolbarItem(placement: .principal) {
-                            ServerToolSwitcher(machine: toolSwitch.machine, current: toolSwitch.current)
+                            CentredOverContent {
+                                ServerToolSwitcher(machine: toolSwitch.machine, current: toolSwitch.current)
+                            }
                         }
                         if #available(macOS 26.0, *) {
                             ToolbarSpacer(.flexible)
@@ -188,6 +190,24 @@ private struct PageToolbar<Leading: View, Trailing: View>: ViewModifier {
     }
 
     static var searchWidth: CGFloat { 200 }
+}
+
+/// Centred over the content, not the window. The toolbar centres its middle
+/// item on the window, left of the content's middle by half the sidebar while
+/// the sidebar is open. The item keeps the sidebar's width to its leading side,
+/// which moves its middle that far; with the sidebar hidden what it shows moves
+/// back by half of it, within the item, so the toolbar is not laid out again
+/// as the sidebar slides and clicks land inside the item.
+private struct CentredOverContent<Content: View>: View {
+    @ObservedObject private var router = AppRouter.shared
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        content
+            .offset(x: router.sidebarOpen ? 0 : -MainWindow.sidebarSpan / 2)
+            .animation(SidebarSlide.animation, value: router.sidebarOpen)
+            .padding(.leading, MainWindow.sidebarSpan)
+    }
 }
 
 /// How AppKit spaces the symbols of a toolbar group.
