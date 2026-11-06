@@ -96,7 +96,6 @@ public enum RXIcon {
         "rectangle.stack.badge.plus": "layers",
         "server.rack": "server",
         "shippingbox": "package",
-        "sidebar.trailing": "panel-right",
         "slider.horizontal.3": "sliders-horizontal",
         "sparkles": "sparkles",
         "square.and.arrow.down": "import",

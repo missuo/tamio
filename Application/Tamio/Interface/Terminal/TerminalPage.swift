@@ -81,7 +81,8 @@ struct TerminalPage: View {
             }
             .help(String(localized: "Text Size"))
             Toggle(isOn: $snippetsShown) {
-                Label("Snippets", rx: "sidebar.trailing")
+                // The Mac's own symbol, the mirror of the sidebar button's.
+                Label("Snippets", systemImage: "sidebar.trailing")
             }
             .keyboardShortcut("s", modifiers: [.command, .option])
             .help(String(localized: "Show or hide the snippets panel (⌥⌘S)"))

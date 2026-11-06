@@ -13,6 +13,11 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+### Fixed
+- **The snippets panel's button matches the sidebar's.** It had become
+  Tamio's own icon in 0.2.19 while the sidebar button kept the Mac's; both
+  are now the Mac's sidebar symbols, one the mirror of the other.
+
 ## [0.2.19] - 2026-11-06
 
 ### Added
