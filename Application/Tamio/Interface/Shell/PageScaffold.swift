@@ -148,11 +148,10 @@ private struct PageToolbar<Leading: View, Trailing: View>: ViewModifier {
     // identity would rebuild it (and its terminal view) on every switch.
     func body(content: Content) -> some View {
         content
-            .toolbar {
+            .rxPlainToolbar {
                 if isActive {
                     if hasLeading {
                         ToolbarItemGroup(placement: .navigation) { leading }
-                            .rxPlain()
                     }
                     // Without a title the toolbar lays its items out from the
                     // leading edge; the spacer keeps the actions at the trailing
@@ -164,7 +163,6 @@ private struct PageToolbar<Leading: View, Trailing: View>: ViewModifier {
                         ToolbarItem(placement: .principal) {
                             ServerToolSwitcher(machine: toolSwitch.machine, current: toolSwitch.current)
                         }
-                        .rxPlain()
                         if #available(macOS 26.0, *) {
                             ToolbarSpacer(.flexible)
                         }
@@ -174,7 +172,6 @@ private struct PageToolbar<Leading: View, Trailing: View>: ViewModifier {
                             trailing
                             if let primary { primary }
                         }
-                        .rxPlain()
                     }
                     if let search {
                         // Tamio's own field, not .searchable's: on macOS 26 the
@@ -185,7 +182,6 @@ private struct PageToolbar<Leading: View, Trailing: View>: ViewModifier {
                         ToolbarItem(placement: .primaryAction) {
                             RXSearchField(search.prompt, text: search.text, width: Self.searchWidth)
                         }
-                        .rxPlain()
                     }
                 }
             }

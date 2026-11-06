@@ -632,17 +632,27 @@ public struct RXPicker<Value: Hashable>: View {
 
 // MARK: - Toolbar
 
-public extension ToolbarContent {
-    /// The item as it is, with no Liquid Glass capsule around it: macOS 26
-    /// wraps every toolbar item in one, and Tamio's toolbar is plain icons
-    /// over the window's glass.
-    @ToolbarContentBuilder
-    func rxPlain() -> some ToolbarContent {
+private struct RXPlainToolbar<Items: ToolbarContent>: ViewModifier {
+    let items: Items
+
+    // The check is made here, for the whole toolbar, not inside the
+    // toolbar's builder: an `if #available` there needs a symbol of
+    // SwiftUICore's that a Release build cannot link against.
+    func body(content: Content) -> some View {
         if #available(macOS 26.0, iOS 26.0, *) {
-            sharedBackgroundVisibility(.hidden)
+            content.toolbar { items.sharedBackgroundVisibility(.hidden) }
         } else {
-            self
+            content.toolbar { items }
         }
+    }
+}
+
+public extension View {
+    /// Toolbar items as they are, with no Liquid Glass capsule around each:
+    /// macOS 26 wraps every toolbar item in one, and Tamio's toolbar is plain
+    /// icons over the window's glass.
+    func rxPlainToolbar<Items: ToolbarContent>(@ToolbarContentBuilder _ items: () -> Items) -> some View {
+        modifier(RXPlainToolbar(items: items()))
     }
 }
 

@@ -55,9 +55,8 @@ struct MainView: View {
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
             if width != windowWidth { windowWidth = width }
         }
-        .toolbar {
+        .rxPlainToolbar {
             ToolbarItem(placement: .navigation) { SidebarToggle() }
-                .rxPlain()
         }
         .rxClearToolbar()
         // No minimum frame of its own: the window cannot be smaller than

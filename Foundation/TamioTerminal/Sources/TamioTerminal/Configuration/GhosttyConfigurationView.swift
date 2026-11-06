@@ -384,16 +384,21 @@ private extension View {
     /// Search in the window toolbar, only while Settings is the page on
     /// screen: Settings stays mounted out of sight. Tamio's own field, plain
     /// like the rest of the toolbar, with no capsule around it.
+    @ViewBuilder
     func configSearch(text: Binding<String>, active: Bool) -> some View {
-        toolbar {
-            if active {
-                if #available(macOS 26.0, *) {
+        let field = RXSearchField(ConfigLayout.tr("search.prompt", default: "Search settings"), text: text, width: 200)
+        if #available(macOS 26.0, *) {
+            rxPlainToolbar {
+                if active {
                     ToolbarSpacer(.flexible)
+                    ToolbarItem(placement: .primaryAction) { field }
                 }
-                ToolbarItem(placement: .primaryAction) {
-                    RXSearchField(ConfigLayout.tr("search.prompt", default: "Search settings"), text: text, width: 200)
+            }
+        } else {
+            rxPlainToolbar {
+                if active {
+                    ToolbarItem(placement: .primaryAction) { field }
                 }
-                .rxPlain()
             }
         }
     }

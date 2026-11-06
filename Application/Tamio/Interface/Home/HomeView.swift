@@ -31,9 +31,8 @@ struct HomeView: View {
             ) {} trailing: {}
             // The groups at the toolbar's leading edge, on the row of New and
             // search, lined up with the cards.
-            .toolbar {
+            .rxPlainToolbar {
                 ToolbarItem(placement: .navigation) { LeadingGroupSwitcher() }
-                    .rxPlain()
             }
     }
 }
