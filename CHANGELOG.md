@@ -13,6 +13,8 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+## [0.2.19] - 2026-11-06
+
 ### Added
 - **Tamio tells you when it blocks a program's copy to the clipboard.** A
   program in the terminal, such as tmux or Neovim on a server, can ask to copy
