@@ -531,6 +531,19 @@ continue; \
                          onProgress:(NSRemoteFileTransferProgressBlock _Nonnull)onProgress
             withContinuationHandler:(BOOL (^)(void))continuationBlock
 {
+    return [self requestUploadForFileAndWait:atPath
+                                 toDirectory:toDirectory
+                                       named:nil
+                                  onProgress:onProgress
+                     withContinuationHandler:continuationBlock];
+}
+
+- (BOOL)requestUploadForFileAndWait:(NSString*)atPath
+                        toDirectory:(NSString*)toDirectory
+                              named:(nullable NSString*)name
+                         onProgress:(NSRemoteFileTransferProgressBlock _Nonnull)onProgress
+            withContinuationHandler:(BOOL (^)(void))continuationBlock
+{
     if (self.destroyed) return NO;
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     __block BOOL success = NO;
@@ -538,6 +551,7 @@ continue; \
         id block = [^{
             success = [self unsafeUploadRecursiveForFile:atPath
                                               toDirectory:toDirectory
+                                                    named:name
                                                onProgress:onProgress
                                   withContinuationHandler:continuationBlock
                                                     depth:0];
@@ -1803,13 +1817,14 @@ static NSData *NSRAgentKeyBlob(NSString *publicKey) {
 
 - (BOOL)unsafeUploadForFile:(NSString*)atPath
                 toDirectory:(NSString*)toDirectory
+                      named:(nullable NSString*)name
                  onProgress:(NSRemoteFileTransferProgressBlock _Nonnull)onProgress
     withContinuationHandler:(BOOL (^)(void))continuationBlock
 {
     NSString *localPath = [atPath stringByExpandingTildeInPath];
     NSURL *localFile = [[NSURL alloc] initFileURLWithPath:localPath];
     NSURL *remoteFile = [[NSURL alloc] initFileURLWithPath:toDirectory];
-    remoteFile = [remoteFile URLByAppendingPathComponent:localFile.lastPathComponent];
+    remoteFile = [remoteFile URLByAppendingPathComponent:name ?: localFile.lastPathComponent];
     
 //    NSRLog(@"uploading %@ to %@", localFile.path, remoteFile.path);
     
@@ -1967,6 +1982,7 @@ static NSData *NSRAgentKeyBlob(NSString *publicKey) {
 
 - (BOOL)unsafeUploadRecursiveForFile:(NSString*)atPath
                          toDirectory:(NSString*)toDirectory
+                               named:(nullable NSString*)name
                           onProgress:(NSRemoteFileTransferProgressBlock _Nonnull)onProgress
              withContinuationHandler:(BOOL (^)(void))continuationBlock
                                depth:(int)depth
@@ -1997,7 +2013,7 @@ static NSData *NSRAgentKeyBlob(NSString *publicKey) {
             }
             NSURL *localBase = [[NSURL alloc] initFileURLWithPath:atPath];
             NSURL *remoteBase = [[[NSURL alloc] initFileURLWithPath:toDirectory]
-                                 URLByAppendingPathComponent:localBase.lastPathComponent];
+                                 URLByAppendingPathComponent:name ?: localBase.lastPathComponent];
             // now create dir on remote
             if (![self unsafeCreateDirAndWait:remoteBase.path]) {
                 [self unsafeFileTransferSetErrorForFile:remoteBase.path pathIsRemote:YES failureReason:@"remote permission denied"];
@@ -2008,6 +2024,7 @@ static NSData *NSRAgentKeyBlob(NSString *publicKey) {
                 NSURL *toDir = remoteBase;
                 BOOL ret = [self unsafeUploadRecursiveForFile:atPath.path
                                                   toDirectory:toDir.path
+                                                        named:nil
                                                    onProgress:onProgress
                                       withContinuationHandler:continuationBlock
                                                         depth:depth + 1];
@@ -2017,6 +2034,7 @@ static NSData *NSRAgentKeyBlob(NSString *publicKey) {
         } else {
             return [self unsafeUploadForFile:atPath
                                  toDirectory:toDirectory
+                                       named:name
                                   onProgress:onProgress
                      withContinuationHandler:continuationBlock];
         }

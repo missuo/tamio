@@ -13,6 +13,14 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+### Added
+- **Files asks before it copies over something.** When an item you copy,
+  drag or upload has the name of one already in the folder it goes to, Files
+  asks whether to replace it, keep both (the copy is named like
+  “notes 2.txt”), skip it, or cancel; before, a file there was overwritten
+  without a word. A folder copied onto a folder is still merged into it.
+  ([#18](https://github.com/missuo/tamio/issues/18))
+
 ## [0.2.20] - 2026-11-06
 
 ### Changed

@@ -144,6 +144,13 @@ typedef void (^NSRemoteFileDeleteProgressBlock)(NSString *currentFile);
                         toDirectory:(NSString*)toDirectory
                          onProgress:(NSRemoteFileTransferProgressBlock _Nonnull)onProgress
             withContinuationHandler:(BOOL (^)(void))continuationBlock;
+/// As above, with the file or folder taking `name` in `toDirectory` instead
+/// of its own (nil keeps its own), so a copy can sit beside one already there.
+- (BOOL)requestUploadForFileAndWait:(NSString*)atPath
+                        toDirectory:(NSString*)toDirectory
+                              named:(nullable NSString*)name
+                         onProgress:(NSRemoteFileTransferProgressBlock _Nonnull)onProgress
+            withContinuationHandler:(BOOL (^)(void))continuationBlock;
 - (BOOL)requestDeleteForFileAndWait:(NSString*)atPath
                   withProgressBlock:(NSRemoteFileDeleteProgressBlock _Nonnull)onProgress
             withContinuationHandler:(BOOL (^)(void))continuationBlock;

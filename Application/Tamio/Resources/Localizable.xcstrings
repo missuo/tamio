@@ -21151,6 +21151,166 @@
           }
         }
       }
+    },
+    "%@ could not be replaced.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ could not be replaced."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法替换 %@。"
+          }
+        }
+      }
+    },
+    "“%@” already exists in %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” already exists in %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%2$@ 中已有“%1$@”。"
+          }
+        }
+      }
+    },
+    "%lld items already exist in %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld items already exist in %@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%2$@ 中已有 %1$lld 项。"
+          }
+        }
+      }
+    },
+    "Replace it with the one you are copying, or keep both and give the copy a new name?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace it with the one you are copying, or keep both and give the copy a new name?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用正在拷贝的项替换它，还是两者都保留并给拷贝的项一个新名称？"
+          }
+        }
+      }
+    },
+    "Replace them with the ones you are copying, or keep both and give the copies new names?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace them with the ones you are copying, or keep both and give the copies new names?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用正在拷贝的项替换它们，还是两者都保留并给拷贝的项新名称？"
+          }
+        }
+      }
+    },
+    "Skip copies only the others.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip copies only the others."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择“跳过”只拷贝其余的项。"
+          }
+        }
+      }
+    },
+    "A folder copied onto a folder is merged with it: files of the same name are replaced, and the rest are kept.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A folder copied onto a folder is merged with it: files of the same name are replaced, and the rest are kept."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拷贝到同名文件夹上的文件夹会与它合并：同名文件被替换，其余的保留。"
+          }
+        }
+      }
+    },
+    "A folder that is replaced goes to the Trash.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A folder that is replaced goes to the Trash."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "被替换的文件夹会移到废纸篓。"
+          }
+        }
+      }
+    },
+    "Keep Both": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Both"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "两者都保留"
+          }
+        }
+      }
+    },
+    "Skip": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -46,7 +46,7 @@ public final class TransferQueue: ObservableObject {
 
     public func retry(_ job: TransferJob) {
         guard job.state == .failed || job.state == .cancelled else { return }
-        let again = TransferJob(direction: job.direction, sources: job.sources, from: job.from, to: job.to, destination: job.destination)
+        let again = TransferJob(direction: job.direction, sources: job.sources, from: job.from, to: job.to, destination: job.destination, collision: job.collision)
         jobs.removeAll { $0.id == job.id }
         enqueue(again)
     }
@@ -85,6 +85,21 @@ public final class TransferJob: ObservableObject, Identifiable {
         case queued, running, done, failed, cancelled
     }
 
+    /// What the job does with an item of the same name already in the
+    /// destination. The user picks it before the job is queued; the job
+    /// applies it to what is there when it runs.
+    public enum Collision: Sendable {
+        /// The copy takes its place: a file overwrites the one there, and a
+        /// folder is merged into the folder there. When one is a file and the
+        /// other a folder, the one there is removed first (to the Trash, on
+        /// this Mac).
+        case replace
+        /// The copy gets a name not yet taken, as in Finder: "notes 2.txt".
+        case keepBoth
+        /// The item is left out.
+        case skip
+    }
+
     public let id = UUID()
     public let direction: Direction
     /// Paths on the side the files come from.
@@ -94,6 +109,7 @@ public final class TransferJob: ObservableObject, Identifiable {
     public let to: RDMachine?
     /// The folder they go into.
     public let destination: String
+    public let collision: Collision
 
     @Published public internal(set) var state: State = .queued
     @Published public private(set) var currentFile = ""
@@ -105,12 +121,13 @@ public final class TransferJob: ObservableObject, Identifiable {
 
     private let continueFlag = ContinueFlag()
 
-    public init(direction: Direction, sources: [String], from: RDMachine?, to: RDMachine?, destination: String) {
+    public init(direction: Direction, sources: [String], from: RDMachine?, to: RDMachine?, destination: String, collision: Collision = .replace) {
         self.direction = direction
         self.sources = sources
         self.from = from
         self.to = to
         self.destination = destination
+        self.collision = collision
     }
 
     public var title: String {
@@ -167,6 +184,7 @@ public final class TransferJob: ObservableObject, Identifiable {
         let destination = destination
         let flag = continueFlag
         let direction = direction
+        let collision = collision
         let from = from.map { ($0, TamioStore.shared.associatedIdentity(for: $0)) }
         let to = to.map { ($0, TamioStore.shared.associatedIdentity(for: $0)) }
         let timeout = TamioStore.shared.timeoutNumber
@@ -209,8 +227,16 @@ public final class TransferJob: ObservableObject, Identifiable {
                     let (shell, error) = open(to)
                     defer { close(shell) }
                     guard let shell else { return continuation.resume(returning: error) }
+                    var existing = TransferPlacement.remoteNames(in: destination, on: shell)
                     for source in sources where flag.value {
-                        if !shell.requestUpload(forFileAndWait: source, toDirectory: destination, onProgress: progress, withContinuationHandler: { flag.value }) {
+                        var isDirectory: ObjCBool = false
+                        FileManager.default.fileExists(atPath: source, isDirectory: &isDirectory)
+                        guard let place = TransferPlacement.place((source as NSString).lastPathComponent, isDirectory: isDirectory.boolValue, among: &existing, collision) else { continue }
+                        let target = (destination as NSString).appendingPathComponent(place.name)
+                        if place.clearing, !TransferPlacement.removeRemote(target, on: shell) {
+                            return continuation.resume(returning: String(localized: "\(place.name) could not be replaced."))
+                        }
+                        if !shell.requestUpload(forFileAndWait: source, toDirectory: destination, named: place.name, onProgress: progress, withContinuationHandler: { flag.value }) {
                             return continuation.resume(returning: flag.value ? (shell.getLastFileTransferError() ?? String(localized: "\((source as NSString).lastPathComponent) could not be uploaded.")) : nil)
                         }
                     }
@@ -220,8 +246,14 @@ public final class TransferJob: ObservableObject, Identifiable {
                     let (shell, error) = open(from)
                     defer { close(shell) }
                     guard let shell else { return continuation.resume(returning: error) }
+                    var existing = TransferPlacement.localNames(in: destination)
                     for source in sources where flag.value {
-                        let target = (destination as NSString).appendingPathComponent((source as NSString).lastPathComponent)
+                        let isDirectory = shell.requestFileInfo(at: source)?.isDirectory ?? false
+                        guard let place = TransferPlacement.place((source as NSString).lastPathComponent, isDirectory: isDirectory, among: &existing, collision) else { continue }
+                        let target = (destination as NSString).appendingPathComponent(place.name)
+                        if place.clearing, !TransferPlacement.removeLocal(target) {
+                            return continuation.resume(returning: String(localized: "\(place.name) could not be replaced."))
+                        }
                         if !shell.requestDownload(fromFileAndWait: source, toLocalPath: target, onProgress: progress, withContinuationHandler: { flag.value }) {
                             return continuation.resume(returning: flag.value ? (shell.getLastFileTransferError() ?? String(localized: "\((source as NSString).lastPathComponent) could not be downloaded.")) : nil)
                         }
@@ -238,10 +270,21 @@ public final class TransferJob: ObservableObject, Identifiable {
                     let (target, targetError) = open(to)
                     defer { close(target) }
                     guard let target else { return continuation.resume(returning: targetError) }
+                    var existing = TransferPlacement.remoteNames(in: destination, on: target)
                     for path in sources where flag.value {
-                        let local = staging.appendingPathComponent((path as NSString).lastPathComponent).path
+                        let isDirectory = source.requestFileInfo(at: path)?.isDirectory ?? false
+                        guard let place = TransferPlacement.place((path as NSString).lastPathComponent, isDirectory: isDirectory, among: &existing, collision) else { continue }
+                        // Staged under the name it takes on the target, which
+                        // the upload keeps.
+                        let local = staging.appendingPathComponent(place.name).path
+                        defer { try? FileManager.default.removeItem(atPath: local) }
                         guard source.requestDownload(fromFileAndWait: path, toLocalPath: local, onProgress: progress, withContinuationHandler: { flag.value }) else {
                             return continuation.resume(returning: flag.value ? (source.getLastFileTransferError() ?? String(localized: "\((path as NSString).lastPathComponent) could not be read.")) : nil)
+                        }
+                        // Only once the copy is in hand, so a failed read
+                        // leaves what is there alone.
+                        if place.clearing, !TransferPlacement.removeRemote((destination as NSString).appendingPathComponent(place.name), on: target) {
+                            return continuation.resume(returning: String(localized: "\(place.name) could not be replaced."))
                         }
                         guard target.requestUpload(forFileAndWait: local, toDirectory: destination, onProgress: progress, withContinuationHandler: { flag.value }) else {
                             return continuation.resume(returning: flag.value ? (target.getLastFileTransferError() ?? String(localized: "\((path as NSString).lastPathComponent) could not be written.")) : nil)
@@ -262,6 +305,94 @@ public final class TransferJob: ObservableObject, Identifiable {
             if totalBytes == 0 { totalBytes = max(doneBytes, 1); doneBytes = totalBytes }
             doneBytes = totalBytes
             state = .done
+        }
+    }
+}
+
+/// Where each item of a transfer goes in its destination folder, given what
+/// is already there and the job's `Collision`.
+public enum TransferPlacement {
+    /// The name `name` takes among `existing` (names in the destination, true
+    /// for folders), nil to leave it out; `clearing` when what is there must
+    /// be removed first. The name is added to `existing`, so a later item of
+    /// the same job sees it.
+    static func place(
+        _ name: String, isDirectory: Bool, among existing: inout [String: Bool], _ collision: TransferJob.Collision
+    ) -> (name: String, clearing: Bool)? {
+        guard let there = existing[name] else {
+            existing[name] = isDirectory
+            return (name, false)
+        }
+        switch collision {
+        case .skip:
+            return nil
+        case .replace:
+            existing[name] = isDirectory
+            return (name, there != isDirectory)
+        case .keepBoth:
+            let free = freeName(for: name, isDirectory: isDirectory, taken: Set(existing.keys))
+            existing[free] = isDirectory
+            return (free, false)
+        }
+    }
+
+    /// "notes.txt" becomes "notes 2.txt", then "notes 3.txt", as Finder names
+    /// a copy kept beside the original; a folder keeps its dots whole.
+    public static func freeName(for name: String, isDirectory: Bool, taken: Set<String>) -> String {
+        let ext = isDirectory ? "" : (name as NSString).pathExtension
+        let stem = ext.isEmpty ? name : (name as NSString).deletingPathExtension
+        var number = 2
+        while true {
+            let candidate = ext.isEmpty ? "\(stem) \(number)" : "\(stem) \(number).\(ext)"
+            if !taken.contains(candidate) { return candidate }
+            number += 1
+        }
+    }
+
+    static func remoteNames(in folder: String, on shell: NSRemoteShell) -> [String: Bool] {
+        var names: [String: Bool] = [:]
+        for file in shell.requestFileList(at: folder) ?? [] where file.name != "." && file.name != ".." {
+            names[file.name] = file.isDirectory
+        }
+        return names
+    }
+
+    static func localNames(in folder: String) -> [String: Bool] {
+        let url = URL(fileURLWithPath: folder, isDirectory: true)
+        let items = (try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: [.isDirectoryKey])) ?? []
+        var names: [String: Bool] = [:]
+        for item in items {
+            names[item.lastPathComponent] = (try? item.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+        }
+        return names
+    }
+
+    static func removeRemote(_ path: String, on shell: NSRemoteShell) -> Bool {
+        shell.requestDelete(forFileAndWait: path, withProgressBlock: { _ in }, withContinuationHandler: { true })
+    }
+
+    /// To the Trash, so what was replaced can be put back.
+    static func removeLocal(_ path: String) -> Bool {
+        (try? FileManager.default.trashItem(at: URL(fileURLWithPath: path), resultingItemURL: nil)) != nil
+    }
+
+    /// Copies from one folder on this Mac to another, as Finder does: a copy
+    /// that replaces sends what was there to the Trash first, a folder whole.
+    public static func copyLocally(_ paths: [String], into folder: String, _ collision: TransferJob.Collision) throws {
+        var existing = localNames(in: folder)
+        for path in paths {
+            var isDirectory: ObjCBool = false
+            FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
+            let name = (path as NSString).lastPathComponent
+            let taken = existing[name] != nil
+            guard let place = place(name, isDirectory: isDirectory.boolValue, among: &existing, collision) else { continue }
+            let target = (folder as NSString).appendingPathComponent(place.name)
+            // Replacing an item with itself would only send it to the Trash.
+            if target == path { continue }
+            if taken, collision == .replace {
+                try FileManager.default.trashItem(at: URL(fileURLWithPath: target), resultingItemURL: nil)
+            }
+            try FileManager.default.copyItem(atPath: path, toPath: target)
         }
     }
 }

@@ -655,7 +655,56 @@ private struct BrowserPane: View {
             showsHiddenFiles: false
         ) { urls in
             guard !urls.isEmpty, let machine = browser.machine else { return }
-            TransferQueue.shared.enqueue(TransferJob(direction: .upload, sources: urls.map(\.path), from: nil, to: machine, destination: browser.path))
+            let folder = browser.path
+            settleNames(urls.map(\.path), into: folder, on: browser) { collision in
+                TransferQueue.shared.enqueue(TransferJob(direction: .upload, sources: urls.map(\.path), from: nil, to: machine, destination: folder, collision: collision))
+            }
+        }
+    }
+
+    // MARK: Names already taken
+
+    /// Asks what becomes of the items whose names are already in `folder` on
+    /// `destination`, then calls `proceed` with the answer; at once, with
+    /// `.replace`, when there are none. Cancel calls nothing. Folders merge
+    /// on a server and on the way to or from one; within this Mac a folder
+    /// replaces the one there whole, as in Finder.
+    func settleNames(
+        _ paths: [String], into folder: String, on destination: FileBrowser,
+        mergesFolders: Bool = true, proceed: @escaping (TransferJob.Collision) -> Void
+    ) {
+        Task {
+            let names = Set(paths.map { ($0 as NSString).lastPathComponent })
+            let taken = (await destination.contents(of: folder) ?? []).filter { names.contains($0.name) }
+            guard !taken.isEmpty else { return proceed(.replace) }
+            // Skip would leave nothing to copy when every item is taken, the
+            // same as Cancel, so it is offered only when some are not.
+            let skips = names.count > taken.count
+            let message = taken.count == 1
+                ? String(localized: "“\(taken[0].name)” already exists in \(folder).")
+                : String(localized: "\(taken.count) items already exist in \(folder).")
+            var informative = [taken.count == 1
+                ? String(localized: "Replace it with the one you are copying, or keep both and give the copy a new name?")
+                : String(localized: "Replace them with the ones you are copying, or keep both and give the copies new names?")]
+            if skips {
+                informative.append(String(localized: "Skip copies only the others."))
+            }
+            if taken.contains(where: \.isDirectory) {
+                informative.append(mergesFolders
+                    ? String(localized: "A folder copied onto a folder is merged with it: files of the same name are replaced, and the rest are kept.")
+                    : String(localized: "A folder that is replaced goes to the Trash."))
+            }
+            var buttons = [String(localized: "Keep Both"), String(localized: "Replace")]
+            if skips { buttons.append(String(localized: "Skip")) }
+            buttons.append(String(localized: "Cancel"))
+            Mac.alert(message: message, informative: informative.joined(separator: " "), buttons: buttons) { index, _ in
+                switch index {
+                case 0: proceed(.keepBoth)
+                case 1: proceed(.replace)
+                case 2 where skips: proceed(.skip)
+                default: break
+                }
+            }
         }
     }
 
@@ -725,18 +774,15 @@ private struct BrowserPane: View {
         guard !paths.isEmpty else { return }
         switch (from, to) {
         case (nil, nil):
-            // This Mac to this Mac: a copy, as in Finder between folders.
-            Task {
-                for path in paths {
-                    let target = (folder as NSString).appendingPathComponent((path as NSString).lastPathComponent)
-                    do { try FileManager.default.copyItem(atPath: path, toPath: target) } catch { problem = error.localizedDescription }
-                }
-                browser.reload()
-            }
+            copyLocally(paths, into: folder, on: browser)
         case let (nil, server?):
-            TransferQueue.shared.enqueue(TransferJob(direction: .upload, sources: paths, from: nil, to: server, destination: folder))
+            settleNames(paths, into: folder, on: browser) { collision in
+                TransferQueue.shared.enqueue(TransferJob(direction: .upload, sources: paths, from: nil, to: server, destination: folder, collision: collision))
+            }
         case let (server?, nil):
-            TransferQueue.shared.enqueue(TransferJob(direction: .download, sources: paths, from: server, to: nil, destination: folder))
+            settleNames(paths, into: folder, on: browser) { collision in
+                TransferQueue.shared.enqueue(TransferJob(direction: .download, sources: paths, from: server, to: nil, destination: folder, collision: collision))
+            }
         case let (source?, target?) where source.id == target.id:
             // Within one server: a move, by rename.
             Task {
@@ -746,26 +792,42 @@ private struct BrowserPane: View {
                 }
             }
         case let (source?, target?):
-            TransferQueue.shared.enqueue(TransferJob(direction: .relay, sources: paths, from: source, to: target, destination: folder))
+            settleNames(paths, into: folder, on: browser) { collision in
+                TransferQueue.shared.enqueue(TransferJob(direction: .relay, sources: paths, from: source, to: target, destination: folder, collision: collision))
+            }
         }
     }
 
     func copy(_ entries: [FileEntry], to peer: PaneModel, folder: String) {
         guard let target = peer.browser else { return }
-        let payload = FileDragPayload(machine: browser.machine?.id.uuidString, paths: entries.map(\.path))
-        let from = browser.machine
-        switch (from, target.machine) {
+        let paths = entries.map(\.path)
+        switch (browser.machine, target.machine) {
         case (nil, nil):
-            for entry in entries {
-                try? FileManager.default.copyItem(atPath: entry.path, toPath: (folder as NSString).appendingPathComponent(entry.name))
-            }
-            target.reload()
+            copyLocally(paths, into: folder, on: target)
         case let (nil, server?):
-            TransferQueue.shared.enqueue(TransferJob(direction: .upload, sources: payload.paths, from: nil, to: server, destination: folder))
+            settleNames(paths, into: folder, on: target) { collision in
+                TransferQueue.shared.enqueue(TransferJob(direction: .upload, sources: paths, from: nil, to: server, destination: folder, collision: collision))
+            }
         case let (server?, nil):
-            TransferQueue.shared.enqueue(TransferJob(direction: .download, sources: payload.paths, from: server, to: nil, destination: folder))
+            settleNames(paths, into: folder, on: target) { collision in
+                TransferQueue.shared.enqueue(TransferJob(direction: .download, sources: paths, from: server, to: nil, destination: folder, collision: collision))
+            }
         case let (source?, other?):
-            TransferQueue.shared.enqueue(TransferJob(direction: .relay, sources: payload.paths, from: source, to: other, destination: folder))
+            settleNames(paths, into: folder, on: target) { collision in
+                TransferQueue.shared.enqueue(TransferJob(direction: .relay, sources: paths, from: source, to: other, destination: folder, collision: collision))
+            }
+        }
+    }
+
+    /// This Mac to this Mac: a copy, as in Finder between folders.
+    func copyLocally(_ paths: [String], into folder: String, on destination: FileBrowser) {
+        settleNames(paths, into: folder, on: destination, mergesFolders: false) { collision in
+            do {
+                try TransferPlacement.copyLocally(paths, into: folder, collision)
+            } catch {
+                problem = error.localizedDescription
+            }
+            destination.reload()
         }
     }
 

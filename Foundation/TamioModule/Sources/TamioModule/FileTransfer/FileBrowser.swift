@@ -122,6 +122,12 @@ public class FileBrowser: ObservableObject, Identifiable {
         }
     }
 
+    /// What is in `folder`, which need not be the one shown; nil when it
+    /// cannot be read.
+    public func contents(of folder: String) async -> [FileEntry]? {
+        try? await list(folder).get()
+    }
+
     // Overridden by the local and remote browsers.
     func list(_: String) async -> Result<[FileEntry], FileBrowserError> { .success([]) }
     public func makeFolder(named _: String) async -> FileBrowserError? { nil }
