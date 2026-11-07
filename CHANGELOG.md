@@ -13,6 +13,8 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+## [0.2.21] - 2026-11-07
+
 ### Added
 - **Files asks before it copies over something.** When an item you copy,
   drag or upload has the name of one already in the folder it goes to, Files
