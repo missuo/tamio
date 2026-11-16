@@ -157,7 +157,8 @@ public extension Image {
         @MainActor static func appKitImage(_ systemName: String) -> NSImage? {
             guard let name = lucide[systemName], inMainBundle else { return nil }
             if let image = images[name] { return image }
-            let image = NSImage(symbolName: "lucide.\(name)", bundle: .main, variableValue: 1)
+            let image = NSImage(symbolName: "lucide.\(name)", bundle: .main, variableValue: 1)?
+                .withSymbolConfiguration(NSImage.SymbolConfiguration(scale: .medium))
             images[name] = image
             return image
         }
