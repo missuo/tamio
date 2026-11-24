@@ -13,6 +13,9 @@ the user. To release, rename that heading to the version and date
 
 ## [Unreleased]
 
+### Fixed
+- **Opening Servers on macOS 15 no longer crashes** when the toolbar lays out the privacy menu's icon.
+
 ## [0.2.21] - 2026-11-07
 
 ### Added
